@@ -4,8 +4,8 @@ Star Faux - Space Shooter in OpenGL
 Created using GLUT and GLEW libraries.
 
 Team:
-@AlphaO
-@vincekyi
-@LmtEdition
-@recreate
-@kcnguyen
+Allen Zhang
+Vincent Kyi
+Kevin Nguyen
+Stanley Xu
+William Tam
