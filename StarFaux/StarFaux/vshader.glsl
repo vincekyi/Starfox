@@ -3,6 +3,7 @@
 in vec4 vPosition;
 in vec3 vNormal;
 in vec2 vTexCoords;
+out float fogFactor;
 out vec4 fColor;
 
 out vec3 fN; //normal at current position
@@ -23,9 +24,22 @@ uniform int uShadingType;
 uniform int uEnableTexture;
 uniform mat3 uTextureTrans;
 
+uniform float uFogMaxDist;
+uniform float uFogMinDist;
+
+float computeLinearFogFactor()
+{
+	float factor;
+	factor = (uFogMaxDist - length(gl_Position.xyz)) / (uFogMaxDist - uFogMinDist );
+	factor = clamp( factor, 0.0, 1.0 );
+	return factor;
+}
+
 void main() 
 {
     gl_Position = uProj * uModelView * vPosition;
+	fogFactor = computeLinearFogFactor();
+
 	if (uShadingType == 0 ) {
 		fN = fV = fL = vec3(0.0, 0.0, 0.0);
 		fColor = uColor;
@@ -61,4 +75,5 @@ void main()
 	if (uEnableTexture == 1) {
 		gl_TexCoord[0].xy = vTexCoords.xy;
 	}
+	
 }

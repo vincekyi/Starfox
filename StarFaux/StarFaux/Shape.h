@@ -22,6 +22,7 @@ public:
 	void setupLighting(ShadingType shading, float shininess, vec4 specularColor);
 	void rotate(Quaternion q);
 	void scale(float amount);
+	void translate(float x, float y, float z);
 	
 	mat4 m_objectToWorld;
 

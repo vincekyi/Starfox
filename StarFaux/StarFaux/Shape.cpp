@@ -90,7 +90,7 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 	
 	if (m_modified) {
-		m_objectToWorld = m_objectToWorld * m_qRotation.generateMatrix() * Scale(m_scale);
+		m_objectToWorld = Translate(m_position) * m_qRotation.generateMatrix() * Scale(m_scale);
 		m_modified = false;
 	}
 	mat4 model = m_objectToWorld;
@@ -147,4 +147,8 @@ void Shape::setupLighting(ShadingType shading, float shininess, vec4 specularCol
 void Shape::scale(float amount) {
 	m_scale = amount;
 	m_modified = true;
+}
+
+void Shape::translate(float x, float y, float z) {
+	m_position += vec3(x, y, z);
 }
