@@ -7,11 +7,15 @@ in vec3 fN;
 in vec3 fV;
 in vec3 fL;
 
+in float fogFactor;
+
 uniform float uShininess;
 uniform int uShadingType;
 uniform vec4 uSpecularColor;
 uniform int uEnableTexture;
 uniform sampler2D uTexture;
+
+uniform vec4 uFogColor;
 
 void main() 
 { 
@@ -40,4 +44,6 @@ void main()
         gl_FragColor = ambient + diffuse + specular;
         gl_FragColor.a = 1.0;
     }
+	vec4 fogColor = fogFactor * uFogColor;
+	gl_FragColor = gl_FragColor  * fogFactor + fogColor * (1.0 - fogFactor); 
 } 
