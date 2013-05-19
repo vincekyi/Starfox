@@ -17,14 +17,18 @@
 
 #define BLOOPCOUNT 1000
 
+int g_windowWidth;
+int g_windowHeight;
+float g_FPS;
+int g_frameCount;
+float g_currentTime = 0;
+float g_previousTime = 0;
+
 bool g_animate = true;
 bool g_debug = true;
 
 
 GLuint g_program;
-
-int g_windowWidth;
-int g_windowHeight;
 
 DrawType g_drawType = FILLED;
 

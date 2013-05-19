@@ -11,12 +11,30 @@ void initGlut(int& argc, char** argv)
 	glutCreateWindow("Star Faux");
 }
 
+void calculateFPS()
+{
+    g_frameCount++;
+    g_currentTime = glutGet(GLUT_ELAPSED_TIME);
+    int timeInterval = g_currentTime - g_previousTime;
+    if(timeInterval > 100)
+    {
+        g_FPS = g_frameCount / (timeInterval / 1000.0f);
+        g_previousTime = g_currentTime;
+        g_frameCount = 0;
+    }
+}
+
 void debugDisplay() {
 	char coords[100];
-	sprintf(coords, "x: %f    y:%f    z:%f", g_camera.m_position.x, g_camera.m_position.y, g_camera.m_position.z - 10.0);
+	sprintf(coords, "x:\t%.2f\ny:\t%.2f\nz:\t%.2f\n", g_camera.m_position.x, g_camera.m_position.y, g_camera.m_position.z - 10.0);
 	glRasterPos2f(-0.97f, 0.90f);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) coords);
+
+	char fps[30];
+	sprintf(fps, "FPS: %.2f", g_FPS);
+	glRasterPos2f(0.82f, 0.90f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) fps);
 }
 
 // Called when the window needs to be redrawn.
@@ -46,8 +64,7 @@ void callbackDisplay()
 		debugDisplay();
 
 
-
-
+	calculateFPS();
 	glutSwapBuffers();
 }
 
@@ -119,7 +136,7 @@ void callbackTimer(int)
 		tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), 0.1));
 		glutPostRedisplay();
 	}
-	glutTimerFunc(1000/100, callbackTimer, 0);
+	glutTimerFunc(10, callbackTimer, 0);
 }
 
 void initCallbacks()
@@ -131,18 +148,17 @@ void initCallbacks()
 	glutMotionFunc(callbackMotion);
 	glutPassiveMotionFunc(callbackPassiveMotion);
 	//glutIdleFunc(callbackIdle);
-	glutTimerFunc(1000/100, callbackTimer, 0);
+	glutTimerFunc(10, callbackTimer, 0);
 	glutSpecialFunc(callbackSpecial);
 }
 
 void init() {
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_FOG);
 
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program);
 
-	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 500.0);
+	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 400.0);
 	g_camera.translate(vec3(0.0, 0.0, 300.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 0.0, 10.0));
