@@ -1,8 +1,9 @@
 #include "Shape.h"
 
 Shape::Shape() {
-	m_textureTrans = mat3();
+	m_useTexture = 0;
 	m_scale = 1.0;
+	m_position = vec3(0.0, 0.0, 0.0);
 }
 
 Shape::~Shape() {
@@ -29,14 +30,14 @@ void Shape::initDraw() {
     glEnableVertexAttribArray(normal);
     glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(m_vertices[0]) * m_numVertices));
 
-	glGenBuffers(1, &m_textureBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_textureBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(m_textureCoords[0]) * m_numVertices, m_textureCoords, GL_STATIC_DRAW );
-    GLuint vTexCoords = glGetAttribLocation(m_program, "vTexCoords");
-    glEnableVertexAttribArray(vTexCoords);
-    glVertexAttribPointer(vTexCoords, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-
 	if (m_useTexture) {
+		glGenBuffers(1, &m_textureBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, m_textureBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(m_textureCoords[0]) * m_numVertices, m_textureCoords, GL_STATIC_DRAW );
+		GLuint vTexCoords = glGetAttribLocation(m_program, "vTexCoords");
+		glEnableVertexAttribArray(vTexCoords);
+		glVertexAttribPointer(vTexCoords, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
 		// Set up textures
 		if (!m_textureImage.loadTGA(m_textureName.c_str())) {
 			std::cerr << "Error loading texture image file: " << m_textureName << std::endl;
@@ -86,9 +87,8 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
 	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
-	GLuint uTextureTrans = glGetUniformLocation(m_program, "uTextureTrans");
 	
-	mat4 model = m_oToW * m_qRotation.generateMatrix() * Scale(m_scale);
+	mat4 model = m_objectToWorld * m_qRotation.generateMatrix() * Scale(m_scale);
 	mat4 mv = camera.worldToCamera() * model;
 
 	glUniform4fv(uCameraPosition, 1, camera.m_position);
@@ -104,7 +104,6 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	glBindTexture(GL_TEXTURE_2D, m_textureObject);
 	glUniform1i(uEnableTexture, 1);
 	glUniform1i(uTexture, 0);
-	glUniformMatrix3fv(uTextureTrans, 1, GL_TRUE, m_textureTrans);
 
 	if (m_useTexture) {
 
@@ -126,33 +125,15 @@ void Shape::rotate(Quaternion q) {
 	m_qRotation = q * m_qRotation;
 }
 
-
-
-void Shape::rotateTexture(float theta) {
-	
-	mat4 r = RotateZ(theta);
-	mat3 t = mat3(1.0, 0.0, 0.0,
-			      0.0, 1.0, 0.0,
-			     -0.5, -0.5, 1.0);
-	mat3 tp = mat3(1.0, 0.0, 0.0,
-			       0.0, 1.0, 0.0,
-			       0.5, 0.5, 1.0);
-	mat3 rot3 = mat3();
-	rot3[0][0] = r[0][0];
-	rot3[1][0] = r[1][0];
-	rot3[0][1] = r[0][1];
-	rot3[1][1] = r[1][1];
-	rot3[2][2] = 1.0f;
-	m_textureTrans = tp * rot3 * t * m_textureTrans;
+void Shape::setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType, std::string textureName) {
+	m_useTexture = true;
+	m_samplingType = samplingType;
+	m_wrappingType = wrappingType;
+	m_textureName = textureName;
 }
 
-void Shape::translateTexture(vec2 v) {
-	mat3 t = mat3(1.0, 0.0, 0.0,
-		      0.0, 1.0, 0.0,
-			  v.x, v.y, 1.0);
-	m_textureTrans = t * m_textureTrans;
-	if (m_textureTrans[0][2] > 1.0)
-		m_textureTrans[0][2] = 0.0;
-	if (m_textureTrans[1][2] > 1.0)
-		m_textureTrans[1][2] = 0.0;
+void Shape::setupLighting(ShadingType shading, float shininess, vec4 specularColor) {
+	m_shading = shading;
+	m_shininess = shininess;
+	m_specularColor = specularColor;
 }

@@ -59,6 +59,6 @@ void main()
 		}
 	}
 	if (uEnableTexture == 1) {
-		gl_TexCoord[0].xy = (uTextureTrans * vec3(vTexCoords.x, vTexCoords.y, 1.0)).xy;
+		gl_TexCoord[0].xy = vTexCoords.xy;
 	}
 }

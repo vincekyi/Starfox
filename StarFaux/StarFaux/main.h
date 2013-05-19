@@ -25,3 +25,6 @@ DrawType g_drawType = FILLED;
 
 Camera g_camera;
 Light g_light;
+
+Cube* tempShip;
+Sphere* tempSphere;
