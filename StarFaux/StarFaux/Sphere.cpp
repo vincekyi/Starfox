@@ -1,11 +1,11 @@
 #include "Sphere.h"
 
-Sphere::Sphere(GLuint program, int numSubdivisions, vec4 color) {
+Sphere::Sphere(GLuint program, int numSubdivisions, vec4 color, ShadingType shading) {
 	m_numVertices = 3 * pow(4, numSubdivisions + 1);
 	m_vertexIndex = 0;
 	m_color = color;
 	m_program = program;
-
+	m_shading = shading;
 	m_vertices = new vec4[m_numVertices];
 	m_normals = new vec3[m_numVertices];
 	generateSphere(numSubdivisions);
@@ -39,13 +39,13 @@ void Sphere::triforce(const vec4& a, const vec4& b, const vec4& c, int n) {
 		v1 = normalize(a + b);
 		v2 = normalize(a + c);
 		v3 = normalize(b + c);
-		triforce(a, v2, v1, n - 1);
-		triforce(c, v3, v2, n - 1);
-		triforce(b, v1, v3, n - 1);
-		triforce(v1, v2, v3, n - 1);
+		triforce(a, v1, v2, n - 1);
+		triforce(c, v2, v3, n - 1);
+		triforce(b, v3, v1, n - 1);
+		triforce(v1, v3, v2, n - 1);
 	}
 	else {
-		vec3 faceNormal = Angel::normalize(cross((c - a), (b - a)));
+		vec3 faceNormal = Angel::normalize(cross((b - a), (c - a)));
 		if (m_shading == FLAT) {
 			m_vertices[m_vertexIndex] = a;
 			m_normals[m_vertexIndex] = faceNormal;

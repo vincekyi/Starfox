@@ -14,6 +14,8 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 
+#define BLOOPCOUNT 500
+
 bool g_animate = true;
 
 GLuint g_program;
@@ -24,7 +26,11 @@ int g_windowHeight;
 DrawType g_drawType = FILLED;
 
 Camera g_camera;
+Camera g_shipCamera;
 Light g_light;
 
 Cube* tempShip;
 Sphere* tempSphere;
+
+
+Sphere* bloop[BLOOPCOUNT];
