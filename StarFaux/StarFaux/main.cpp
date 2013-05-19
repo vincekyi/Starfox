@@ -17,7 +17,8 @@ void callbackDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	g_camera.update();
 	g_light.m_position = g_camera.m_position;
-
+	tempShip->draw(g_drawType, g_camera, g_light);
+	tempSphere->draw(g_drawType, g_camera, g_light);
 	glutSwapBuffers();
 }
 
@@ -103,7 +104,16 @@ void init() {
 	glUseProgram(g_program);
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 500.0);
-	g_camera.translate(vec3(0.0, 0.0, 5.0));
+	g_camera.translate(vec3(2.5, 0.0, 10.0));
+
+	tempShip = new Cube(g_program, vec4(0.8, 0.8, 0.8, 1.0));
+	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+	tempShip->initDraw();
+
+	tempSphere = new Sphere(g_program, 4, vec4(1.0, 0.0, 0.0, 1.0));
+	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+	tempSphere->initDraw();
+	tempSphere->m_objectToWorld = Translate(5.0, 0.0, 0.0);
 
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }

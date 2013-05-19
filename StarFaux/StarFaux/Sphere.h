@@ -9,7 +9,7 @@
 
 class Sphere : public Shape {
 public:
-	Sphere(GLuint program, int numSubdivisions, vec4 color,  ShadingType shading, float shininess, vec4 specularColor);
+	Sphere(GLuint program, int numSubdivisions, vec4 color);
 
 private:
 	void generateSphere(int numSubdivisons);

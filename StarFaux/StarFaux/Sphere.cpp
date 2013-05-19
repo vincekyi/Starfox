@@ -1,19 +1,14 @@
 #include "Sphere.h"
 
-Sphere::Sphere(GLuint program, int numSubdivisions, vec4 color, ShadingType shading, float shininess, vec4 specularColor) {
+Sphere::Sphere(GLuint program, int numSubdivisions, vec4 color) {
 	m_numVertices = 3 * pow(4, numSubdivisions + 1);
 	m_vertexIndex = 0;
 	m_color = color;
-	m_shading = shading;
-	m_shininess = shininess;
 	m_program = program;
-	m_specularColor = specularColor;
 
 	m_vertices = new vec4[m_numVertices];
 	m_normals = new vec3[m_numVertices];
 	generateSphere(numSubdivisions);
-
-	initDraw();
 }
 
 void Sphere::generateSphere(int numSubdivisions) {
