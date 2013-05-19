@@ -30,6 +30,7 @@ protected:
 	Quaternion m_qRotation;
 	float m_scale;
 	vec3 m_position;
+	bool m_modified;
 
 	// Lighting
 	ShadingType m_shading;
