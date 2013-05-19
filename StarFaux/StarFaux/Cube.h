@@ -10,8 +10,7 @@
 
 class Cube : public Shape {
 public:
-	
-	Cube(GLuint program, vec4 color,  ShadingType shading, float shininess, vec4 specularColor, bool useTexture, TextureSamplingType samplingType, TextureWrappingType wrappingType, float textureScale, std::string textureName);
+	Cube(GLuint program, vec4 color);
 
 private:
 	void quad(int a, int b, int c, int d, const vec3& normal);
