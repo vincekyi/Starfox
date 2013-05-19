@@ -4,6 +4,7 @@ Shape::Shape() {
 	m_useTexture = 0;
 	m_scale = 1.0;
 	m_position = vec3(0.0, 0.0, 0.0);
+	m_modified = false;
 }
 
 Shape::~Shape() {
@@ -88,7 +89,11 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 	
-	mat4 model = m_objectToWorld * m_qRotation.generateMatrix() * Scale(m_scale);
+	if (m_modified) {
+		m_objectToWorld = m_objectToWorld * m_qRotation.generateMatrix() * Scale(m_scale);
+		m_modified = false;
+	}
+	mat4 model = m_objectToWorld;
 	mat4 mv = camera.worldToCamera() * model;
 
 	glUniform4fv(uCameraPosition, 1, camera.m_position);
@@ -123,6 +128,7 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 
 void Shape::rotate(Quaternion q) {
 	m_qRotation = q * m_qRotation;
+	m_modified = true;
 }
 
 void Shape::setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType, std::string textureName) {
@@ -136,4 +142,9 @@ void Shape::setupLighting(ShadingType shading, float shininess, vec4 specularCol
 	m_shading = shading;
 	m_shininess = shininess;
 	m_specularColor = specularColor;
+}
+
+void Shape::scale(float amount) {
+	m_scale = amount;
+	m_modified = true;
 }

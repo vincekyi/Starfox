@@ -16,9 +16,15 @@ void callbackDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	g_camera.update();
+	g_shipCamera.update();
 	g_light.m_position = g_camera.m_position;
 	tempShip->draw(g_drawType, g_camera, g_light);
-	tempSphere->draw(g_drawType, g_camera, g_light);
+	for (int i = 0; i < BLOOPCOUNT; ++i) {
+		bloop[i]->draw(g_drawType, g_camera, g_light);
+	}
+	g_light.m_position = g_shipCamera.m_position;
+	tempSphere->draw(g_drawType, g_shipCamera, g_light);
+
 	glutSwapBuffers();
 }
 
@@ -83,6 +89,9 @@ void callbackPassiveMotion(int x, int y)
 // Called when the timer expires
 void callbackTimer(int)
 {
+	g_camera.translate(0.0, 0.0, -1.0);
+	glutPostRedisplay();
+	glutTimerFunc(1000/100, callbackTimer, 0);
 }
 
 void initCallbacks()
@@ -93,8 +102,8 @@ void initCallbacks()
 	glutMouseFunc(callbackMouse);
 	glutMotionFunc(callbackMotion);
 	glutPassiveMotionFunc(callbackPassiveMotion);
-	glutIdleFunc(callbackIdle);
-	glutTimerFunc(1, callbackTimer, 0);
+	//glutIdleFunc(callbackIdle);
+	glutTimerFunc(1000/100, callbackTimer, 0);
 	glutSpecialFunc(callbackSpecial);
 }
 
@@ -103,17 +112,29 @@ void init() {
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program);
 
-	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 500.0);
-	g_camera.translate(vec3(2.5, 0.0, 10.0));
+	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
+	g_camera.translate(vec3(2.5, 0.0, 300.0));
+	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
+	g_shipCamera.translate(vec3(0.0, 0.0, 10.0));
 
 	tempShip = new Cube(g_program, vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	tempShip->initDraw();
 
-	tempSphere = new Sphere(g_program, 4, vec4(1.0, 0.0, 0.0, 1.0));
+	tempSphere = new Sphere(g_program, 4, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
 	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	tempSphere->initDraw();
-	tempSphere->m_objectToWorld = Translate(5.0, 0.0, 0.0);
+	tempSphere->m_objectToWorld = Translate(0.0, -2.0, 0.0);
+
+	float start = 280.0f;
+	for (int i = 0; i < BLOOPCOUNT; ++i) {
+		bloop[i] = new Sphere(g_program, rand() % 3, vec4(1.0, 0.3, 0.0, 1.0), FLAT);
+		bloop[i]->scale(1.0 + (rand() % 10 / 10.0));
+		bloop[i]->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+		bloop[i]->initDraw();
+		bloop[i]->m_objectToWorld = Translate((rand() % 10 / 2.0), 0.0, start);
+		start -= 20.0f;
+	}
 
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }
