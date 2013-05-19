@@ -11,19 +11,42 @@ void initGlut(int& argc, char** argv)
 	glutCreateWindow("Star Faux");
 }
 
+void debugDisplay() {
+	char coords[100];
+	sprintf(coords, "x: %f    y:%f    z:%f", g_camera.m_position.x, g_camera.m_position.y, g_camera.m_position.z - 10.0);
+	glRasterPos2f(-0.97f, 0.90f);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) coords);
+}
+
 // Called when the window needs to be redrawn.
 void callbackDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	g_camera.update();
 	g_shipCamera.update();
 	g_light.m_position = g_camera.m_position;
+
+	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
+	GLuint fogMinDist = glGetUniformLocation(g_program, "uFogMinDist");
+	GLuint fogMaxDist = glGetUniformLocation(g_program, "uFogMaxDist");
+	glUniform1f(fogMinDist, 300.0f);
+	glUniform1f(fogMaxDist, 400.0f);
+	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
+	
 	tempShip->draw(g_drawType, g_camera, g_light);
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light);
 	}
 	g_light.m_position = g_shipCamera.m_position;
 	tempSphere->draw(g_drawType, g_shipCamera, g_light);
+
+	if (g_debug) 
+		debugDisplay();
+
+
+
 
 	glutSwapBuffers();
 }
@@ -51,17 +74,19 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case 'r': g_camera.translate(0.0, 0.5, 0.0); break;
 		case 'f': g_camera.translate(0.0, -0.5, 0.0); break;
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
+		case '0': g_debug = !g_debug; break;
 		case 'p': g_animate = !g_animate; break;
+
 	} 
 	glutPostRedisplay();
 }
 
 void callbackSpecial(int key, int x, int y) {
 	switch (key) {
-		case GLUT_KEY_UP: g_camera.rotatePitch(1.0); break;
-		case GLUT_KEY_DOWN: g_camera.rotatePitch(-1.0); break;
-		case GLUT_KEY_LEFT: g_camera.rotateYaw(1.0); break;
-		case GLUT_KEY_RIGHT: g_camera.rotateYaw(-1.0); break;
+		case GLUT_KEY_UP: g_camera.rotatePitch(2.0); break;
+		case GLUT_KEY_DOWN: g_camera.rotatePitch(-2.0); break;
+		case GLUT_KEY_LEFT: g_camera.rotateYaw(2.0); break;
+		case GLUT_KEY_RIGHT: g_camera.rotateYaw(-2.0); break;
 	}
 	glutPostRedisplay();
 }
@@ -89,8 +114,11 @@ void callbackPassiveMotion(int x, int y)
 // Called when the timer expires
 void callbackTimer(int)
 {
-	g_camera.translate(0.0, 0.0, -1.0);
-	glutPostRedisplay();
+	if (g_animate) {
+		g_camera.translate(0.0, 0.0, -1.0);
+		tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), 0.1));
+		glutPostRedisplay();
+	}
 	glutTimerFunc(1000/100, callbackTimer, 0);
 }
 
@@ -109,11 +137,13 @@ void initCallbacks()
 
 void init() {
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_FOG);
+
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program);
 
-	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
-	g_camera.translate(vec3(2.5, 0.0, 300.0));
+	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 500.0);
+	g_camera.translate(vec3(0.0, 0.0, 300.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 0.0, 10.0));
 
@@ -121,10 +151,11 @@ void init() {
 	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	tempShip->initDraw();
 
-	tempSphere = new Sphere(g_program, 4, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
+	tempSphere = new Sphere(g_program, 0, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
 	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	tempSphere->initDraw();
-	tempSphere->m_objectToWorld = Translate(0.0, -2.0, 0.0);
+	tempSphere->translate(0.0, -2.0, 0.0);
+	
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
@@ -132,7 +163,7 @@ void init() {
 		bloop[i]->scale(1.0 + (rand() % 10 / 10.0));
 		bloop[i]->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
-		bloop[i]->m_objectToWorld = Translate((rand() % 10 / 2.0), 0.0, start);
+		bloop[i]->translate(rand() % 600 - 300, rand() % 600 - 300, rand() % 600 - 300);
 		start -= 20.0f;
 	}
 

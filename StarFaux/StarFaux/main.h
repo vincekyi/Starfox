@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 
+#include <string>
 #include "Angel.h"
 #include "Camera.h"
 #include "Light.h"
@@ -14,9 +15,11 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 
-#define BLOOPCOUNT 500
+#define BLOOPCOUNT 1000
 
 bool g_animate = true;
+bool g_debug = true;
+
 
 GLuint g_program;
 
