@@ -14,9 +14,10 @@
 
 #define ESC_KEY 27
 #define SPACE_KEY 32
-
+#define TARGET_FPS 60
 #define BLOOPCOUNT 1000
 
+const int UPDATE_DELAY = 1000/TARGET_FPS;
 int g_windowWidth;
 int g_windowHeight;
 float g_FPS;

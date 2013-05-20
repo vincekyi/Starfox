@@ -136,7 +136,7 @@ void callbackTimer(int)
 		tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), 0.1));
 		glutPostRedisplay();
 	}
-	glutTimerFunc(10, callbackTimer, 0);
+	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
 }
 
 void initCallbacks()
@@ -148,7 +148,7 @@ void initCallbacks()
 	glutMotionFunc(callbackMotion);
 	glutPassiveMotionFunc(callbackPassiveMotion);
 	//glutIdleFunc(callbackIdle);
-	glutTimerFunc(10, callbackTimer, 0);
+	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
 	glutSpecialFunc(callbackSpecial);
 }
 
@@ -176,7 +176,7 @@ void init() {
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i] = new Sphere(g_program, rand() % 3, vec4(1.0, 0.3, 0.0, 1.0), FLAT);
-		bloop[i]->scale(1.0 + (rand() % 10 / 10.0));
+		bloop[i]->scale(1.0 + (rand() % 50 / 10.0));
 		bloop[i]->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
 		bloop[i]->translate(rand() % 600 - 300, rand() % 600 - 300, rand() % 600 - 300);
