@@ -151,4 +151,5 @@ void Shape::scale(float amount) {
 
 void Shape::translate(float x, float y, float z) {
 	m_position += vec3(x, y, z);
+	m_modified = true;
 }
