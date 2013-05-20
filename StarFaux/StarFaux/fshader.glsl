@@ -19,10 +19,7 @@ uniform vec4 uFogColor;
 
 void main() 
 { 
-	if (uShadingType == 0 || uShadingType == 2) {
-		if (uEnableTexture == 1) gl_FragColor = fColor * texture2D(uTexture, vec2(gl_TexCoord[0]));
-        else gl_FragColor = fColor;
-	} else if (uShadingType == 1) {
+	if (uShadingType < 3) {
 		if (uEnableTexture == 1) gl_FragColor = fColor * texture2D(uTexture, vec2(gl_TexCoord[0]));
         else gl_FragColor = fColor;
 	} else if (uShadingType == 3) {
