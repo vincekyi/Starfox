@@ -9,6 +9,7 @@
 #include "Light.h"
 #include "Sphere.h"
 #include "Cube.h"
+#include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
 
@@ -37,6 +38,7 @@ DrawType g_drawType = FILLED;
 Camera g_camera;
 Camera g_shipCamera;
 Light g_light;
+Vessel* g_vessel;
 
 Cube* tempShip;
 Sphere* tempSphere;

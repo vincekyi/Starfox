@@ -25,11 +25,29 @@ void calculateFPS()
 }
 
 void debugDisplay() {
+
+	// Position
 	char coords[100];
 	sprintf(coords, "x: %.2f\ny: %.2f\nz: %.2f\n", g_camera.m_position.x, g_camera.m_position.y, g_camera.m_position.z - 10.0);
 	glRasterPos2f(-0.97f, 0.90f);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) coords);
+
+	// Velocity
+	char v[100];
+	vec3 vel = g_vessel->getVelocity();
+	sprintf(v, "V.x: %.2f\nV.y: %.2f\nV.z: %.2f\n", vel.x, vel.y, vel.z);
+	glRasterPos2f(-0.97f, 0.650f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) v);
+
+	// Acceleration
+	char a[100];
+	vec3 accel = g_vessel->getAcceleration();
+	sprintf(a, "A.x: %.2f\nA.y: %.2f\nA.z: %.2f\n", accel.x, accel.y, accel.z);
+	glRasterPos2f(-0.97f, 0.40f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) a);
+
+
 
 	char fps[30];
 	sprintf(fps, "FPS: %.2f", g_FPS);
@@ -41,16 +59,29 @@ void handleKeyDown() {
 	for (int i = 0; i < 40; ++i) {
 		if (g_keyPress[i]) {
 			switch (i) {
-				case KEY_W: g_camera.translate(0.0, 0.0, -0.5); break;
-				case KEY_A: g_camera.translate(-0.5, 0.0, 0.0); break;
-				case KEY_S: g_camera.translate(0.0, 0.0, 0.5); break;
-				case KEY_D: g_camera.translate(0.5, 0.0, 0.0); break;
-				case KEY_R: g_camera.translate(0.0, 0.5, 0.0); break;
-				case KEY_F: g_camera.translate(0.0, -0.5, 0.0); break;
+				case KEY_W: g_vessel->setAccelerationZ(-0.05f); break;
+				case KEY_A: g_vessel->setAccelerationX(-0.05f); break;
+				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.05f); break;
+				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.05f); break;
+				case KEY_R: g_vessel->setAccelerationY(0.05f); break;
+				case KEY_F: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationY(-0.05f); break;
 				case KEY_UP: g_camera.rotatePitch(0.5); break;
 				case KEY_DOWN: g_camera.rotatePitch(-0.5); break;
 				case KEY_LEFT: g_camera.rotateYaw(0.5); break;
 				case KEY_RIGHT: g_camera.rotateYaw(-0.5); break;
+			}
+		} else {
+			switch (i) {
+				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_A: if (!g_keyPress[KEY_D]) g_vessel->setAccelerationX(0.0f); break;
+				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
+				case KEY_R: if (!g_keyPress[KEY_F]) g_vessel->setAccelerationY(0.0f); break;
+				case KEY_F: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationY(0.0f); break;
+				//case KEY_UP: g_camera.rotatePitch(0.5); break;
+				//case KEY_DOWN: g_camera.rotatePitch(-0.5); break;
+				//case KEY_LEFT: g_camera.rotateYaw(0.5); break;
+				//case KEY_RIGHT: g_camera.rotateYaw(-0.5); break;
 			}
 		}
 	}
@@ -171,7 +202,8 @@ void callbackPassiveMotion(int x, int y)
 void callbackTimer(int)
 {
 	if (g_animate) {
-		g_camera.translate(0.0, 0.0, -1.0);
+		//g_vessel->setAccelerationZ(1.0f);
+		g_vessel->updateMovement();
 		tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), 0.1));
 		glutPostRedisplay();
 	}
@@ -202,6 +234,8 @@ void init() {
 
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program);
+
+	g_vessel = new Vessel(&g_camera); 
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 500.0);
 	g_camera.translate(vec3(0.0, 0.0, 300.0));
