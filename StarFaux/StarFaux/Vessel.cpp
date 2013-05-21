@@ -30,7 +30,7 @@ void Vessel::updateMovement() {
 	float currentTime = glutGet(GLUT_ELAPSED_TIME);
 	float dTime = (currentTime - m_lastUpdateTime) / 10;
 	
-	// x_new - x_old = vt * 0.5at^2
+	// x_new - x_old = vt + 0.5at^2
 	vec3 dPosition = dTime * m_velocity + 0.5 * m_acceleration * dTime * dTime;
 	m_camera->translate(dPosition);
 

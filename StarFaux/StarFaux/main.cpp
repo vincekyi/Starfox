@@ -202,7 +202,6 @@ void callbackPassiveMotion(int x, int y)
 void callbackTimer(int)
 {
 	if (g_animate) {
-		//g_vessel->setAccelerationZ(1.0f);
 		g_vessel->updateMovement();
 		tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), 0.1));
 		glutPostRedisplay();
