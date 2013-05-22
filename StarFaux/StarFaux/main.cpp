@@ -58,7 +58,10 @@ void callbackDisplay()
 		bloop[i]->draw(g_drawType, g_camera, g_light);
 	}
 	g_light.m_position = g_shipCamera.m_position;
-	tempSphere->draw(g_drawType, g_shipCamera, g_light);
+	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
+
+	Vessel->draw(g_drawType, g_shipCamera, g_light);
+	//Vessel->draw(g_drawType, g_camera, g_light);
 
 	if (g_debug) 
 		debugDisplay();
@@ -172,6 +175,12 @@ void init() {
 	tempSphere->initDraw();
 	tempSphere->translate(0.0, -2.0, 0.0);
 	
+	Vessel = new ExternalModel(g_program, vec4(0.0, 1.0, 0.0, 1.0));
+	Vessel->loadModel("Helicopter.obj");
+	Vessel->setupLighting(FLAT, 20.0, vec4(0.0, 1.0, 0.0, 1.0));
+	Vessel->initDraw();
+	Vessel->scale(0.05);
+	Vessel->translate(-10.0, -15.0, -40.0);
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {

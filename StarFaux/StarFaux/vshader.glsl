@@ -10,6 +10,8 @@ out vec3 fN; //normal at current position
 out vec3 fV; //vector from point to viewer
 out vec3 fL; //vector from point to light
 
+out vec2 TexCoord[1];
+
 uniform mat4 uProj;
 uniform mat4 uModelView;
 uniform mat4 uModel;
@@ -73,7 +75,7 @@ void main()
 		}
 	}
 	if (uEnableTexture == 1) {
-		gl_TexCoord[0].xy = vTexCoords.xy;
+		TexCoord[0].xy = vTexCoords.xy;
 	}
 	
 }

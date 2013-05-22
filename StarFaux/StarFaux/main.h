@@ -12,6 +12,8 @@
 #include "Types.h"
 #include "Tga.h"
 
+#include "ExternalModel.h"
+
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 60
@@ -40,5 +42,6 @@ Light g_light;
 Cube* tempShip;
 Sphere* tempSphere;
 
+ExternalModel* Vessel;
 
 Sphere* bloop[BLOOPCOUNT];
