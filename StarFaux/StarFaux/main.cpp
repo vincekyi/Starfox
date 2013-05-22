@@ -25,11 +25,26 @@ void calculateFPS()
 }
 
 void debugDisplay() {
+	// Position
 	char coords[100];
-	sprintf(coords, "x:\t%.2f\ny:\t%.2f\nz:\t%.2f\n", g_camera.m_position.x, g_camera.m_position.y, g_camera.m_position.z - 10.0);
+	sprintf(coords, "x: %.2f\ny: %.2f\nz: %.2f\n", g_camera.m_position.x, g_camera.m_position.y, g_camera.m_position.z - 10.0);
 	glRasterPos2f(-0.97f, 0.90f);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) coords);
+
+	// Velocity
+	char v[100];
+	vec3 vel = g_vessel->getVelocity();
+	sprintf(v, "V.x: %.2f\nV.y: %.2f\nV.z: %.2f\n", vel.x, vel.y, vel.z);
+	glRasterPos2f(-0.97f, 0.650f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) v);
+
+	// Acceleration
+	char a[100];
+	vec3 accel = g_vessel->getAcceleration();
+	sprintf(a, "A.x: %.3f\nA.y: %.3f\nA.z: %.3f\n", accel.x, accel.y, accel.z);
+	glRasterPos2f(-0.97f, 0.40f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) a);
 
 	char fps[30];
 	sprintf(fps, "FPS: %.2f", g_FPS);
@@ -37,9 +52,42 @@ void debugDisplay() {
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) fps);
 }
 
+void handleKeyDown() {
+	for (int i = 0; i < 40; ++i) {
+		if (g_keyPress[i]) {
+			switch (i) {
+				//case KEY_W: g_vessel->setAccelerationZ(-0.05f); break;
+				case KEY_A: g_vessel->setAccelerationX(-ACCEL); break;
+				//case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.05f); break;
+				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(ACCEL); break;
+				case KEY_W: g_vessel->setAccelerationY(ACCEL); break;
+				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(-ACCEL); break;
+				case KEY_UP: g_camera.rotatePitch(0.5); break;
+				case KEY_DOWN: g_camera.rotatePitch(-0.5); break;
+				case KEY_LEFT: g_camera.rotateYaw(0.5); break;
+				case KEY_RIGHT: g_camera.rotateYaw(-0.5); break;
+			}
+		} else {
+			switch (i) {
+				//case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_A: if (!g_keyPress[KEY_D]) g_vessel->setAccelerationX(0.0f); break;
+				//case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
+				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationY(0.0f); break;
+				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(0.0f); break;
+				//case KEY_UP: g_camera.rotatePitch(0.5); break;
+				//case KEY_DOWN: g_camera.rotatePitch(-0.5); break;
+				//case KEY_LEFT: g_camera.rotateYaw(0.5); break;
+				//case KEY_RIGHT: g_camera.rotateYaw(-0.5); break;
+			}
+		}
+	}
+}
+
 // Called when the window needs to be redrawn.
 void callbackDisplay()
 {
+	handleKeyDown();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	g_camera.update();
@@ -49,8 +97,8 @@ void callbackDisplay()
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
 	GLuint fogMinDist = glGetUniformLocation(g_program, "uFogMinDist");
 	GLuint fogMaxDist = glGetUniformLocation(g_program, "uFogMaxDist");
-	glUniform1f(fogMinDist, 300.0f);
-	glUniform1f(fogMaxDist, 400.0f);
+	glUniform1f(fogMinDist, 700.0f);
+	glUniform1f(fogMaxDist, 900.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 	
 	tempShip->draw(g_drawType, g_camera, g_light);
@@ -84,28 +132,47 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case ESC_KEY:
 		case 'q':
 		case 'Q': exit(0); break;
-		case 'w': g_camera.translate(0.0, 0.0, -0.5); break;
-		case 'a': g_camera.translate(-0.5, 0.0, 0.0); break;
-		case 's': g_camera.translate(0.0, 0.0, 0.5); break;
-		case 'd': g_camera.translate(0.5, 0.0, 0.0); break;
-		case 'r': g_camera.translate(0.0, 0.5, 0.0); break;
-		case 'f': g_camera.translate(0.0, -0.5, 0.0); break;
+		case 'w': g_keyPress[KEY_W] = true; break;
+		case 'a': g_keyPress[KEY_A] = true; break;
+		case 's': g_keyPress[KEY_S] = true; break;
+		case 'd': g_keyPress[KEY_D] = true; break;
+		case 'r': g_keyPress[KEY_R] = true; break;
+		case 'f': g_keyPress[KEY_F] = true; break;
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
 		case '0': g_debug = !g_debug; break;
 		case 'p': g_animate = !g_animate; break;
+	}
+}
 
-	} 
-	glutPostRedisplay();
+void callbackKeyboardUp(unsigned char key, int x, int y)
+{
+	switch (key) {
+		case 'w': g_keyPress[KEY_W] = false; break;
+		case 'a': g_keyPress[KEY_A] = false; break;
+		case 's': g_keyPress[KEY_S] = false; break;
+		case 'd': g_keyPress[KEY_D] = false; break;
+		case 'r': g_keyPress[KEY_R] = false; break;
+		case 'f': g_keyPress[KEY_F] = false; break;
+	}
 }
 
 void callbackSpecial(int key, int x, int y) {
 	switch (key) {
-		case GLUT_KEY_UP: g_camera.rotatePitch(2.0); break;
-		case GLUT_KEY_DOWN: g_camera.rotatePitch(-2.0); break;
-		case GLUT_KEY_LEFT: g_camera.rotateYaw(2.0); break;
-		case GLUT_KEY_RIGHT: g_camera.rotateYaw(-2.0); break;
+		case GLUT_KEY_UP: g_keyPress[KEY_UP] = true; break;
+		case GLUT_KEY_DOWN: g_keyPress[KEY_DOWN] = true; break;
+		case GLUT_KEY_LEFT: g_keyPress[KEY_LEFT] = true; break;
+		case GLUT_KEY_RIGHT: g_keyPress[KEY_RIGHT] = true; break;
 	}
-	glutPostRedisplay();
+}
+
+void callbackSpecialUp(int key, int x, int y)
+{
+	switch (key) {
+		case GLUT_KEY_UP: g_keyPress[KEY_UP] = false; break;
+		case GLUT_KEY_DOWN: g_keyPress[KEY_DOWN] = false; break;
+		case GLUT_KEY_LEFT: g_keyPress[KEY_LEFT] = false; break;
+		case GLUT_KEY_RIGHT: g_keyPress[KEY_RIGHT] = false; break;
+	}
 }
 
 // Called when the system is idle. Can be called many times per frame.
@@ -132,8 +199,7 @@ void callbackPassiveMotion(int x, int y)
 void callbackTimer(int)
 {
 	if (g_animate) {
-		g_camera.translate(0.0, 0.0, -1.0);
-		tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), 0.1));
+		g_vessel->updateMovement();
 		glutPostRedisplay();
 	}
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
@@ -144,21 +210,27 @@ void initCallbacks()
 	glutDisplayFunc(callbackDisplay);
 	glutReshapeFunc(callbackReshape);
 	glutKeyboardFunc(callbackKeyboard);
+	glutKeyboardUpFunc(callbackKeyboardUp);
 	glutMouseFunc(callbackMouse);
 	glutMotionFunc(callbackMotion);
 	glutPassiveMotionFunc(callbackPassiveMotion);
 	//glutIdleFunc(callbackIdle);
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
 	glutSpecialFunc(callbackSpecial);
+	glutSpecialUpFunc(callbackSpecialUp);
 }
 
 void init() {
+	for (int i = 0; i < 40; ++i) {
+		g_keyPress[i] = false;
+	}
+
 	glEnable(GL_DEPTH_TEST);
 
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
-	glUseProgram(g_program);
+	glUseProgram(g_program); 
 
-	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 400.0);
+	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 1000.0);
 	g_camera.translate(vec3(0.0, 0.0, 300.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 0.0, 10.0));
@@ -166,23 +238,27 @@ void init() {
 	tempShip = new Cube(g_program, vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	tempShip->initDraw();
+	tempShip->scale(30.0);
 
 	tempSphere = new Sphere(g_program, 0, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
 	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+	tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), -30.0f));
 	tempSphere->initDraw();
-	tempSphere->translate(0.0, -2.0, 0.0);
+	tempSphere->translate(0.0, -1.0, 0.0);
 	
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i] = new Sphere(g_program, rand() % 3, vec4(1.0, 0.3, 0.0, 1.0), FLAT);
-		bloop[i]->scale(1.0 + (rand() % 50 / 10.0));
+		bloop[i]->scale(10.0f + (rand() % 200 / 10.0f));
 		bloop[i]->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
-		bloop[i]->translate(rand() % 600 - 300, rand() % 600 - 300, rand() % 600 - 300);
+		bloop[i]->translate(rand() % 2000 - 1000, rand() % 2000 - 1000, rand() % 2000 - 1000);
 		start -= 20.0f;
 	}
 
+	g_vessel = new Vessel(&g_camera, tempSphere);
+	g_vessel->setAccelerationZ(-0.01);
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }
 

@@ -68,6 +68,8 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CheckError.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="MathExtension.h" />
+    <ClInclude Include="Vessel.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mat.h" />
@@ -87,6 +89,7 @@
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Tga.cpp" />
+    <ClCompile Include="Vessel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fshader.glsl" />

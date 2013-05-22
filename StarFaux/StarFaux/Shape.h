@@ -21,9 +21,10 @@ public:
 	void setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType, std::string textureName);
 	void setupLighting(ShadingType shading, float shininess, vec4 specularColor);
 	void rotate(Quaternion q);
+	void resetRotation();
 	void scale(float amount);
 	void translate(float x, float y, float z);
-	
+	void update();
 	mat4 m_objectToWorld;
 
 protected:
