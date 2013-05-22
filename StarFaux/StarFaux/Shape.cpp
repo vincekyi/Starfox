@@ -5,6 +5,7 @@ Shape::Shape() {
 	m_scale = 1.0;
 	m_position = vec3(0.0, 0.0, 0.0);
 	m_modified = false;
+	m_haveFog = true;
 }
 
 Shape::~Shape() {
@@ -88,7 +89,8 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
 	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
-	
+	GLuint uFog = glGetUniformLocation(m_program, "v_haveFog");
+
 	if (m_modified) {
 		m_objectToWorld = Translate(m_position) * m_qRotation.generateMatrix() * Scale(m_scale);
 		m_modified = false;
@@ -105,6 +107,7 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
 	glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
+	glUniform1i(uFog, m_haveFog);
 
 	glBindTexture(GL_TEXTURE_2D, m_textureObject);
 	glUniform1i(uEnableTexture, 1);
@@ -152,4 +155,8 @@ void Shape::scale(float amount) {
 void Shape::translate(float x, float y, float z) {
 	m_position += vec3(x, y, z);
 	m_modified = true;
+}
+
+void Shape::setFog(bool fog) {
+	m_haveFog = fog;
 }

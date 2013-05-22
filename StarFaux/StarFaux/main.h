@@ -42,3 +42,4 @@ Sphere* tempSphere;
 
 
 Sphere* bloop[BLOOPCOUNT];
+Sphere* background;

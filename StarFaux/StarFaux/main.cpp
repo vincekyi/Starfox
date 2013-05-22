@@ -52,6 +52,8 @@ void callbackDisplay()
 	glUniform1f(fogMinDist, 300.0f);
 	glUniform1f(fogMaxDist, 400.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
+
+	background->draw(g_drawType, g_camera, g_light);	
 	
 	tempShip->draw(g_drawType, g_camera, g_light);
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
@@ -158,14 +160,23 @@ void init() {
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program);
 
-	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 400.0);
+	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 1000.0);
 	g_camera.translate(vec3(0.0, 0.0, 300.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 0.0, 10.0));
 
+
+	
 	tempShip = new Cube(g_program, vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	tempShip->initDraw();
+
+	background = new Sphere(g_program, 5, vec4(1.0, 1.0, 1.0, 1.0), GOURAUD);
+	background->setupTexture(TRILINEAR, CLAMP, "space.tga");
+	background->setFog(false);
+	background->initDraw();
+	//background->translate(0.0, 0.0, 0.0);
+	background->scale(500);
 
 	tempSphere = new Sphere(g_program, 0, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
 	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));

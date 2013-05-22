@@ -8,6 +8,7 @@ Sphere::Sphere(GLuint program, int numSubdivisions, vec4 color, ShadingType shad
 	m_shading = shading;
 	m_vertices = new vec4[m_numVertices];
 	m_normals = new vec3[m_numVertices];
+	m_textureCoords = new vec2[m_numVertices];
 	generateSphere(numSubdivisions);
 }
 
@@ -49,22 +50,28 @@ void Sphere::triforce(const vec4& a, const vec4& b, const vec4& c, int n) {
 		if (m_shading == FLAT) {
 			m_vertices[m_vertexIndex] = a;
 			m_normals[m_vertexIndex] = faceNormal;
+			m_textureCoords[m_vertexIndex] = vec2(0.0f, 1.0f);
 			m_vertexIndex++;
 			m_vertices[m_vertexIndex] = b;
 			m_normals[m_vertexIndex] = faceNormal;
+			m_textureCoords[m_vertexIndex] = vec2(1.0f, 1.0f);
 			m_vertexIndex++;
 			m_vertices[m_vertexIndex] = c;
 			m_normals[m_vertexIndex] = faceNormal;
+			m_textureCoords[m_vertexIndex] = vec2(0.0f, 0.0f);
 			m_vertexIndex++;
 		} else {
 			m_vertices[m_vertexIndex] = a;
 			m_normals[m_vertexIndex] = vec3(a.x, a.y, a.z);
+			m_textureCoords[m_vertexIndex] = vec2(0.0f, 1.0f);
 			m_vertexIndex++;
 			m_vertices[m_vertexIndex] = b;
 			m_normals[m_vertexIndex] = vec3(b.x, b.y, b.z);
+			m_textureCoords[m_vertexIndex] = vec2(1.0f, 0.0f);
 			m_vertexIndex++;
 			m_vertices[m_vertexIndex] = c;
 			m_normals[m_vertexIndex] = vec3(c.x, c.y, c.z);
+			m_textureCoords[m_vertexIndex] = vec2(0.0f, 0.0f);
 			m_vertexIndex++;
 		}
 	}

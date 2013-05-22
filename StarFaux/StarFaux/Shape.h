@@ -23,7 +23,7 @@ public:
 	void rotate(Quaternion q);
 	void scale(float amount);
 	void translate(float x, float y, float z);
-	
+	void setFog(bool fog);
 	mat4 m_objectToWorld;
 
 protected:
@@ -38,6 +38,7 @@ protected:
 	float m_shininess;
 	vec4 m_specularColor;
 	vec4 m_color;
+	int m_haveFog;
 
 	// Shape
 	int m_numVertices;

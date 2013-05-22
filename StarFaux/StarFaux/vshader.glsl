@@ -9,7 +9,9 @@ out vec4 fColor;
 out vec3 fN; //normal at current position
 out vec3 fV; //vector from point to viewer
 out vec3 fL; //vector from point to light
+out int f_haveFog;
 
+uniform int v_haveFog;
 uniform mat4 uProj;
 uniform mat4 uModelView;
 uniform mat4 uModel;
@@ -75,5 +77,6 @@ void main()
 	if (uEnableTexture == 1) {
 		gl_TexCoord[0].xy = vTexCoords.xy;
 	}
+	f_haveFog = v_haveFog;
 	
 }
