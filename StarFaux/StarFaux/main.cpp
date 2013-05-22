@@ -25,7 +25,6 @@ void calculateFPS()
 }
 
 void debugDisplay() {
-
 	// Position
 	char coords[100];
 	sprintf(coords, "x: %.2f\ny: %.2f\nz: %.2f\n", g_camera.m_position.x, g_camera.m_position.y, g_camera.m_position.z - 10.0);
@@ -43,11 +42,9 @@ void debugDisplay() {
 	// Acceleration
 	char a[100];
 	vec3 accel = g_vessel->getAcceleration();
-	sprintf(a, "A.x: %.2f\nA.y: %.2f\nA.z: %.2f\n", accel.x, accel.y, accel.z);
+	sprintf(a, "A.x: %.3f\nA.y: %.3f\nA.z: %.3f\n", accel.x, accel.y, accel.z);
 	glRasterPos2f(-0.97f, 0.40f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) a);
-
-
 
 	char fps[30];
 	sprintf(fps, "FPS: %.2f", g_FPS);
@@ -59,12 +56,12 @@ void handleKeyDown() {
 	for (int i = 0; i < 40; ++i) {
 		if (g_keyPress[i]) {
 			switch (i) {
-				case KEY_W: g_vessel->setAccelerationZ(-0.05f); break;
-				case KEY_A: g_vessel->setAccelerationX(-0.05f); break;
-				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.05f); break;
-				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.05f); break;
-				case KEY_R: g_vessel->setAccelerationY(0.05f); break;
-				case KEY_F: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationY(-0.05f); break;
+				//case KEY_W: g_vessel->setAccelerationZ(-0.05f); break;
+				case KEY_A: g_vessel->setAccelerationX(-ACCEL); break;
+				//case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.05f); break;
+				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(ACCEL); break;
+				case KEY_W: g_vessel->setAccelerationY(ACCEL); break;
+				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(-ACCEL); break;
 				case KEY_UP: g_camera.rotatePitch(0.5); break;
 				case KEY_DOWN: g_camera.rotatePitch(-0.5); break;
 				case KEY_LEFT: g_camera.rotateYaw(0.5); break;
@@ -72,12 +69,12 @@ void handleKeyDown() {
 			}
 		} else {
 			switch (i) {
-				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationZ(0.0f); break;
+				//case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationZ(0.0f); break;
 				case KEY_A: if (!g_keyPress[KEY_D]) g_vessel->setAccelerationX(0.0f); break;
-				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.0f); break;
+				//case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.0f); break;
 				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
-				case KEY_R: if (!g_keyPress[KEY_F]) g_vessel->setAccelerationY(0.0f); break;
-				case KEY_F: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationY(0.0f); break;
+				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationY(0.0f); break;
+				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(0.0f); break;
 				//case KEY_UP: g_camera.rotatePitch(0.5); break;
 				//case KEY_DOWN: g_camera.rotatePitch(-0.5); break;
 				//case KEY_LEFT: g_camera.rotateYaw(0.5); break;
@@ -100,8 +97,8 @@ void callbackDisplay()
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
 	GLuint fogMinDist = glGetUniformLocation(g_program, "uFogMinDist");
 	GLuint fogMaxDist = glGetUniformLocation(g_program, "uFogMaxDist");
-	glUniform1f(fogMinDist, 400.0f);
-	glUniform1f(fogMaxDist, 500.0f);
+	glUniform1f(fogMinDist, 700.0f);
+	glUniform1f(fogMaxDist, 900.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 	
 	tempShip->draw(g_drawType, g_camera, g_light);
@@ -203,7 +200,6 @@ void callbackTimer(int)
 {
 	if (g_animate) {
 		g_vessel->updateMovement();
-		tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), 0.1));
 		glutPostRedisplay();
 	}
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
@@ -232,11 +228,9 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
-	glUseProgram(g_program);
+	glUseProgram(g_program); 
 
-	g_vessel = new Vessel(&g_camera); 
-
-	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 500.0);
+	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 1000.0);
 	g_camera.translate(vec3(0.0, 0.0, 300.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 0.0, 10.0));
@@ -244,23 +238,27 @@ void init() {
 	tempShip = new Cube(g_program, vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	tempShip->initDraw();
+	tempShip->scale(30.0);
 
 	tempSphere = new Sphere(g_program, 0, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
 	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+	tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), -30.0f));
 	tempSphere->initDraw();
-	tempSphere->translate(0.0, -2.0, 0.0);
+	tempSphere->translate(0.0, -1.0, 0.0);
 	
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i] = new Sphere(g_program, rand() % 3, vec4(1.0, 0.3, 0.0, 1.0), FLAT);
-		bloop[i]->scale(1.0 + (rand() % 50 / 10.0));
+		bloop[i]->scale(10.0f + (rand() % 200 / 10.0f));
 		bloop[i]->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
-		bloop[i]->translate(rand() % 1000 - 500, rand() % 1000 - 500, rand() % 1000 - 500);
+		bloop[i]->translate(rand() % 2000 - 1000, rand() % 2000 - 1000, rand() % 2000 - 1000);
 		start -= 20.0f;
 	}
 
+	g_vessel = new Vessel(&g_camera, tempSphere);
+	g_vessel->setAccelerationZ(-0.01);
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }
 

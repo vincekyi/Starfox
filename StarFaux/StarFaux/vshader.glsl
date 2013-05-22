@@ -5,6 +5,7 @@ in vec3 vNormal;
 in vec2 vTexCoords;
 out float fogFactor;
 out vec4 fColor;
+out vec2 texCoord[2];
 
 out vec3 fN; //normal at current position
 out vec3 fV; //vector from point to viewer
@@ -73,7 +74,6 @@ void main()
 		}
 	}
 	if (uEnableTexture == 1) {
-		gl_TexCoord[0].xy = vTexCoords.xy;
-	}
-	
+		texCoord[0].xy = vTexCoords.xy;
+	}	
 }

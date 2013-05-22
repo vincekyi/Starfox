@@ -1,13 +1,14 @@
 #include "Vessel.h"
 
-const float Vessel::MAX_VELOCITY = 2.0f;
-const float Vessel::VELOCITY_DECAY = 0.08f;
+const float Vessel::MAX_VELOCITY = 0.5f;
+const float Vessel::VELOCITY_DECAY = MAX_VELOCITY / 100.0f;
 
-Vessel::Vessel(Camera* camera) {
+Vessel::Vessel(Camera* camera, Shape* shipModel) {
 	m_lastUpdateTime = 0;
 	m_acceleration = vec3(0.0);
 	m_velocity = vec3(0.0);
 	m_camera = camera;
+	m_shipModel = shipModel;
 }
 void Vessel::setAccelerationX(float acc) {
 	m_acceleration.x = acc;
@@ -40,17 +41,15 @@ void Vessel::updateMovement() {
 
 void Vessel::updateVelocity(float dTime) {
 	// v_new = v_old + at
+	vec3 m_oldVelocity = m_velocity;
 	m_velocity += dTime * m_acceleration;
-	if (m_velocity.x > MAX_VELOCITY) 
-		m_velocity.x = MAX_VELOCITY;
-	else if (m_velocity.x < -MAX_VELOCITY) 
-		m_velocity.x = -MAX_VELOCITY;
+	if (m_velocity.x > MAX_VELOCITY) m_velocity.x = MAX_VELOCITY;
+	else if (m_velocity.x < -MAX_VELOCITY) m_velocity.x = -MAX_VELOCITY;
 	if (m_velocity.y > MAX_VELOCITY) m_velocity.y = MAX_VELOCITY;
 	else if (m_velocity.y < -MAX_VELOCITY) m_velocity.y = -MAX_VELOCITY;
-	if (m_velocity.z > MAX_VELOCITY)
-		m_velocity.z = MAX_VELOCITY;
-	else if (m_velocity.z < -MAX_VELOCITY)
-		m_velocity.z = -MAX_VELOCITY;
+	if (m_velocity.z > MAX_VELOCITY) m_velocity.z = MAX_VELOCITY;
+	else if (m_velocity.z < -MAX_VELOCITY) m_velocity.z = -MAX_VELOCITY;
+
 
 	// decay velocity to 0 if no acceleration
 	if (Math::floatEquality(m_acceleration.x, 0.0f)) {
@@ -77,6 +76,13 @@ void Vessel::updateVelocity(float dTime) {
 				m_velocity.z = 0.0f;
 		}
 	}
+
+	m_shipModel->translate(0.0f, 2.0 * (m_velocity.y - m_oldVelocity.y) / MAX_VELOCITY, 0.0f);
+	m_shipModel->translate(-2.0 * (m_velocity.x - m_oldVelocity.x) / MAX_VELOCITY, 0.0f, 0.0f);
+	m_shipModel->resetRotation();
+	m_shipModel->rotate(Quaternion(vec3(0.0f, 0.0f, -1.0f), 80.0f * (m_velocity.x / MAX_VELOCITY)));
+	m_shipModel->rotate(Quaternion(vec3(1.0f, 0.0f, 0.0f), 30.0f * (m_velocity.y / MAX_VELOCITY)));
+	m_camera->rotateYaw(-0.15 * m_velocity.x / MAX_VELOCITY);	
 }
 
 vec3 Vessel::getAcceleration() {
@@ -85,4 +91,4 @@ vec3 Vessel::getAcceleration() {
 
 vec3 Vessel::getVelocity() {
 	return m_velocity;
-}
+}  

@@ -6,7 +6,7 @@
 
 class Vessel {
 public:
-	Vessel(Camera* camera);
+	Vessel(Camera* camera, Shape* shipModel);
 	void setAccelerationX(float acc);
 	void setAccelerationY(float acc);
 	void setAccelerationZ(float acc);
@@ -19,7 +19,7 @@ private:
 	static const float VELOCITY_DECAY;
 	void updateVelocity(float dTime);
 
-	Shape m_shipModel;
+	Shape* m_shipModel;
 	vec3 m_velocity;
 	vec3 m_acceleration;
 

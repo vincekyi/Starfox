@@ -18,6 +18,8 @@
 #define TARGET_FPS 100
 #define BLOOPCOUNT 1000
 
+#define ACCEL 0.007f
+
 bool g_keyPress[40];
 const int UPDATE_DELAY = 1000/TARGET_FPS;
 int g_windowWidth;
