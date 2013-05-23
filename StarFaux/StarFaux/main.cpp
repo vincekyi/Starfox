@@ -176,11 +176,11 @@ void init() {
 	tempSphere->translate(0.0, -2.0, 0.0);
 	
 	Vessel = new ExternalModel(g_program, vec4(0.0, 1.0, 0.0, 1.0));
-	Vessel->loadModel("Helicopter.obj");
+	Vessel->loadModel("Monsoon.obj", false);
 	Vessel->setupLighting(FLAT, 20.0, vec4(0.0, 1.0, 0.0, 1.0));
 	Vessel->initDraw();
-	Vessel->scale(0.05);
-	Vessel->translate(-10.0, -15.0, -40.0);
+	Vessel->scale(0.2);
+	Vessel->translate(-10.0, -5.0, -20.0);
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {

@@ -11,8 +11,7 @@
 class ExternalModel : public Shape {
 public:
 	ExternalModel(GLuint program, vec4 color);
-	void loadModel(const char* filename);
-
+	void loadModel(const char* filename, bool center);
 };
 
 #endif
