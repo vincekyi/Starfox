@@ -5,12 +5,11 @@ in vec3 vNormal;
 in vec2 vTexCoords;
 out float fogFactor;
 out vec4 fColor;
+out vec2 texCoord[2];
 
 out vec3 fN; //normal at current position
 out vec3 fV; //vector from point to viewer
 out vec3 fL; //vector from point to light
-
-out vec2 TexCoord[1];
 
 uniform mat4 uProj;
 uniform mat4 uModelView;
@@ -75,7 +74,6 @@ void main()
 		}
 	}
 	if (uEnableTexture == 1) {
-		TexCoord[0].xy = vTexCoords.xy;
-	}
-	
+		texCoord[0].xy = vTexCoords.xy;
+	}	
 }
