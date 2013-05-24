@@ -41,6 +41,18 @@ void Camera::rotatePitch(float theta) {
 	m_modified = 1;
 }
 
+void Camera::rotateRoll(float theta) {
+	Quaternion roll = Quaternion(m_zAxis, -theta);
+	m_qRotation = m_qRotation * roll;
+	m_modified = 1;
+}
+
+void Camera::rotateQuat(Quaternion q) {
+	m_qRotation = q * m_qRotation;
+	m_modified = 1;
+}
+
+
 void Camera::translate(vec3 v) {
 	vec3 dx = v.x * m_xAxis;
 	vec3 dy = v.y * m_yAxis;

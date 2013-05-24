@@ -1,15 +1,15 @@
 #include "Vessel.h"
 
-const float Vessel::MAX_VELOCITY = 0.5f;
+const float Vessel::MAX_VELOCITY = 2.5f;
 const float Vessel::VELOCITY_DECAY = MAX_VELOCITY / 100.0f;
 
-Vessel::Vessel(Camera* camera, Shape* shipModel) {
+Vessel::Vessel(GLuint program, vec4 color, Camera* camera) : ExternalModel(program, color) {
 	m_lastUpdateTime = 0;
 	m_acceleration = vec3(0.0);
 	m_velocity = vec3(0.0);
 	m_camera = camera;
-	m_shipModel = shipModel;
 }
+
 void Vessel::setAccelerationX(float acc) {
 	m_acceleration.x = acc;
 }
@@ -77,12 +77,16 @@ void Vessel::updateVelocity(float dTime) {
 		}
 	}
 
-	m_shipModel->translate(0.0f, 2.0 * (m_velocity.y - m_oldVelocity.y) / MAX_VELOCITY, 0.0f);
-	m_shipModel->translate(-2.0 * (m_velocity.x - m_oldVelocity.x) / MAX_VELOCITY, 0.0f, 0.0f);
-	m_shipModel->resetRotation();
-	m_shipModel->rotate(Quaternion(vec3(0.0f, 0.0f, -1.0f), 80.0f * (m_velocity.x / MAX_VELOCITY)));
-	m_shipModel->rotate(Quaternion(vec3(1.0f, 0.0f, 0.0f), 30.0f * (m_velocity.y / MAX_VELOCITY)));
-	m_camera->rotateYaw(-0.15 * m_velocity.x / MAX_VELOCITY);	
+	resetTranslation();
+	translate(0.0f, -2.0f, 0.0f);
+	translate(0.0f, 1.0 * m_velocity.y / MAX_VELOCITY, 0.0f);
+	translate(-1.0 * Math::floatSign(m_velocity.x) * pow(abs(m_velocity.x), 1.2) / pow(MAX_VELOCITY, 1.2), 0.0f, 0.0f);
+	resetRotation();
+	rotate(Quaternion(vec3(0.0f, 0.0f, -1.0f), 60.0f * (m_velocity.x / MAX_VELOCITY)));
+	rotate(Quaternion(vec3(0.0f, -1.0f, 0.0f), 20.0f * (m_velocity.x / MAX_VELOCITY)));
+	rotate(Quaternion(vec3(1.0f, 0.0f, 0.0f), 23.0f * (m_velocity.y / MAX_VELOCITY)));
+	m_camera->rotateYaw(-0.5 * m_velocity.x / MAX_VELOCITY);
+
 }
 
 vec3 Vessel::getAcceleration() {
@@ -92,3 +96,54 @@ vec3 Vessel::getAcceleration() {
 vec3 Vessel::getVelocity() {
 	return m_velocity;
 }  
+
+void Vessel::draw(DrawType type, Camera& camera, Light& light) {
+	glBindVertexArray(m_vertexArrayObject);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+
+	GLuint uCameraPosition = glGetUniformLocation(m_program, "uCameraPosition");
+    GLuint uLightPosition = glGetUniformLocation(m_program, "uLightPosition");
+	GLuint uShadingType = glGetUniformLocation(m_program, "uShadingType");
+	GLuint uShininess = glGetUniformLocation(m_program, "uShininess");
+	GLuint uSpecularColor = glGetUniformLocation(m_program, "uSpecularColor");
+	GLuint uColor = glGetUniformLocation(m_program, "uColor");
+	GLuint uProj = glGetUniformLocation(m_program, "uProj");
+	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
+	GLuint uModel = glGetUniformLocation(m_program, "uModel");
+	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
+	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
+	
+	update();
+	mat4 model = m_objectToWorld;
+	mat4 mv = camera.worldToCamera() * model;
+	model = Translate(m_camera->m_position) * m_objectToWorld * m_camera->m_qRotation.generateMatrix();
+
+	glUniform4fv(uCameraPosition, 1, camera.m_position);
+	glUniform4fv(uLightPosition, 1, light.m_position);
+	glUniform1i(uShadingType, m_shading);
+	glUniform1f(uShininess, m_shininess);
+	glUniform4fv(uSpecularColor, 1, m_specularColor);
+	glUniform4fv(uColor, 1, m_color);
+	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
+	glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
+	glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
+
+	glBindTexture(GL_TEXTURE_2D, m_textureObject);
+	glUniform1i(uEnableTexture, 1);
+	glUniform1i(uTexture, 0);
+
+	if (m_useTexture) {
+
+	} else {
+		glUniform1i(uEnableTexture, 0);
+	}
+
+	switch (type) {
+		case MESH:
+			glDrawArrays(GL_LINES, 0, m_numVertices);
+			break;
+		case FILLED:
+			glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
+			break;
+    }
+}

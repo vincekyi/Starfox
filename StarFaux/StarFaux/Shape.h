@@ -24,6 +24,7 @@ public:
 	void resetRotation();
 	void scale(float amount);
 	void translate(float x, float y, float z);
+	void resetTranslation();
 	void update();
 	mat4 m_objectToWorld;
 

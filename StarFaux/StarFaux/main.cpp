@@ -57,15 +57,17 @@ void handleKeyDown() {
 		if (g_keyPress[i]) {
 			switch (i) {
 				//case KEY_W: g_vessel->setAccelerationZ(-0.05f); break;
-				case KEY_A: g_vessel->setAccelerationX(-ACCEL); break;
+				case KEY_A: g_vessel->setAccelerationX(-0.5*ACCEL); break;
 				//case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationZ(0.05f); break;
-				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(ACCEL); break;
+				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.5*ACCEL); break;
 				case KEY_W: g_vessel->setAccelerationY(ACCEL); break;
 				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(-ACCEL); break;
-				case KEY_UP: g_camera.rotatePitch(0.5); break;
-				case KEY_DOWN: g_camera.rotatePitch(-0.5); break;
-				case KEY_LEFT: g_camera.rotateYaw(0.5); break;
-				case KEY_RIGHT: g_camera.rotateYaw(-0.5); break;
+				case KEY_E: g_vessel->setAccelerationZ(-ACCEL); break;
+				case KEY_R: g_vessel->setAccelerationZ(ACCEL); break;
+				case KEY_UP: g_camera.rotatePitch(2.0f); break;
+				case KEY_DOWN: g_camera.rotatePitch(-2.5f); break;
+				case KEY_LEFT: g_camera.rotateYaw(2.0f); break;
+				case KEY_RIGHT: g_camera.rotateYaw(-2.5f); break;
 			}
 		} else {
 			switch (i) {
@@ -75,10 +77,8 @@ void handleKeyDown() {
 				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
 				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationY(0.0f); break;
 				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(0.0f); break;
-				//case KEY_UP: g_camera.rotatePitch(0.5); break;
-				//case KEY_DOWN: g_camera.rotatePitch(-0.5); break;
-				//case KEY_LEFT: g_camera.rotateYaw(0.5); break;
-				//case KEY_RIGHT: g_camera.rotateYaw(-0.5); break;
+				//case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
+				//case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
 			}
 		}
 	}
@@ -87,18 +87,19 @@ void handleKeyDown() {
 // Called when the window needs to be redrawn.
 void callbackDisplay()
 {
+	g_vessel->updateMovement();
 	handleKeyDown();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	g_camera.update();
 	g_shipCamera.update();
-	g_light.m_position = g_camera.m_position;
+	g_light.m_position = vec3(0.0, 0.0, 0.0);
 
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
 	GLuint fogMinDist = glGetUniformLocation(g_program, "uFogMinDist");
 	GLuint fogMaxDist = glGetUniformLocation(g_program, "uFogMaxDist");
-	glUniform1f(fogMinDist, 700.0f);
-	glUniform1f(fogMaxDist, 900.0f);
+	glUniform1f(fogMinDist, 1500.0f);
+	glUniform1f(fogMaxDist, 1700.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 	
 	tempShip->draw(g_drawType, g_camera, g_light);
@@ -108,7 +109,7 @@ void callbackDisplay()
 	g_light.m_position = g_shipCamera.m_position;
 	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
 
-	Vessel->draw(g_drawType, g_shipCamera, g_light);
+	g_vessel->draw(g_drawType, g_shipCamera, g_light);
 	//Vessel->draw(g_drawType, g_camera, g_light);
 
 	if (g_debug) 
@@ -141,6 +142,7 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case 'd': g_keyPress[KEY_D] = true; break;
 		case 'r': g_keyPress[KEY_R] = true; break;
 		case 'f': g_keyPress[KEY_F] = true; break;
+		case 'e': g_keyPress[KEY_E] = true; break;
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
 		case '0': g_debug = !g_debug; break;
 		case 'p': g_animate = !g_animate; break;
@@ -156,6 +158,7 @@ void callbackKeyboardUp(unsigned char key, int x, int y)
 		case 'd': g_keyPress[KEY_D] = false; break;
 		case 'r': g_keyPress[KEY_R] = false; break;
 		case 'f': g_keyPress[KEY_F] = false; break;
+		case 'e': g_keyPress[KEY_E] = false; break;
 	}
 }
 
@@ -202,7 +205,6 @@ void callbackPassiveMotion(int x, int y)
 void callbackTimer(int)
 {
 	if (g_animate) {
-		g_vessel->updateMovement();
 		glutPostRedisplay();
 	}
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
@@ -233,10 +235,11 @@ void init() {
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program); 
 
-	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 1000.0);
-	g_camera.translate(vec3(0.0, 0.0, 300.0));
+	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
+	g_camera.translate(vec3(0.0, 0.0, 1500.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
-	g_shipCamera.translate(vec3(0.0, 0.0, 10.0));
+	g_shipCamera.translate(vec3(0.0, 1.0, 10.0));
+	g_shipCamera.rotatePitch(-5.0f);
 
 	tempShip = new Cube(g_program, vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
@@ -245,16 +248,16 @@ void init() {
 
 	tempSphere = new Sphere(g_program, 0, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
 	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
-	tempSphere->rotate(Quaternion(vec3(1.0, 0.0, 0.0), -30.0f));
 	tempSphere->initDraw();
 	tempSphere->translate(0.0, -1.0, 0.0);
 	
-	Vessel = new ExternalModel(g_program, vec4(0.0, 1.0, 0.0, 1.0));
-	Vessel->loadModel("Monsoon.obj", false);
-	Vessel->setupLighting(FLAT, 20.0, vec4(0.0, 1.0, 0.0, 1.0));
-	Vessel->initDraw();
-	Vessel->scale(0.2);
-	Vessel->translate(-10.0, -5.0, -20.0);
+	g_vessel = new Vessel(g_program, vec4(0.9, 0.9, 0.9, 1.0), &g_camera);
+	g_vessel->loadModel("simpleship.obj", true);
+	g_vessel->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+	g_vessel->setupTexture(TRILINEAR, REPEAT, "shiptexture.tga");
+	g_vessel->initDraw();
+	g_vessel->scale(0.5);
+	g_vessel->translate(0.0, -1.0, 0.0);
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
@@ -262,11 +265,10 @@ void init() {
 		bloop[i]->scale(10.0f + (rand() % 200 / 10.0f));
 		bloop[i]->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
-		bloop[i]->translate(rand() % 2000 - 1000, rand() % 2000 - 1000, rand() % 2000 - 1000);
+		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 		start -= 20.0f;
 	}
 
-	g_vessel = new Vessel(&g_camera, tempSphere);
 	g_vessel->setAccelerationZ(-0.01);
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }

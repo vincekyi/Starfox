@@ -19,6 +19,8 @@ public:
 
 	void rotateYaw(float theta);
 	void rotatePitch(float theta);
+	void rotateRoll(float theta);
+	void rotateQuat(Quaternion q);
 	void translate(vec3 v);
 	void translate(float dx, float dy, float dz);
 
@@ -28,6 +30,7 @@ public:
 
 	// Location of the camera in the world
 	vec3 m_position;
+	Quaternion m_qRotation;
 
 	// The camera axes
 	vec3 m_lookAt;
@@ -49,7 +52,7 @@ private:
 	mat4 m_worldToCamera;
 	mat4 m_perspective;
 
-	Quaternion m_qRotation;
+	
 
 	bool m_modified;
 };
