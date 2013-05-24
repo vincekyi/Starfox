@@ -15,12 +15,13 @@ Quaternion::Quaternion() {
 
 Quaternion::Quaternion(vec3 axis, GLfloat angle) {
 	//Generates a quaternion based on the rotation around the given axis.
+	vec3 normAxis = normalize(axis);
 	GLfloat rads = angle * DegreesToRadians;
 	GLfloat sineHalfAngle = sin(rads/2.0);
  
-	x = axis.x * sineHalfAngle;
-	y = axis.y * sineHalfAngle;
-	z = axis.z * sineHalfAngle;
+	x = normAxis.x * sineHalfAngle;
+	y = normAxis.y * sineHalfAngle;
+	z = normAxis.z * sineHalfAngle;
 	w = cos(rads/2.0);
  
 	tolerance = 0.000001;
