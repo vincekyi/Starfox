@@ -103,8 +103,14 @@ void callbackDisplay()
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 	
 	tempShip->draw(g_drawType, g_camera, g_light);
+	if (g_vessel->m_box->checkCollision(*tempShip->m_box))
+		std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light);
+		if (g_vessel->m_box->checkCollision(*bloop[i]->m_box)) {
+			std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+			g_vessel->shake();
+		}
 	}
 	g_light.m_position = g_shipCamera.m_position;
 	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
@@ -245,6 +251,7 @@ void init() {
 	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	tempShip->initDraw();
 	tempShip->scale(30.0);
+	tempShip->m_box->setHalfWidths(15.0, 15.0, 15.0);
 
 	tempSphere = new Sphere(g_program, 0, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
 	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
@@ -257,15 +264,17 @@ void init() {
 	g_vessel->setupTexture(TRILINEAR, REPEAT, "shiptexture.tga");
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
-	g_vessel->translate(0.0, -1.0, 0.0);
+	g_vessel->m_box->setHalfWidths(3.5, 1.0, 4.5);
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i] = new Sphere(g_program, rand() % 3, vec4(1.0, 0.3, 0.0, 1.0), FLAT);
-		bloop[i]->scale(10.0f + (rand() % 200 / 10.0f));
+		float sc = 10.0f + (rand() % 200 / 10.0f);
+		bloop[i]->scale(sc);
 		bloop[i]->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+		bloop[i]->m_box->setHalfWidths(sc, sc, sc);
 		start -= 20.0f;
 	}
 

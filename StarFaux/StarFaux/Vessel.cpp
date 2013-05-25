@@ -8,6 +8,7 @@ Vessel::Vessel(GLuint program, vec4 color, Camera* camera) : ExternalModel(progr
 	m_acceleration = vec3(0.0);
 	m_velocity = vec3(0.0);
 	m_camera = camera;
+	m_shakeCount = 0;
 }
 
 void Vessel::setAccelerationX(float acc) {
@@ -22,6 +23,25 @@ void Vessel::setAccelerationZ(float acc) {
 	m_acceleration.z = acc;
 }
 
+void Vessel::shakeShip() {
+	if (m_shakeCount > 55) {
+		lastShake = Quaternion(vec3(0.0, 0.0, 1.0), 0.75f) * lastShake;
+		rotate(lastShake);
+	}
+	else if (m_shakeCount % 20 < 10) {
+		//vec3 tmp = vec3((rand() % 100) / 100.0, (rand() % 100) / 100.0, (rand() % 100) / 100.0);
+		lastShake = Quaternion(vec3(0.0, 0.0, 1.0), 4.5f) * lastShake;
+		rotate(lastShake);
+		//translate((rand() % 10 / 20.0) - 0.25, (rand() % 10 / 20.0) - 0.25, (rand() % 10 / 20.0) - 0.25);
+		//lastShake += vec3((rand() % 10 / 100.0f) - 0.05, (rand() % 10 / 100.0f) - 0.05, (rand() % 10 / 100.0f) - 0.05);
+		//translate(lastShake.x, lastShake.y, lastShake.z);
+		//std::cout << "WTF" << std::endl;
+	} else {
+		lastShake = Quaternion(vec3(0.0, 0.0, 1.0), -4.5f) * lastShake;
+		rotate(lastShake);
+	}
+	m_shakeCount--;
+}
 void Vessel::updateMovement() {
 	if (m_lastUpdateTime == 0) {
 		m_lastUpdateTime = glutGet(GLUT_ELAPSED_TIME);
@@ -34,8 +54,13 @@ void Vessel::updateMovement() {
 	// x_new - x_old = vt + 0.5at^2
 	vec3 dPosition = dTime * m_velocity + 0.5 * m_acceleration * dTime * dTime;
 	m_camera->translate(dPosition);
-
 	updateVelocity(dTime);
+	m_box->setCenter(m_camera->m_position - vec3(0.0f, 1.0f, 10.0f));
+	if (m_shakeCount > 0) {
+		shakeShip();
+	} else {
+		lastShake = Quaternion();
+	}
 	m_lastUpdateTime = currentTime;
 }
 
@@ -95,7 +120,14 @@ vec3 Vessel::getAcceleration() {
 
 vec3 Vessel::getVelocity() {
 	return m_velocity;
-}  
+}
+
+void Vessel::shake() {
+	if (m_shakeCount < 40) {
+		lastShake = Quaternion();
+		m_shakeCount = 60;
+	}
+}
 
 void Vessel::draw(DrawType type, Camera& camera, Light& light) {
 	glBindVertexArray(m_vertexArrayObject);
@@ -118,6 +150,7 @@ void Vessel::draw(DrawType type, Camera& camera, Light& light) {
 	mat4 mv = camera.worldToCamera() * model;
 	model = Translate(m_camera->m_position) * m_objectToWorld * m_camera->m_qRotation.generateMatrix();
 
+
 	glUniform4fv(uCameraPosition, 1, camera.m_position);
 	glUniform4fv(uLightPosition, 1, light.m_position);
 	glUniform1i(uShadingType, m_shading);
@@ -129,13 +162,17 @@ void Vessel::draw(DrawType type, Camera& camera, Light& light) {
 	glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
 
 	glBindTexture(GL_TEXTURE_2D, m_textureObject);
-	glUniform1i(uEnableTexture, 1);
 	glUniform1i(uTexture, 0);
 
 	if (m_useTexture) {
-
+		glUniform1i(uEnableTexture, 1);
 	} else {
 		glUniform1i(uEnableTexture, 0);
+	}
+
+	if (m_shakeCount % 20 > 5) {
+		glUniform1i(uEnableTexture, 0);
+		glUniform4fv(uColor, 1, vec3(1.0, 0.0, 0.0));
 	}
 
 	switch (type) {

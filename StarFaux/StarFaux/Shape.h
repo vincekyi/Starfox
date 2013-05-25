@@ -8,6 +8,7 @@
 #include "Types.h"
 #include "Tga.h"
 #include <string>
+#include "BoundingBox.h"
 
 class Shape {
 public:
@@ -23,16 +24,20 @@ public:
 	void rotate(Quaternion q);
 	void resetRotation();
 	void scale(float amount);
+	void Shape::scale(vec3 amount);
 	void translate(float x, float y, float z);
 	void resetTranslation();
 	void update();
 	mat4 m_objectToWorld;
 
+	BoundingBox* m_box;
+	vec3 m_position;
+
 protected:
 	// Transformations
 	Quaternion m_qRotation;
-	float m_scale;
-	vec3 m_position;
+	vec3 m_scale;
+	
 	bool m_modified;
 
 	// Lighting

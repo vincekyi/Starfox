@@ -1,6 +1,7 @@
 #include "Shape.h"
 
 Shape::Shape() {
+	m_box = new BoundingBox(vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f);
 	m_useTexture = 0;
 	m_scale = 1.0;
 	m_position = vec3(0.0, 0.0, 0.0);
@@ -153,16 +154,23 @@ void Shape::setupLighting(ShadingType shading, float shininess, vec4 specularCol
 }
 
 void Shape::scale(float amount) {
+	m_scale = vec3(amount);
+	m_modified = true;
+}
+
+void Shape::scale(vec3 amount) {
 	m_scale = amount;
 	m_modified = true;
 }
 
 void Shape::translate(float x, float y, float z) {
 	m_position += vec3(x, y, z);
+	m_box->setCenter(m_position);
 	m_modified = true;
 }
 
 void Shape::resetTranslation() {
 	m_position = vec3(0.0f);
+	m_box->setCenter(m_position);
 	m_modified = true;
 }
