@@ -175,12 +175,13 @@ void init() {
 	tempSphere->initDraw();
 	tempSphere->translate(0.0, -2.0, 0.0);
 	
-	Vessel = new ExternalModel(g_program, vec4(0.0, 1.0, 0.0, 1.0));
-	Vessel->loadModel("Monsoon.obj", false);
+	Vessel = new ExternalModel(g_program, vec4(1.0, 1.0, 1.0, 1.0), "./models/ship/");
+	Vessel->loadModel("ship.obj", true);
 	Vessel->setupLighting(FLAT, 20.0, vec4(0.0, 1.0, 0.0, 1.0));
+	Vessel->setupTexture(NEAREST_NEIGHBOR, REPEAT);
 	Vessel->initDraw();
-	Vessel->scale(0.2);
-	Vessel->translate(-10.0, -5.0, -20.0);
+	Vessel->scale(1.0);
+	Vessel->translate(-5.0, -5.0, -20.0);
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
