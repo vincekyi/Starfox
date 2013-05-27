@@ -4,15 +4,20 @@
 //
 // @param const char* baseDir	
 //		Base directory for model files (.obj, .mtl, .tga)
-//		Don't forget to include the trailing slash!
 //
 ExternalModel::ExternalModel(GLuint program, vec4 color, const char* baseDir) {
 	m_program = program;
 	m_color = color;
 	m_hasMaterials = false;
 
-	m_baseDir = (char*)malloc(sizeof(char) * strlen(baseDir) + sizeof(char));
-	strcpy(m_baseDir, baseDir);
+	if (baseDir[strlen(baseDir)] != '/') {
+		m_baseDir = (char*)malloc(sizeof(char) * strlen(baseDir) + 2 * sizeof(char));
+		strcpy(m_baseDir, baseDir);
+		strcat(m_baseDir, "/");
+	} else {
+		m_baseDir = (char*)malloc(sizeof(char) * strlen(baseDir) + sizeof(char));
+		strcpy(m_baseDir, baseDir);
+	}
 }
 
 // Overloaded setupTexture; this class should not use m_textureName if there is a .mtl file
