@@ -9,16 +9,21 @@
 #include "Light.h"
 #include "Sphere.h"
 #include "Cube.h"
+#include "ExternalModel.h"
+#include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
 
-#include "ExternalModel.h"
+
 
 #define ESC_KEY 27
 #define SPACE_KEY 32
-#define TARGET_FPS 60
+#define TARGET_FPS 100
 #define BLOOPCOUNT 1000
 
+#define ACCEL 0.05f
+
+bool g_keyPress[40];
 const int UPDATE_DELAY = 1000/TARGET_FPS;
 int g_windowWidth;
 int g_windowHeight;
@@ -38,10 +43,11 @@ DrawType g_drawType = FILLED;
 Camera g_camera;
 Camera g_shipCamera;
 Light g_light;
+Vessel* g_vessel;
 
 Cube* tempShip;
 Sphere* tempSphere;
 
-ExternalModel* Vessel;
+
 
 Sphere* bloop[BLOOPCOUNT];

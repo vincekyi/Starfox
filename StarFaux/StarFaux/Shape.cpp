@@ -73,6 +73,12 @@ void Shape::initDraw() {
     }
 }
 
+void Shape::update() {
+	if (m_modified) {
+		m_objectToWorld = Translate(m_position) * m_qRotation.generateMatrix() * Scale(m_scale);
+		m_modified = false;
+	}
+}
 void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	glBindVertexArray(m_vertexArrayObject);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
@@ -89,10 +95,7 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 	
-	if (m_modified) {
-		m_objectToWorld = Translate(m_position) * m_qRotation.generateMatrix() * Scale(m_scale);
-		m_modified = false;
-	}
+	update();
 	mat4 model = m_objectToWorld;
 	mat4 mv = camera.worldToCamera() * model;
 
@@ -131,6 +134,11 @@ void Shape::rotate(Quaternion q) {
 	m_modified = true;
 }
 
+void Shape::resetRotation() {
+	m_qRotation = Quaternion();
+	m_modified = true;
+}
+
 void Shape::setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType, std::string textureName) {
 	m_useTexture = true;
 	m_samplingType = samplingType;
@@ -151,5 +159,10 @@ void Shape::scale(float amount) {
 
 void Shape::translate(float x, float y, float z) {
 	m_position += vec3(x, y, z);
+	m_modified = true;
+}
+
+void Shape::resetTranslation() {
+	m_position = vec3(0.0f);
 	m_modified = true;
 }

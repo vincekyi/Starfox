@@ -57,6 +57,12 @@
     <ClInclude Include="ExternalModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vessel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MathExtension.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -84,6 +90,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ExternalModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vessel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

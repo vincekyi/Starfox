@@ -2,14 +2,13 @@
 
 in vec4 fColor;
 in int st;
+in vec2 texCoord[2];
 
 in vec3 fN;
 in vec3 fV;
 in vec3 fL;
 
 in float fogFactor;
-
-in vec2 TexCoord[1];
 
 uniform float uShininess;
 uniform int uShadingType;
@@ -22,7 +21,7 @@ uniform vec4 uFogColor;
 void main() 
 { 
 	if (uShadingType < 3) {
-		if (uEnableTexture == 1) gl_FragColor = fColor * texture2D(uTexture, vec2(TexCoord[0]));
+		if (uEnableTexture == 1) gl_FragColor = fColor * texture2D(uTexture, vec2(texCoord[0]));
         else gl_FragColor = fColor;
 	} else if (uShadingType == 3) {
         vec3 N, V, L, H;
@@ -35,7 +34,7 @@ void main()
         vec4 ambient = 0.2 * fColor;
         vec4 diffuse = max(dot(L,N), 0.0) * 0.5 * fColor;
 		if (uEnableTexture == 1)
-			diffuse *= texture2D(uTexture, vec2(TexCoord[0]));
+			diffuse *= texture2D(uTexture, vec2(texCoord[0]));
         vec4 specular = pow(max(dot(N,H), 0.0), uShininess) * 0.5 * uSpecularColor;
         if(dot(L,N) < 0.0){
             specular = vec4(0.0, 0.0, 0.0, 1.0);
