@@ -9,6 +9,7 @@ Vessel::Vessel(GLuint program, vec4 color, Camera* camera) : ExternalModel(progr
 	m_velocity = vec3(0.0);
 	m_camera = camera;
 	m_shakeCount = 0;
+	m_health = 100;
 }
 
 void Vessel::setAccelerationX(float acc) {
@@ -123,6 +124,8 @@ vec3 Vessel::getVelocity() {
 }
 
 void Vessel::shake() {
+	if (m_shakeCount == 0)
+		m_health -= 10;
 	if (m_shakeCount < 40) {
 		lastShake = Quaternion();
 		m_shakeCount = 60;

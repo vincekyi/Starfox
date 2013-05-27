@@ -50,6 +50,11 @@ void debugDisplay() {
 	sprintf(fps, "FPS: %.2f", g_FPS);
 	glRasterPos2f(0.82f, 0.90f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) fps);
+
+	char health[20];
+	sprintf(health, "Health: %i", g_vessel->m_health);
+	glRasterPos2f(-0.97f, -0.9f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) health);
 }
 
 void handleKeyDown() {

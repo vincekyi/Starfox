@@ -16,6 +16,7 @@ public:
 	vec3 getVelocity();
 	void draw(DrawType type, Camera& camera, Light& light);
 	void shake();
+	int m_health;
 
 private:
 	static const float MAX_VELOCITY;
