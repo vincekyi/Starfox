@@ -29,6 +29,12 @@ public:
 	mat4 m_objectToWorld;
 
 protected:
+	enum ShapeType {
+		SPHERE, CUBE, EXTERNAL_MODEL, VESSEL
+	};
+
+	ShapeType m_shapeType;
+
 	// Transformations
 	Quaternion m_qRotation;
 	float m_scale;

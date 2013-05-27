@@ -9,6 +9,7 @@ Sphere::Sphere(GLuint program, int numSubdivisions, vec4 color, ShadingType shad
 	m_vertices = new vec4[m_numVertices];
 	m_normals = new vec3[m_numVertices];
 	generateSphere(numSubdivisions);
+	m_shapeType = SPHERE;
 }
 
 void Sphere::generateSphere(int numSubdivisions) {
