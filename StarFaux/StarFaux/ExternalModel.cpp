@@ -4,15 +4,19 @@
 //
 // @param const char* baseDir	
 //		Base directory for model files (.obj, .mtl, .tga)
-//		Don't forget to include the trailing slash!
 //
 ExternalModel::ExternalModel(GLuint program, vec4 color, const char* baseDir) {
 	m_program = program;
 	m_color = color;
 	m_hasMaterials = false;
-
-	m_baseDir = (char*)malloc(sizeof(char) * strlen(baseDir) + sizeof(char));
-	strcpy(m_baseDir, baseDir);
+	if (baseDir[strlen(baseDir)] != '/') {
+		m_baseDir = (char*)malloc(sizeof(char) * strlen(baseDir) + 2 * sizeof(char));
+		strcpy(m_baseDir, baseDir);
+		strcat(m_baseDir, "/");
+	} else {
+		m_baseDir = (char*)malloc(sizeof(char) * strlen(baseDir) + sizeof(char));
+		strcpy(m_baseDir, baseDir);
+	}
 	m_shapeType = EXTERNAL_MODEL;
 }
 
@@ -127,22 +131,29 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 		return;
 	}
 
+	GLuint uCameraPosition = glGetUniformLocation(m_program, "uCameraPosition");
+	GLuint uLightPosition = glGetUniformLocation(m_program, "uLightPosition");
+	GLuint uShadingType = glGetUniformLocation(m_program, "uShadingType");
+	GLuint uShininess = glGetUniformLocation(m_program, "uShininess");
+	GLuint uSpecularColor = glGetUniformLocation(m_program, "uSpecularColor");
+	GLuint uColor = glGetUniformLocation(m_program, "uColor");
+	GLuint uProj = glGetUniformLocation(m_program, "uProj");
+	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
+	GLuint uModel = glGetUniformLocation(m_program, "uModel");
+	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
+	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
+	glUniform4fv(uCameraPosition, 1, camera.m_position);
+	glUniform4fv(uLightPosition, 1, light.m_position);
+	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
+	glUniform1i(uShadingType, m_shading);
+	glUniform4fv(uColor, 1, m_color);
+	glUniform1i(uEnableTexture, 1);
+	glUniform1i(uTexture, 0);
+
 	int i = 0;
 	for (std::map<int, char*>::iterator iter = m_materialRefs.begin(); i < m_materialRefs.size(); iter++, i++) {
 		glBindVertexArray(m_vertexArrayObjectArray[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferArray[i]);
-
-		GLuint uCameraPosition = glGetUniformLocation(m_program, "uCameraPosition");
-		GLuint uLightPosition = glGetUniformLocation(m_program, "uLightPosition");
-		GLuint uShadingType = glGetUniformLocation(m_program, "uShadingType");
-		GLuint uShininess = glGetUniformLocation(m_program, "uShininess");
-		GLuint uSpecularColor = glGetUniformLocation(m_program, "uSpecularColor");
-		GLuint uColor = glGetUniformLocation(m_program, "uColor");
-		GLuint uProj = glGetUniformLocation(m_program, "uProj");
-		GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
-		GLuint uModel = glGetUniformLocation(m_program, "uModel");
-		GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
-		GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 
 		update();
 		mat4 model = m_objectToWorld;
@@ -150,22 +161,14 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 		if (m_shapeType == VESSEL) {
 			model = Translate(m_camera->m_position) * m_objectToWorld * m_camera->m_qRotation.generateMatrix();
 		}
-
-		glUniform4fv(uCameraPosition, 1, camera.m_position);
-		glUniform4fv(uLightPosition, 1, light.m_position);
-		glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 		glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
 		glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
-		glUniform1i(uShadingType, m_shading);
 
 		glUniform1f(uShininess, m_textureMaps[iter->second]->Ns);
 		glUniform4fv(uSpecularColor, 1, m_textureMaps[iter->second]->Ks);
-		glUniform4fv(uColor, 1, m_color);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_textureBufferArray[i]);
 		glBindTexture(GL_TEXTURE_2D, m_textureObjectArray[i]);
-		glUniform1i(uEnableTexture, 1);
-		glUniform1i(uTexture, 0);
 
 		iter++;
 		int range = 0;
@@ -286,7 +289,10 @@ void ExternalModel::loadModel(const char* filename, bool center) {
 			m_textureCoords = (vec2*)realloc(m_textureCoords, sizeof(vec2) * maxSize);
 			if (m_vertices == NULL || m_normals == NULL || m_textureCoords == NULL) {
 				fprintf(stderr, "Unable to allocate memory.\n");
-				vertices.clear(); normals.clear(); textureCoords.clear(); v.clear(); fclose(obj); free(mtllib_fn);
+				vertices.clear(); normals.clear(); textureCoords.clear(); v.clear(); fclose(obj); 
+				if (m_hasMaterials) {
+					free(mtllib_fn);
+				}
 				return;
 			}
 		}
@@ -314,11 +320,12 @@ void ExternalModel::loadModel(const char* filename, bool center) {
 	normals.clear();
 	textureCoords.clear();
 	v.clear();
-	// Do these vectors need to be deleted?
 
 	fclose(obj);
 
-	loadTextureMaps(mtllib_fn);
+	if (m_hasMaterials) {
+		loadTextureMaps(mtllib_fn);
+	}
 	free(mtllib_fn);
 }
 
