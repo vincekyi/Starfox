@@ -34,6 +34,12 @@ public:
 	vec3 m_position;
 
 protected:
+	enum ShapeType {
+		SPHERE, CUBE, EXTERNAL_MODEL, VESSEL
+	};
+
+	ShapeType m_shapeType;
+
 	// Transformations
 	Quaternion m_qRotation;
 	vec3 m_scale;

@@ -3,13 +3,14 @@
 const float Vessel::MAX_VELOCITY = 2.5f;
 const float Vessel::VELOCITY_DECAY = MAX_VELOCITY / 100.0f;
 
-Vessel::Vessel(GLuint program, vec4 color, Camera* camera) : ExternalModel(program, color) {
+Vessel::Vessel(GLuint program, vec4 color, Camera* camera, const char* baseDir) : ExternalModel(program, color, baseDir) {
 	m_lastUpdateTime = 0;
 	m_acceleration = vec3(0.0);
 	m_velocity = vec3(0.0);
 	m_camera = camera;
 	m_shakeCount = 0;
 	m_health = 100;
+	m_shapeType = VESSEL;
 }
 
 void Vessel::setAccelerationX(float acc) {
@@ -130,60 +131,4 @@ void Vessel::shake() {
 		lastShake = Quaternion();
 		m_shakeCount = 60;
 	}
-}
-
-void Vessel::draw(DrawType type, Camera& camera, Light& light) {
-	glBindVertexArray(m_vertexArrayObject);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-
-	GLuint uCameraPosition = glGetUniformLocation(m_program, "uCameraPosition");
-    GLuint uLightPosition = glGetUniformLocation(m_program, "uLightPosition");
-	GLuint uShadingType = glGetUniformLocation(m_program, "uShadingType");
-	GLuint uShininess = glGetUniformLocation(m_program, "uShininess");
-	GLuint uSpecularColor = glGetUniformLocation(m_program, "uSpecularColor");
-	GLuint uColor = glGetUniformLocation(m_program, "uColor");
-	GLuint uProj = glGetUniformLocation(m_program, "uProj");
-	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
-	GLuint uModel = glGetUniformLocation(m_program, "uModel");
-	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
-	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
-	
-	update();
-	mat4 model = m_objectToWorld;
-	mat4 mv = camera.worldToCamera() * model;
-	model = Translate(m_camera->m_position) * m_objectToWorld * m_camera->m_qRotation.generateMatrix();
-
-
-	glUniform4fv(uCameraPosition, 1, camera.m_position);
-	glUniform4fv(uLightPosition, 1, light.m_position);
-	glUniform1i(uShadingType, m_shading);
-	glUniform1f(uShininess, m_shininess);
-	glUniform4fv(uSpecularColor, 1, m_specularColor);
-	glUniform4fv(uColor, 1, m_color);
-	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
-	glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
-	glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
-
-	glBindTexture(GL_TEXTURE_2D, m_textureObject);
-	glUniform1i(uTexture, 0);
-
-	if (m_useTexture) {
-		glUniform1i(uEnableTexture, 1);
-	} else {
-		glUniform1i(uEnableTexture, 0);
-	}
-
-	if (m_shakeCount % 20 > 5) {
-		glUniform1i(uEnableTexture, 0);
-		glUniform4fv(uColor, 1, vec3(1.0, 0.0, 0.0));
-	}
-
-	switch (type) {
-		case MESH:
-			glDrawArrays(GL_LINES, 0, m_numVertices);
-			break;
-		case FILLED:
-			glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
-			break;
-    }
 }

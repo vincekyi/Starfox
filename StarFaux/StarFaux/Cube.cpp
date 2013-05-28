@@ -22,6 +22,7 @@ Cube::Cube(GLuint program, vec4 color) {
 	m_normals = new vec3[m_numVertices];
 	m_textureCoords = new vec2[m_numVertices];
 	generateCube();
+	m_shapeType = CUBE;
 }
 
 void Cube::quad(int a, int b, int c, int d, const vec3& normal) {

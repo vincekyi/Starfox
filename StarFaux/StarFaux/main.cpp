@@ -263,8 +263,8 @@ void init() {
 	tempSphere->initDraw();
 	tempSphere->translate(0.0, -1.0, 0.0);
 	
-	g_vessel = new Vessel(g_program, vec4(0.9, 0.9, 0.9, 1.0), &g_camera);
-	g_vessel->loadModel("simpleship.obj", true);
+	g_vessel = new Vessel(g_program, vec4(0.9, 0.9, 0.9, 1.0), &g_camera, "./models/ship/");
+	g_vessel->loadModel("ship.obj", true);
 	g_vessel->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
 	g_vessel->setupTexture(TRILINEAR, REPEAT, "shiptexture.tga");
 	g_vessel->initDraw();

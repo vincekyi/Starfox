@@ -7,17 +7,16 @@
 
 class Vessel : public ExternalModel {
 public:
-	Vessel(GLuint program, vec4 color, Camera* camera);
+	Vessel(GLuint program, vec4 color, Camera* camera, const char* baseDir);
 	void setAccelerationX(float acc);
 	void setAccelerationY(float acc);
 	void setAccelerationZ(float acc);
 	void updateMovement();
 	vec3 getAcceleration();
 	vec3 getVelocity();
-	void draw(DrawType type, Camera& camera, Light& light);
+
 	void shake();
 	int m_health;
-
 private:
 	static const float MAX_VELOCITY;
 	static const float VELOCITY_DECAY;
@@ -29,8 +28,6 @@ private:
 
 	float m_lastUpdateTime;
 
-	Camera* m_camera;
-	int m_shakeCount;
 	Quaternion lastShake;
 };
 

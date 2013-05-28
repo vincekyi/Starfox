@@ -1,6 +1,6 @@
 # Blender v2.67 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib untitled.mtl
+mtllib ship.mtl
 o simpleship
 v 1.000000 -0.479181 -0.000000
 v 0.821267 -1.000000 -1.000000
