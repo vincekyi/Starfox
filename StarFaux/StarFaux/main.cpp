@@ -27,7 +27,7 @@ void calculateFPS()
 void debugDisplay() {
 	// Position
 	char coords[100];
-	sprintf(coords, "x: %.2f\ny: %.2f\nz: %.2f\n", g_camera.m_position.x, g_camera.m_position.y, g_camera.m_position.z - 10.0);
+	sprintf(coords, "x: %.2f\ny: %.2f\nz: %.2f\n", g_camera.m_position.x, g_camera.m_position.y - 2.0, g_camera.m_position.z - 10.0);
 	glRasterPos2f(-0.97f, 0.90f);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) coords);
@@ -92,12 +92,12 @@ void handleKeyDown() {
 // Called when the window needs to be redrawn.
 void callbackDisplay()
 {
-	g_vessel->updateMovement();
 	handleKeyDown();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	g_camera.update();
 	g_shipCamera.update();
+	g_vessel->updateMovement();
+
 	g_light.m_position = vec3(0.0, 0.0, 0.0);
 	g_light.m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
 	g_light.m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
@@ -111,8 +111,11 @@ void callbackDisplay()
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 	
 	tempShip->draw(g_drawType, g_camera, g_light);
-	if (g_vessel->m_box->checkCollision(*tempShip->m_box))
-		std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
+	if (g_vessel->m_box->checkCollision(*tempShip->m_box)) {
+		std::cout << g_vessel->m_box->m_center << std::endl;
+		std::cout << "BOOP1" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
+		g_vessel->shake();
+	}
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light);
 		if (g_vessel->m_box->checkCollision(*bloop[i]->m_box)) {
@@ -252,19 +255,14 @@ void init() {
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
 	g_camera.translate(vec3(0.0, 0.0, 1500.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
-	g_shipCamera.translate(vec3(0.0, 1.0, 10.0));
-	g_shipCamera.rotatePitch(-5.0f);
+	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
+	g_shipCamera.rotatePitch(-0.0f);
 
 	tempShip = new Cube(g_program, FLAT);
 	tempShip->setupLighting(20.0, vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->initDraw();
 	tempShip->scale(30.0);
 	tempShip->m_box->setHalfWidths(15.0, 15.0, 15.0);
-
-	tempSphere = new Sphere(g_program, 0, GOURAUD);
-	tempSphere->setupLighting(20.0, vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
-	tempSphere->initDraw();
-	tempSphere->translate(0.0, -1.0, 0.0);
 	
 	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
 	g_vessel->loadModel("ship.obj", true);
@@ -272,7 +270,8 @@ void init() {
 	g_vessel->setupTexture(TRILINEAR, REPEAT);
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
-	g_vessel->m_box->setHalfWidths(3.5, 1.0, 4.5);
+	g_vessel->m_box->setHalfWidths(2.0, 1.0, 4.5);
+	g_vessel->m_box->setCenter(vec3(0.0, 0.0, 1500.0));
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
