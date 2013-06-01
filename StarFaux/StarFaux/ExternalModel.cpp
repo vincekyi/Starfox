@@ -155,13 +155,13 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniform1i(uShadingType, m_shading);
 
-	if (m_shakeCount % 20 > 5) {
-		glUniform1i(uEnableTexture, 0);
-		setupLighting(m_shininess, vec4(1.0, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
-	}
-
 	glUniform1i(uEnableTexture, 1);
 	glUniform1i(uTexture, 0);
+
+	if (m_shakeCount % 20 > 5) {
+		glUniform1i(uEnableTexture, 0);
+		setupLighting(m_shininess, vec4(0.4, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0));
+	}
 
 	int i = 0;
 	for (std::map<int, char*>::iterator iter = m_materialRefs.begin(); i < m_materialRefs.size(); iter++, i++) {
@@ -178,9 +178,16 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 		glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
 
 		glUniform1f(uShininess, m_textureMaps[iter->second]->Ns);
-		glUniform4fv(uAmbientProduct, 1, light.m_lightAmbient * m_textureMaps[iter->second]->Ka);
-		glUniform4fv(uDiffuseProduct, 1, light.m_lightDiffuse * m_textureMaps[iter->second]->Kd);
-		glUniform4fv(uSpecularProduct, 1, light.m_lightSpecular * m_textureMaps[iter->second]->Ks);
+		if (m_shakeCount % 20 > 5) {
+			glUniform4fv(uAmbientProduct, 1, light.m_lightAmbient * m_materialAmbient);
+			glUniform4fv(uDiffuseProduct, 1, light.m_lightDiffuse * m_materialDiffuse);
+			glUniform4fv(uSpecularProduct, 1, light.m_lightSpecular * m_materialSpecular);
+		} else {
+			glUniform4fv(uAmbientProduct, 1, light.m_lightAmbient * m_textureMaps[iter->second]->Ka);
+			glUniform4fv(uDiffuseProduct, 1, light.m_lightDiffuse * m_textureMaps[iter->second]->Kd);
+			glUniform4fv(uSpecularProduct, 1, light.m_lightSpecular * m_textureMaps[iter->second]->Ks);
+		}
+
 		/*
 		glUniform1f(uShininess, 20.0);
 		glUniform4fv(uAmbientProduct, 1, 0.2 * vec4(0.9, 0.9, 0.9, 1.0));

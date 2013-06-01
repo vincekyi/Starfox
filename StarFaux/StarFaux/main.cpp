@@ -277,7 +277,8 @@ void init() {
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
-		bloop[i]->scale(10.0f + (rand() % 200 / 10.0f));
+		float sc = 10.0f + (rand() % 200 / 10.0f);
+		bloop[i]->scale(sc);
 		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
 		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
