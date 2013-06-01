@@ -50,6 +50,11 @@ void debugDisplay() {
 	sprintf(fps, "FPS: %.2f", g_FPS);
 	glRasterPos2f(0.82f, 0.90f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) fps);
+
+	char health[20];
+	sprintf(health, "Health: %i", g_vessel->m_health);
+	glRasterPos2f(-0.97f, -0.9f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) health);
 }
 
 void handleKeyDown() {
@@ -106,8 +111,14 @@ void callbackDisplay()
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 	
 	tempShip->draw(g_drawType, g_camera, g_light);
+	if (g_vessel->m_box->checkCollision(*tempShip->m_box))
+		std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light);
+		if (g_vessel->m_box->checkCollision(*bloop[i]->m_box)) {
+			std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+			g_vessel->shake();
+		}
 	}
 	g_light.m_position = g_shipCamera.m_position;
 	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
@@ -248,6 +259,7 @@ void init() {
 	tempShip->setupLighting(20.0, vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->initDraw();
 	tempShip->scale(30.0);
+	tempShip->m_box->setHalfWidths(15.0, 15.0, 15.0);
 
 	tempSphere = new Sphere(g_program, 0, GOURAUD);
 	tempSphere->setupLighting(20.0, vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
@@ -260,16 +272,18 @@ void init() {
 	g_vessel->setupTexture(TRILINEAR, REPEAT);
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
-	g_vessel->translate(0.0, -1.0, 0.0);
+	g_vessel->m_box->setHalfWidths(3.5, 1.0, 4.5);
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
-		bloop[i]->scale(10.0f + (rand() % 200 / 10.0f));
+		float sc = 10.0f + (rand() % 200 / 10.0f);
+		bloop[i]->scale(sc);
 		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
 		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+		bloop[i]->m_box->setHalfWidths(sc, sc, sc);
 		start -= 20.0f;
 	}
 
