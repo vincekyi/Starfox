@@ -7,7 +7,7 @@
 
 class Vessel : public ExternalModel {
 public:
-	Vessel(GLuint program, vec4 color, Camera* camera, const char* baseDir);
+	Vessel(GLuint program, Camera* camera, const char* baseDir);
 	void setAccelerationX(float acc);
 	void setAccelerationY(float acc);
 	void setAccelerationZ(float acc);

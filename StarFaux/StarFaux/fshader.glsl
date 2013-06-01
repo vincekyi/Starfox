@@ -12,9 +12,12 @@ in float fogFactor;
 
 uniform float uShininess;
 uniform int uShadingType;
-uniform vec4 uSpecularColor;
 uniform int uEnableTexture;
 uniform sampler2D uTexture;
+
+uniform vec4 uAmbientProduct;
+uniform vec4 uDiffuseProduct;
+uniform vec4 uSpecularProduct;
 
 uniform vec4 uFogColor;
 
@@ -31,12 +34,12 @@ void main()
         L = normalize(fL);
         H = normalize(L + V);
     
-        vec4 ambient = 0.2 * fColor;
-        vec4 diffuse = max(dot(L,N), 0.0) * 0.5 * fColor;
+        vec4 ambient = uAmbientProduct;
+        vec4 diffuse = max(dot(L,N), 0.0) * uDiffuseProduct;
 		if (uEnableTexture == 1)
 			diffuse *= texture2D(uTexture, vec2(texCoord[0]));
-        vec4 specular = pow(max(dot(N,H), 0.0), uShininess) * 0.5 * uSpecularColor;
-        if(dot(L,N) < 0.0){
+        vec4 specular = pow(max(dot(N,H), 0.0), uShininess) * uSpecularProduct;
+        if (dot(L,N) < 0.0) {
             specular = vec4(0.0, 0.0, 0.0, 1.0);
         }
         gl_FragColor = ambient + diffuse + specular;

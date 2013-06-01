@@ -10,7 +10,7 @@
 
 class Cube : public Shape {
 public:
-	Cube(GLuint program, vec4 color);
+	Cube(GLuint program);
 
 private:
 	void quad(int a, int b, int c, int d, const vec3& normal);
