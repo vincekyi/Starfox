@@ -88,8 +88,9 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
     GLuint uLightPosition = glGetUniformLocation(m_program, "uLightPosition");
 	GLuint uShadingType = glGetUniformLocation(m_program, "uShadingType");
 	GLuint uShininess = glGetUniformLocation(m_program, "uShininess");
-	GLuint uSpecularColor = glGetUniformLocation(m_program, "uSpecularColor");
-	GLuint uColor = glGetUniformLocation(m_program, "uColor");
+	GLuint uAmbientProduct = glGetUniformLocation(m_program, "uAmbientProduct");
+	GLuint uDiffuseProduct = glGetUniformLocation(m_program, "uDiffuseProduct");
+	GLuint uSpecularProduct = glGetUniformLocation(m_program, "uSpecularProduct");
 	GLuint uProj = glGetUniformLocation(m_program, "uProj");
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
@@ -104,8 +105,9 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	glUniform4fv(uLightPosition, 1, light.m_position);
 	glUniform1i(uShadingType, m_shading);
 	glUniform1f(uShininess, m_shininess);
-	glUniform4fv(uSpecularColor, 1, m_specularColor);
-	glUniform4fv(uColor, 1, m_color);
+	glUniform4fv(uAmbientProduct, 1, light.m_lightAmbient * m_materialAmbient);
+	glUniform4fv(uDiffuseProduct, 1, light.m_lightDiffuse * m_materialDiffuse);
+	glUniform4fv(uSpecularProduct, 1, light.m_lightSpecular * m_materialSpecular);
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
 	glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
@@ -147,10 +149,11 @@ void Shape::setupTexture(TextureSamplingType samplingType, TextureWrappingType w
 	m_textureName = textureName;
 }
 
-void Shape::setupLighting(ShadingType shading, float shininess, vec4 specularColor) {
-	m_shading = shading;
+void Shape::setupLighting(float shininess, vec4 materialAmbient, vec4 materialDiffuse, vec4 materialSpecular) {
 	m_shininess = shininess;
-	m_specularColor = specularColor;
+	m_materialAmbient = materialAmbient;
+	m_materialDiffuse = materialDiffuse;
+	m_materialSpecular = materialSpecular;
 }
 
 void Shape::scale(float amount) {

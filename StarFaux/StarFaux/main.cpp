@@ -99,6 +99,9 @@ void callbackDisplay()
 	g_camera.update();
 	g_shipCamera.update();
 	g_light.m_position = vec3(0.0, 0.0, 0.0);
+	g_light.m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+	g_light.m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+	g_light.m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
 	GLuint fogMinDist = glGetUniformLocation(g_program, "uFogMinDist");
@@ -121,7 +124,7 @@ void callbackDisplay()
 	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
 
 	g_vessel->draw(g_drawType, g_shipCamera, g_light);
-	//Vessel->draw(g_drawType, g_camera, g_light);
+	//g_vessel->draw(g_drawType, g_camera, g_light);
 
 	if (g_debug) 
 		debugDisplay();
@@ -252,31 +255,31 @@ void init() {
 	g_shipCamera.translate(vec3(0.0, 1.0, 10.0));
 	g_shipCamera.rotatePitch(-5.0f);
 
-	tempShip = new Cube(g_program, vec4(0.8, 0.8, 0.8, 1.0));
-	tempShip->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+	tempShip = new Cube(g_program, FLAT);
+	tempShip->setupLighting(20.0, vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->initDraw();
 	tempShip->scale(30.0);
 	tempShip->m_box->setHalfWidths(15.0, 15.0, 15.0);
 
-	tempSphere = new Sphere(g_program, 0, vec4(1.0, 0.0, 0.0, 1.0), GOURAUD);
-	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+	tempSphere = new Sphere(g_program, 0, GOURAUD);
+	tempSphere->setupLighting(20.0, vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
 	tempSphere->initDraw();
 	tempSphere->translate(0.0, -1.0, 0.0);
 	
-	g_vessel = new Vessel(g_program, vec4(0.9, 0.9, 0.9, 1.0), &g_camera, "./models/ship/");
+	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
 	g_vessel->loadModel("ship.obj", true);
-	g_vessel->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
-	g_vessel->setupTexture(TRILINEAR, REPEAT, "shiptexture.tga");
+	g_vessel->setupLighting();
+	g_vessel->setupTexture(TRILINEAR, REPEAT);
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
 	g_vessel->m_box->setHalfWidths(3.5, 1.0, 4.5);
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i] = new Sphere(g_program, rand() % 3, vec4(1.0, 0.3, 0.0, 1.0), FLAT);
-		float sc = 10.0f + (rand() % 200 / 10.0f);
-		bloop[i]->scale(sc);
-		bloop[i]->setupLighting(FLAT, 20.0, vec4(1.0, 1.0, 1.0, 1.0));
+		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
+		bloop[i]->scale(10.0f + (rand() % 200 / 10.0f));
+		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
+		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 		bloop[i]->m_box->setHalfWidths(sc, sc, sc);

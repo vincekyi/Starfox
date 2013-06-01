@@ -5,9 +5,8 @@
 // @param const char* baseDir	
 //		Base directory for model files (.obj, .mtl, .tga)
 //
-ExternalModel::ExternalModel(GLuint program, vec4 color, const char* baseDir) {
+ExternalModel::ExternalModel(GLuint program, const char* baseDir, ShadingType shading) {
 	m_program = program;
-	m_color = color;
 	m_hasMaterials = false;
 	if (baseDir[strlen(baseDir)] != '/') {
 		m_baseDir = (char*)malloc(sizeof(char) * strlen(baseDir) + 2 * sizeof(char));
@@ -18,11 +17,19 @@ ExternalModel::ExternalModel(GLuint program, vec4 color, const char* baseDir) {
 		strcpy(m_baseDir, baseDir);
 	}
 	m_shapeType = EXTERNAL_MODEL;
+	m_shading = shading;
 }
 
-// Overloaded setupTexture; this class should not use m_textureName if there is a .mtl file
+// Overloaded setupTexture
+// The .mtl file will specify the texture map file names
 void ExternalModel::setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType) {
 	Shape::setupTexture(samplingType, wrappingType, "");
+}
+
+// Overloaded setupLighting
+// The .mtl file will specify the material properties (shininess, ambient, diffuse, specular)
+void ExternalModel::setupLighting() {
+	Shape::setupLighting(0.0, vec4(0.0), vec4(0.0), vec4(0.0));
 }
 
 // Overloaded initDraw
@@ -135,8 +142,9 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uLightPosition = glGetUniformLocation(m_program, "uLightPosition");
 	GLuint uShadingType = glGetUniformLocation(m_program, "uShadingType");
 	GLuint uShininess = glGetUniformLocation(m_program, "uShininess");
-	GLuint uSpecularColor = glGetUniformLocation(m_program, "uSpecularColor");
-	GLuint uColor = glGetUniformLocation(m_program, "uColor");
+	GLuint uAmbientProduct = glGetUniformLocation(m_program, "uAmbientProduct");
+	GLuint uDiffuseProduct = glGetUniformLocation(m_program, "uDiffuseProduct");
+	GLuint uSpecularProduct = glGetUniformLocation(m_program, "uSpecularProduct");
 	GLuint uProj = glGetUniformLocation(m_program, "uProj");
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
@@ -146,10 +154,10 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 	glUniform4fv(uLightPosition, 1, light.m_position);
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniform1i(uShadingType, m_shading);
-	glUniform4fv(uColor, 1, m_color);
+
 	if (m_shakeCount % 20 > 5) {
 		glUniform1i(uEnableTexture, 0);
-		glUniform4fv(uColor, 1, vec3(1.0, 0.0, 0.0));
+		setupLighting(m_shininess, vec4(1.0, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
 	}
 
 	glUniform1i(uEnableTexture, 1);
@@ -170,7 +178,15 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 		glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
 
 		glUniform1f(uShininess, m_textureMaps[iter->second]->Ns);
-		glUniform4fv(uSpecularColor, 1, m_textureMaps[iter->second]->Ks);
+		glUniform4fv(uAmbientProduct, 1, light.m_lightAmbient * m_textureMaps[iter->second]->Ka);
+		glUniform4fv(uDiffuseProduct, 1, light.m_lightDiffuse * m_textureMaps[iter->second]->Kd);
+		glUniform4fv(uSpecularProduct, 1, light.m_lightSpecular * m_textureMaps[iter->second]->Ks);
+		/*
+		glUniform1f(uShininess, 20.0);
+		glUniform4fv(uAmbientProduct, 1, 0.2 * vec4(0.9, 0.9, 0.9, 1.0));
+		glUniform4fv(uDiffuseProduct, 1, 0.5 * vec4(0.9, 0.9, 0.9, 1.0));
+		glUniform4fv(uSpecularProduct, 1, 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
+		*/
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_textureBufferArray[i]);
 		glBindTexture(GL_TEXTURE_2D, m_textureObjectArray[i]);

@@ -20,7 +20,7 @@ public:
 
 	void draw(DrawType type, Camera& camera, Light& light);
 	void setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType, std::string textureName);
-	void setupLighting(ShadingType shading, float shininess, vec4 specularColor);
+	void setupLighting(float shininess, vec4 materialAmbient, vec4 materialDiffuse, vec4 materialSpecular);
 	void rotate(Quaternion q);
 	void resetRotation();
 	void scale(float amount);
@@ -49,8 +49,9 @@ protected:
 	// Lighting
 	ShadingType m_shading;
 	float m_shininess;
-	vec4 m_specularColor;
-	vec4 m_color;
+	vec4 m_materialAmbient;
+	vec4 m_materialDiffuse;
+	vec4 m_materialSpecular;
 
 	// Shape
 	int m_numVertices;

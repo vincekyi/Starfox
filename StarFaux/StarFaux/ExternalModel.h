@@ -11,13 +11,15 @@
 
 class ExternalModel : public Shape {
 public:
-	ExternalModel(GLuint program, vec4 color, const char* baseDir);
+	ExternalModel(GLuint program, const char* baseDir, ShadingType shading);
 	void loadModel(const char* filename, bool center);
 
 	void initDraw();
 	void draw(DrawType type, Camera& camera, Light& light);
 	void setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType);
 	using Shape::setupTexture;
+	void setupLighting();
+	using Shape::setupLighting;
 protected:
 	Camera* m_camera;
 

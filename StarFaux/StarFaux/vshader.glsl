@@ -14,9 +14,10 @@ out vec3 fL; //vector from point to light
 uniform mat4 uProj;
 uniform mat4 uModelView;
 uniform mat4 uModel;
-uniform vec4 uColor;
 uniform float uShininess;
-uniform vec4 uSpecularColor;
+uniform vec4 uAmbientProduct;
+uniform vec4 uDiffuseProduct;
+uniform vec4 uSpecularProduct;
 
 uniform vec4 uCameraPosition;
 uniform vec4 uLightPosition;
@@ -41,18 +42,17 @@ void main()
     gl_Position = uProj * uModelView * vPosition;
 	fogFactor = computeLinearFogFactor();
 
-	if (uShadingType == 0 ) {
+	if (uShadingType == 0 ) { // No shading
 		fN = fV = fL = vec3(0.0, 0.0, 0.0);
-		fColor = uColor;
+		fColor = uAmbientProduct;
 	}
 	else {
+		// Phong shading is taken care of in the fragment shader
 		fN = (uModel * vec4(vNormal.x, vNormal.y, vNormal.z, 0.0)).xyz;
 		fV = (uCameraPosition - uModel * vPosition).xyz;
 		fL = (uLightPosition - uModel * vPosition).xyz;
 
-		if (uShadingType == 3) {	// No Shading || Phong Shading
-			fColor = uColor;
-		} else if (uShadingType == 1 || uShadingType == 2) {	// Flat Shading || Gouraud Shading
+		if (uShadingType == 1 || uShadingType == 2) {	// Flat Shading || Gouraud Shading
 			vec3 N, V, L, H;
 
 			N = normalize(fN);
@@ -61,9 +61,9 @@ void main()
         
 			H = normalize(L + V);
 
-			vec4 ambient = 0.2 * uColor;
-			vec4 diffuse = max(dot(L, N), 0.0) * 0.5 * uColor;
-			vec4 specular = pow(max(dot(N, H), 0.0), uShininess) * 0.5 * uSpecularColor;
+			vec4 ambient = uAmbientProduct;
+			vec4 diffuse = max(dot(L, N), 0.0) * uDiffuseProduct;
+			vec4 specular = pow(max(dot(N, H), 0.0), uShininess) * uSpecularProduct;
 
 			if (dot(L, N) < 0.0) {
 				specular = vec4(0.0, 0.0, 0.0, 1.0);
