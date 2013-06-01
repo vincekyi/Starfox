@@ -15,15 +15,20 @@ public:
 	vec3 getAcceleration();
 	vec3 getVelocity();
 
+	void shake();
+	int m_health;
 private:
 	static const float MAX_VELOCITY;
 	static const float VELOCITY_DECAY;
 	void updateVelocity(float dTime);
+	void shakeShip();
 
 	vec3 m_velocity;
 	vec3 m_acceleration;
 
 	float m_lastUpdateTime;
+
+	Quaternion lastShake;
 };
 
 #endif

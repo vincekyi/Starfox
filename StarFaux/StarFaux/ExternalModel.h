@@ -56,6 +56,8 @@ protected:
 	void loadTextureMaps(const char* filename);
 	char* getTextureMap(materialProp_t* mpt);
 	bool mtl_parse_error(materialProp_t* m, FILE* f, char* fn);
+
+	int m_shakeCount;
 };
 
 #endif
