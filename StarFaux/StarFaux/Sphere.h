@@ -9,7 +9,7 @@
 
 class Sphere : public Shape {
 public:
-	Sphere(GLuint program, int numSubdivisions);
+	Sphere(GLuint program, int numSubdivisions, ShadingType shading);
 
 private:
 	void generateSphere(int numSubdivisons);

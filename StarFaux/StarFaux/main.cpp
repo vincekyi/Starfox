@@ -244,19 +244,19 @@ void init() {
 	g_shipCamera.translate(vec3(0.0, 1.0, 10.0));
 	g_shipCamera.rotatePitch(-5.0f);
 
-	tempShip = new Cube(g_program);
-	tempShip->setupLighting(FLAT, 20.0, vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0));
+	tempShip = new Cube(g_program, FLAT);
+	tempShip->setupLighting(20.0, vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0));
 	tempShip->initDraw();
 	tempShip->scale(30.0);
 
-	tempSphere = new Sphere(g_program, 0);
-	tempSphere->setupLighting(GOURAUD, 20.0, vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
+	tempSphere = new Sphere(g_program, 0, GOURAUD);
+	tempSphere->setupLighting(20.0, vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
 	tempSphere->initDraw();
 	tempSphere->translate(0.0, -1.0, 0.0);
 	
-	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/");
+	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
 	g_vessel->loadModel("ship.obj", true);
-	g_vessel->setupLighting(FLAT);
+	g_vessel->setupLighting();
 	g_vessel->setupTexture(TRILINEAR, REPEAT);
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
@@ -264,9 +264,9 @@ void init() {
 
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i] = new Sphere(g_program, rand() % 3);
+		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
 		bloop[i]->scale(10.0f + (rand() % 200 / 10.0f));
-		bloop[i]->setupLighting(FLAT, 20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
+		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
 		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);

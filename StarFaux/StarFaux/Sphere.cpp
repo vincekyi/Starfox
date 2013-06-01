@@ -1,11 +1,12 @@
 #include "Sphere.h"
 
-Sphere::Sphere(GLuint program, int numSubdivisions) {
+Sphere::Sphere(GLuint program, int numSubdivisions, ShadingType shading) {
 	m_numVertices = 3 * pow(4, numSubdivisions + 1);
 	m_vertexIndex = 0;
 	m_program = program;
 	m_vertices = new vec4[m_numVertices];
 	m_normals = new vec3[m_numVertices];
+	m_shading = shading;
 	generateSphere(numSubdivisions);
 	m_shapeType = SPHERE;
 }

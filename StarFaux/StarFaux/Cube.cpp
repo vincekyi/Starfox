@@ -12,7 +12,7 @@ const vec4 Cube::CUBE_POINTS[36] = {
     vec4(  0.5f, -0.5f, -0.5f, 1.0f )
 };
 
-Cube::Cube(GLuint program) {
+Cube::Cube(GLuint program, ShadingType shading) {
 	m_numVertices = NUM_VERTICES;
 	m_vertexIndex = 0;
 	m_program = program;
@@ -20,6 +20,7 @@ Cube::Cube(GLuint program) {
 	m_vertices = new vec4[m_numVertices];
 	m_normals = new vec3[m_numVertices];
 	m_textureCoords = new vec2[m_numVertices];
+	m_shading = shading;
 	generateCube();
 	m_shapeType = CUBE;
 }

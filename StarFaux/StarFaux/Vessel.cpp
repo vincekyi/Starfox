@@ -3,7 +3,7 @@
 const float Vessel::MAX_VELOCITY = 2.5f;
 const float Vessel::VELOCITY_DECAY = MAX_VELOCITY / 100.0f;
 
-Vessel::Vessel(GLuint program, Camera* camera, const char* baseDir) : ExternalModel(program, baseDir) {
+Vessel::Vessel(GLuint program, Camera* camera, const char* baseDir, ShadingType shading) : ExternalModel(program, baseDir, shading) {
 	m_lastUpdateTime = 0;
 	m_acceleration = vec3(0.0);
 	m_velocity = vec3(0.0);

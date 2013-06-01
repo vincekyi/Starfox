@@ -5,7 +5,7 @@
 // @param const char* baseDir	
 //		Base directory for model files (.obj, .mtl, .tga)
 //
-ExternalModel::ExternalModel(GLuint program, const char* baseDir) {
+ExternalModel::ExternalModel(GLuint program, const char* baseDir, ShadingType shading) {
 	m_program = program;
 	m_hasMaterials = false;
 	if (baseDir[strlen(baseDir)] != '/') {
@@ -17,6 +17,7 @@ ExternalModel::ExternalModel(GLuint program, const char* baseDir) {
 		strcpy(m_baseDir, baseDir);
 	}
 	m_shapeType = EXTERNAL_MODEL;
+	m_shading = shading;
 }
 
 // Overloaded setupTexture
@@ -27,8 +28,8 @@ void ExternalModel::setupTexture(TextureSamplingType samplingType, TextureWrappi
 
 // Overloaded setupLighting
 // The .mtl file will specify the material properties (shininess, ambient, diffuse, specular)
-void ExternalModel::setupLighting(ShadingType shading) {
-	Shape::setupLighting(shading, 0.0, vec4(0.0), vec4(0.0), vec4(0.0));
+void ExternalModel::setupLighting() {
+	Shape::setupLighting(0.0, vec4(0.0), vec4(0.0), vec4(0.0));
 }
 
 // Overloaded initDraw

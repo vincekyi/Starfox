@@ -148,8 +148,7 @@ void Shape::setupTexture(TextureSamplingType samplingType, TextureWrappingType w
 	m_textureName = textureName;
 }
 
-void Shape::setupLighting(ShadingType shading, float shininess, vec4 materialAmbient, vec4 materialDiffuse, vec4 materialSpecular) {
-	m_shading = shading;
+void Shape::setupLighting(float shininess, vec4 materialAmbient, vec4 materialDiffuse, vec4 materialSpecular) {
 	m_shininess = shininess;
 	m_materialAmbient = materialAmbient;
 	m_materialDiffuse = materialDiffuse;
