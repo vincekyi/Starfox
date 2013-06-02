@@ -46,7 +46,6 @@ void main()
 	fogFactor = computeLinearFogFactor();
 	fColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-	// Phong shading is taken care of in the fragment shader
 	if (uShadingType == 0 ) { // No shading
 		fN = fV = vec3(0.0, 0.0, 0.0);
 		fL[0] = vec3(0.0, 0.0, 0.0);
@@ -81,6 +80,12 @@ void main()
 			fColor += ambient + diffuse + specular;
 		}
 		fColor.a = 1.0;
+	} else if (uShadingType == 3) { // Phong Shading
+		fN = (uModel * vec4(vNormal.x, vNormal.y, vNormal.z, 0.0)).xyz;
+		fV = (uCameraPosition - uModel * vPosition).xyz;
+		for (int i = 0; i < uNumLights; i++) {
+			fL[i] = (uLightPosition[i] - uModel * vPosition).xyz;
+		}
 	}
 	if (uEnableTexture == 1) {
 		texCoord[0].xy = vTexCoords.xy;

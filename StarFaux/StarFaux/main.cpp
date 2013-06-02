@@ -128,6 +128,12 @@ void callbackDisplay()
 		std::cout << "BOOP1" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
 		g_vessel->shake();
 	}
+	greenStar->draw(g_drawType, g_camera, g_light, le);
+	if (g_vessel->m_box->checkCollision(*greenStar->m_box)) {
+		std::cout << g_vessel->m_box->m_center << std::endl;
+		std::cout << "BOOP2" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
+		g_vessel->shake();
+	}
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 		if (g_vessel->m_box->checkCollision(*bloop[i]->m_box)) {
@@ -135,8 +141,6 @@ void callbackDisplay()
 			g_vessel->shake();
 		}
 	}
-	//g_light[0].m_position = g_shipCamera.m_position;
-	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
 
 	g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
 	//g_vessel->draw(g_drawType, g_camera, g_light);
@@ -282,6 +286,13 @@ void init() {
 	tempShip->initDraw();
 	tempShip->scale(30.0);
 	tempShip->m_box->setHalfWidths(15.0, 15.0, 15.0);
+
+	greenStar = new Cube(g_program, FLAT);
+	greenStar->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
+	greenStar->initDraw();
+	greenStar->translate(0.0, -2000.0, 0.0);
+	greenStar->scale(30.0);
+	greenStar->m_box->setHalfWidths(15.0, 15.0, 15.0);
 	
 	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
 	g_vessel->loadModel("ship.obj", true);
@@ -298,7 +309,6 @@ void init() {
 		float sc = 10.0f + (rand() % 200 / 10.0f);
 		bloop[i]->scale(sc);
 		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
-		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 		bloop[i]->m_box->setHalfWidths(sc, sc, sc);

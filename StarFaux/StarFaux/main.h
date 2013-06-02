@@ -46,6 +46,6 @@ Light* g_light;
 Vessel* g_vessel;
 
 Cube* tempShip;
-Sphere* tempSphere;
+Cube* greenStar;
 
 Sphere* bloop[BLOOPCOUNT];

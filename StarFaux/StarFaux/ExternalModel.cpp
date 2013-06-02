@@ -205,12 +205,6 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light* light, lightEffec
 			glUniform4fv(uDiffuseProduct, effects.numLights, *effects.diffuseProducts);
 			glUniform4fv(uSpecularProduct, effects.numLights, *effects.specularProducts);
 		}
-		/*
-		glUniform1f(uShininess, 20.0);
-		glUniform4fv(uAmbientProduct, 1, 0.2 * vec4(0.9, 0.9, 0.9, 1.0));
-		glUniform4fv(uDiffuseProduct, 1, 0.5 * vec4(0.9, 0.9, 0.9, 1.0));
-		glUniform4fv(uSpecularProduct, 1, 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
-		*/
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_textureBufferArray[i]);
 		glBindTexture(GL_TEXTURE_2D, m_textureObjectArray[i]);
