@@ -73,6 +73,9 @@ void handleKeyDown() {
 				case KEY_DOWN: g_camera.rotatePitch(-2.5f); break;
 				case KEY_LEFT: g_camera.rotateYaw(2.0f); break;
 				case KEY_RIGHT: g_camera.rotateYaw(-2.5f); break;
+				case KEY_Z: {
+
+				}
 			}
 		} else {
 			switch (i) {
@@ -82,8 +85,8 @@ void handleKeyDown() {
 				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
 				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationY(0.0f); break;
 				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(0.0f); break;
-				case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
-				case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
+				//case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
+				//case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
 			}
 		}
 	}
@@ -96,7 +99,9 @@ void callbackDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	g_camera.update();
 	g_shipCamera.update();
+	
 	g_vessel->updateMovement();
+	
 
 	g_light.m_position = vec3(0.0, 0.0, 0.0);
 	g_light.m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
@@ -111,23 +116,28 @@ void callbackDisplay()
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 	
 	tempShip->draw(g_drawType, g_camera, g_light);
-	if (g_vessel->m_shape->checkCollision(tempShip->m_shape)) {
-		std::cout << g_vessel->m_shape->m_center << std::endl;
-		std::cout << "BOOP1" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
-		g_vessel->shake();
-	}
+	tempShip->translate(-g_bulletV.x, -g_bulletV.y, -g_bulletV.z);
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light);
 		if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
-			std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 			g_vessel->shake();
 		}
 	}
 	g_light.m_position = g_shipCamera.m_position;
 	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
 
+	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
+	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
+	//pos = vec3(pos2.x, pos2.y, pos2.z);
+	vec3 a = Quaternion(vec3(0.0f, -1.0f, 0.0f), 32.0f * (g_vessel->getVelocity().x / g_vessel->MAX_VELOCITY)) * vec3(0.0, 0.0, 1.0);
+	vec3 b = Quaternion(vec3(1.0f, 0.0f, 0.0f), 50.0f * (g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y)) * vec3(0.0, 0.0, 1.0);
+	vec4 ab = normalize(vec4(a.x + b.x, a.y + b.y, a.z + b.z, 0.0));
+	vec3 ab1 = vec3(ab.x, ab.y, ab.z);
+	xhair1->setPosition(-10 * (ab1));
+	xhair2->setPosition(-30 * (ab1));
+	xhair1->draw(MESH, g_shipCamera, g_light);
+	xhair2->draw(MESH, g_shipCamera, g_light);
 	g_vessel->draw(g_drawType, g_shipCamera, g_light);
-	//g_vessel->draw(g_drawType, g_camera, g_light);
 
 	if (g_debug) 
 		debugDisplay();
@@ -160,6 +170,14 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case 'r': g_keyPress[KEY_R] = true; break;
 		case 'f': g_keyPress[KEY_F] = true; break;
 		case 'e': g_keyPress[KEY_E] = true; break;
+		case SPACE_KEY: {
+				tempShip->setPosition(g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f);
+				tempShip->translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f);
+				vec3 a = Quaternion(vec3(0.0f, -1.0f, 0.0f), 70.0f * (g_vessel->getVelocity().x / g_vessel->MAX_VELOCITY)) * g_camera.m_zAxis;
+				vec3 b = Quaternion(g_camera.m_xAxis, 60.0f * (g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y)) * g_camera.m_zAxis;
+				g_bulletV = 5 * (a + b);
+				break;
+		}
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
 		case '0': g_debug = !g_debug; break;
 		case 'p': g_animate = !g_animate; break;
@@ -176,6 +194,7 @@ void callbackKeyboardUp(unsigned char key, int x, int y)
 		case 'r': g_keyPress[KEY_R] = false; break;
 		case 'f': g_keyPress[KEY_F] = false; break;
 		case 'e': g_keyPress[KEY_E] = false; break;
+		case 'z': g_keyPress[KEY_Z] = false; break;
 	}
 }
 
@@ -255,17 +274,16 @@ void init() {
 	glUseProgram(g_program); 
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
-	g_camera.translate(vec3(0.0, 0.0, 1500.0));
+	g_camera.translate(vec3(0.0, 0.0, 200.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
 	g_shipCamera.rotatePitch(0.0f);
 
 	tempShip = new Cube(g_program, FLAT);
-	tempShip->setupLighting(20.0, vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.8, 0.8, 0.8, 1.0));
+	tempShip->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
 	tempShip->initDraw();
-	tempShip->scale(30.0);
+	tempShip->scale(0.1);
 	bb = new BoundingBox();
-	bb->setHalfWidths(15.0, 15.0, 15.0);
 	tempShip->m_shape = bb;
 	
 	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
@@ -275,15 +293,26 @@ void init() {
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
 	bb = new BoundingBox();
-	bb->setHalfWidths(2.0, 1.0, 4.5);
+	bb->setHalfWidths(1.8, 0.8, 3.5);
 	bb->setCenter(vec3(0.0, 0.0, 1500.0));
 	g_vessel->m_shape = bb;
 
-	float start = 280.0f;
+	xhair1 = new Cube(g_program, NONE);
+	xhair1->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
+	xhair1->initDraw();
+	bb = new BoundingBox();
+	xhair1->m_shape = bb;
+	xhair1->translate(0.0, 0.0, -10.0);
+	xhair2 = new Cube(g_program, NONE);
+	xhair2->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
+	xhair2->initDraw();
+	bb = new BoundingBox();
+	xhair2->m_shape = bb;
+	xhair2->translate(0.0, 0.0, -30.0);
+
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
 		float sc = 10.0f + (rand() % 200 / 10.0f);
-		sc = 30.0f;
 		bloop[i]->scale(sc);
 		bs = new BoundingSphere();
 		bs->m_radius = sc;
@@ -291,9 +320,7 @@ void init() {
 		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
 		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->initDraw();
-		//bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
-
-		start -= 20.0f;
+		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 	}
 
 	g_vessel->setAccelerationZ(-0.01);

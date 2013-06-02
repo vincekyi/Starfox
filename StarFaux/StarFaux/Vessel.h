@@ -17,8 +17,9 @@ public:
 
 	void shake();
 	int m_health;
-private:
 	static const float MAX_VELOCITY;
+	static const float MAX_VELOCITY_Y;
+private:
 	static const float VELOCITY_DECAY;
 	void updateVelocity(float dTime);
 	void shakeShip();

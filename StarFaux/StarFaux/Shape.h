@@ -24,11 +24,13 @@ public:
 	void rotate(Quaternion q);
 	void resetRotation();
 	void scale(float amount);
-	void Shape::scale(vec3 amount);
+	void scale(vec3 amount);
 	void translate(float x, float y, float z);
+	void setPosition(vec3 position);
 	void resetTranslation();
 	void update();
 	mat4 m_objectToWorld;
+	Quaternion m_qRotation;
 
 	BoundingShape* m_shape;
 	vec3 m_position;
@@ -41,7 +43,7 @@ protected:
 	ShapeType m_shapeType;
 
 	// Transformations
-	Quaternion m_qRotation;
+	
 	vec3 m_scale;
 	
 	bool m_modified;

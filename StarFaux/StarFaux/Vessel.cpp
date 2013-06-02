@@ -1,6 +1,7 @@
 #include "Vessel.h"
 
 const float Vessel::MAX_VELOCITY = 2.5f;
+const float Vessel::MAX_VELOCITY_Y = 1.5f;
 const float Vessel::VELOCITY_DECAY = MAX_VELOCITY / 100.0f;
 
 Vessel::Vessel(GLuint program, Camera* camera, const char* baseDir, ShadingType shading) : ExternalModel(program, baseDir, shading) {
@@ -72,8 +73,8 @@ void Vessel::updateVelocity(float dTime) {
 	m_velocity += dTime * m_acceleration;
 	if (m_velocity.x > MAX_VELOCITY) m_velocity.x = MAX_VELOCITY;
 	else if (m_velocity.x < -MAX_VELOCITY) m_velocity.x = -MAX_VELOCITY;
-	if (m_velocity.y > MAX_VELOCITY) m_velocity.y = MAX_VELOCITY;
-	else if (m_velocity.y < -MAX_VELOCITY) m_velocity.y = -MAX_VELOCITY;
+	if (m_velocity.y > MAX_VELOCITY_Y) m_velocity.y = MAX_VELOCITY_Y;
+	else if (m_velocity.y < -MAX_VELOCITY_Y) m_velocity.y = -MAX_VELOCITY_Y;
 	if (m_velocity.z > MAX_VELOCITY) m_velocity.z = MAX_VELOCITY;
 	else if (m_velocity.z < -MAX_VELOCITY) m_velocity.z = -MAX_VELOCITY;
 
@@ -110,7 +111,7 @@ void Vessel::updateVelocity(float dTime) {
 	resetRotation();
 	rotate(Quaternion(vec3(0.0f, 0.0f, -1.0f), 60.0f * (m_velocity.x / MAX_VELOCITY)));
 	rotate(Quaternion(vec3(0.0f, -1.0f, 0.0f), 20.0f * (m_velocity.x / MAX_VELOCITY)));
-	rotate(Quaternion(vec3(1.0f, 0.0f, 0.0f), 23.0f * (m_velocity.y / MAX_VELOCITY)));
+	rotate(Quaternion(vec3(1.0f, 0.0f, 0.0f), 23.0f * (m_velocity.y / MAX_VELOCITY_Y)));
 	m_camera->rotateYaw(-0.5 * m_velocity.x / MAX_VELOCITY);
 
 }

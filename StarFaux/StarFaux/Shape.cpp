@@ -81,7 +81,7 @@ void Shape::update() {
 }
 void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	glBindVertexArray(m_vertexArrayObject);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+	//glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 
 	GLuint uCameraPosition = glGetUniformLocation(m_program, "uCameraPosition");
     GLuint uLightPosition = glGetUniformLocation(m_program, "uLightPosition");
@@ -167,6 +167,12 @@ void Shape::scale(vec3 amount) {
 
 void Shape::translate(float x, float y, float z) {
 	m_position += vec3(x, y, z);
+	m_shape->setCenter(m_position);
+	m_modified = true;
+}
+
+void Shape::setPosition(vec3 position) {
+	m_position = position;
 	m_shape->setCenter(m_position);
 	m_modified = true;
 }

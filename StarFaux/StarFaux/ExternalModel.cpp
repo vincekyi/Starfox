@@ -166,7 +166,7 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 	int i = 0;
 	for (std::map<int, char*>::iterator iter = m_materialRefs.begin(); i < m_materialRefs.size(); iter++, i++) {
 		glBindVertexArray(m_vertexArrayObjectArray[i]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferArray[i]);
+		//glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferArray[i]);
 
 		update();
 		mat4 model = m_objectToWorld;
