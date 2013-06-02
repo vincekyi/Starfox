@@ -57,7 +57,7 @@ void Vessel::updateMovement() {
 	vec3 dPosition = dTime * m_velocity + 0.5 * m_acceleration * dTime * dTime;
 	m_camera->translate(dPosition);
 	updateVelocity(dTime);
-	m_box->setCenter(m_camera->m_position - vec3(0.0f, 2.0f, 10.0f));
+	m_shape->setCenter(m_camera->m_position - vec3(0.0f, 2.0f, 10.0f));
 	if (m_shakeCount > 0) {
 		shakeShip();
 	} else {

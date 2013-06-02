@@ -30,7 +30,7 @@ public:
 	void update();
 	mat4 m_objectToWorld;
 
-	BoundingBox* m_box;
+	BoundingShape* m_shape;
 	vec3 m_position;
 
 protected:

@@ -1,7 +1,6 @@
 #version 150
 
 in vec4 fColor;
-in int st;
 in vec2 texCoord[2];
 
 in vec3 fN;

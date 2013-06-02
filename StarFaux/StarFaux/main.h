@@ -19,9 +19,9 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 1000
+#define BLOOPCOUNT 1
 
-#define ACCEL 0.05f
+#define ACCEL 0.005f
 
 bool g_keyPress[40];
 const int UPDATE_DELAY = 1000/TARGET_FPS;
