@@ -17,7 +17,7 @@ public:
 	// Call this after setting up lighting and textures!
 	void initDraw();
 
-	void draw(DrawType type, Camera& camera, Light& light);
+	void draw(DrawType type, Camera& camera, Light* light, int numLights);
 	void setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType, std::string textureName);
 	void setupLighting(ShadingType shading, float shininess, vec4 materialAmbient, vec4 materialDiffuse, vec4 materialSpecular);
 	void rotate(Quaternion q);
