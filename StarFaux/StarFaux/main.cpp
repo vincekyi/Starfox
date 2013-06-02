@@ -276,32 +276,29 @@ void init() {
 	g_vessel->m_box->setHalfWidths(2.0, 1.0, 4.5);
 	g_vessel->m_box->setCenter(vec3(0.0, 0.0, 1500.0));
 
-	float start = 280.0f;
-	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
-		//bloop[i] = new ExternalModel(g_program, "./models/asteroid", GOURAUD);
-		//bloop[i]->loadModel("asteroid_sphere2.obj", true);
-		//float sc = 1.0;
-
-		float sc = 10.0f + (rand() % 200 / 10.0f);
-		bloop[i]->scale(sc);
-		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
-		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
-		bloop[i]->initDraw();
-		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
-		bloop[i]->m_box->setHalfWidths(sc, sc, sc);
-		start -= 20.0f;
-	}
-
-	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
-	gAsteroid->loadModel("asteroid_sphere2.obj", true);
-	float sc = 100.0;
+	gAsteroid = new ExternalModel(g_program, "./models/asteroid", FLAT);
+	gAsteroid->loadModel("asteroid_sphere3.obj", true);
+	float sc = 50.0;
 	gAsteroid->scale(sc);
 	//gAsteroid->setupLighting(0.0, vec4(0.1, 0.1, 0.1, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.3, 0.3, 0.3, 1.0));
 	gAsteroid->setupTexture(TRILINEAR, REPEAT);
 	gAsteroid->initDraw();
 	gAsteroid->m_box->setHalfWidths(sc, sc, sc);
 	gAsteroid->translate(0.0, 0.0, -500.0);
+
+	for (int i = 0; i < BLOOPCOUNT; ++i) {
+		//bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
+		bloop[i] = new ExternalModel(g_program, FLAT, gAsteroid->getVertexArrayObject());
+
+		float sc = 10.0f + (rand() % 200 / 10.0f);
+		bloop[i]->scale(sc);
+		gAsteroid->setupTexture(TRILINEAR, REPEAT);
+		//bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
+		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
+		bloop[i]->initDraw();
+		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+		bloop[i]->m_box->setHalfWidths(sc, sc, sc);
+	}
 
 	g_vessel->setAccelerationZ(-0.01);
 	glClearColor( 1.0, 1.0, 1.0, 1.0 ); // black background

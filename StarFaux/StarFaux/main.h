@@ -50,7 +50,7 @@ Sphere* tempSphere;
 
 
 
-//ExternalModel* bloop[BLOOPCOUNT];
-Sphere* bloop[BLOOPCOUNT];
+ExternalModel* bloop[BLOOPCOUNT];
+//Sphere* bloop[BLOOPCOUNT];
 
 ExternalModel *gAsteroid;

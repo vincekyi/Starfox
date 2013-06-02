@@ -20,6 +20,17 @@ ExternalModel::ExternalModel(GLuint program, const char* baseDir, ShadingType sh
 	m_shading = shading;
 }
 
+ExternalModel::ExternalModel(GLuint program, ShadingType shading, GLuint vao) {
+	m_program = program;
+	m_shading = shading;
+	m_vertexArrayObject = vao;
+}
+
+GLuint ExternalModel::getVertexArrayObject() const {
+	return m_vertexArrayObject;
+}
+
+
 // Overloaded setupTexture
 // The .mtl file will specify the texture map file names
 void ExternalModel::setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType) {

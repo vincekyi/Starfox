@@ -14,6 +14,10 @@ public:
 	ExternalModel(GLuint program, const char* baseDir, ShadingType shading);
 	void loadModel(const char* filename, bool center);
 
+	// Instance many objects from this one VertexArrayObject loaded
+	ExternalModel(GLuint program, ShadingType shading, GLuint vao);
+	GLuint getVertexArrayObject() const;
+
 	void initDraw();
 	void draw(DrawType type, Camera& camera, Light& light);
 	void setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType);
