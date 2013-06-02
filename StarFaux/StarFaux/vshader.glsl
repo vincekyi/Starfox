@@ -5,7 +5,7 @@ in vec3 vNormal;
 in vec2 vTexCoords;
 out float fogFactor;
 out vec4 fColor;
-out vec2 texCoord[2];
+out vec2 texCoord;
 
 out vec3 fN; //normal at current position
 out vec3 fV; //vector from point to viewer
@@ -48,9 +48,12 @@ void main()
 	}
 	else {
 		// Phong shading is taken care of in the fragment shader
-		fN = (uModel * vec4(vNormal.x, vNormal.y, vNormal.z, 0.0)).xyz;
-		fV = (uCameraPosition - uModel * vPosition).xyz;
-		fL = (uLightPosition - uModel * vPosition).xyz;
+		mat3 MV3x3 = mat3(uModelView);
+		fN = (MV3x3 * vNormal);
+		vec4 vertexPosition_cameraspace = uModelView * vPosition;
+		fV = (uCameraPosition - vertexPosition_cameraspace).xyz;
+		fL = uLightPosition.xyz + fV;
+		texCoord = vTexCoords;
 
 		if (uShadingType == 1 || uShadingType == 2) {	// Flat Shading || Gouraud Shading
 			vec3 N, V, L, H;
@@ -74,6 +77,6 @@ void main()
 		}
 	}
 	if (uEnableTexture == 1) {
-		texCoord[0].xy = vTexCoords.xy;
+		texCoord = vTexCoords;
 	}	
 }

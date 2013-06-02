@@ -82,8 +82,8 @@ void handleKeyDown() {
 				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
 				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationY(0.0f); break;
 				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(0.0f); break;
-				//case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
-				//case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
 			}
 		}
 	}
@@ -110,6 +110,8 @@ void callbackDisplay()
 	glUniform1f(fogMaxDist, 1700.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 	
+	gAsteroid->draw(g_drawType, g_camera, g_light);
+
 	tempShip->draw(g_drawType, g_camera, g_light);
 	if (g_vessel->m_box->checkCollision(*tempShip->m_box)) {
 		std::cout << g_vessel->m_box->m_center << std::endl;
@@ -253,7 +255,8 @@ void init() {
 	glUseProgram(g_program); 
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
-	g_camera.translate(vec3(0.0, 0.0, 1500.0));
+	//g_camera.translate(vec3(0.0, 0.0, 1500.0));
+	g_camera.translate(vec3(0.0, 0.0, -95.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
 	g_shipCamera.rotatePitch(-0.0f);
@@ -276,6 +279,10 @@ void init() {
 	float start = 280.0f;
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
+		//bloop[i] = new ExternalModel(g_program, "./models/asteroid", GOURAUD);
+		//bloop[i]->loadModel("asteroid_sphere2.obj", true);
+		//float sc = 1.0;
+
 		float sc = 10.0f + (rand() % 200 / 10.0f);
 		bloop[i]->scale(sc);
 		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
@@ -285,6 +292,15 @@ void init() {
 		bloop[i]->m_box->setHalfWidths(sc, sc, sc);
 		start -= 20.0f;
 	}
+
+	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	gAsteroid->loadModel("asteroid_sphere2.obj", true);
+	float sc = 5.0;
+	gAsteroid->scale(sc);
+	gAsteroid->setupTexture(TRILINEAR, REPEAT);
+	gAsteroid->initDraw();
+	gAsteroid->m_box->setHalfWidths(sc, sc, sc);
+	gAsteroid->translate(0.0, 0.0, -100.0);
 
 	g_vessel->setAccelerationZ(-0.01);
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background

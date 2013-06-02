@@ -19,7 +19,7 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 1000
+#define BLOOPCOUNT 500
 
 #define ACCEL 0.05f
 
@@ -50,4 +50,7 @@ Sphere* tempSphere;
 
 
 
+//ExternalModel* bloop[BLOOPCOUNT];
 Sphere* bloop[BLOOPCOUNT];
+
+ExternalModel *gAsteroid;
