@@ -304,7 +304,7 @@ void init() {
 	gAsteroid->translate(0.0, 0.0, -500.0);
 
 	g_vessel->setAccelerationZ(-0.01);
-	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
+	glClearColor( 1.0, 1.0, 1.0, 1.0 ); // black background
 }
 
 int main(int argc, char** argv)

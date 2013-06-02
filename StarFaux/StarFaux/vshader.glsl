@@ -14,6 +14,7 @@ out vec3 fL; //vector from point to light
 uniform mat4 uProj;
 uniform mat4 uModelView;
 uniform mat4 uModel;
+uniform mat4 uView;
 uniform float uShininess;
 uniform vec4 uAmbientProduct;
 uniform vec4 uDiffuseProduct;
@@ -48,11 +49,15 @@ void main()
 	}
 	else {
 		// Phong shading is taken care of in the fragment shader
-		mat3 MV3x3 = mat3(transpose(inverse(uModelView)));
+		//mat3 MV3x3 = mat3(transpose(inverse(uModelView)));
+		mat3 MV3x3 = mat3(uModelView);
 		fN = (MV3x3 * vNormal);
 		vec4 vertexPosition_cameraspace = uModelView * vPosition;
-		fV = (uCameraPosition - vertexPosition_cameraspace).xyz;
-		fL = uLightPosition.xyz + fV;
+		//fV = (uCameraPosition - vertexPosition_cameraspace).xyz;
+		fV = -vertexPosition_cameraspace.xyz;
+		vec3 LightPosition_cameraspace = (uView * vPosition).xyz;
+		fL = LightPosition_cameraspace + fV;
+		//fL = uLightPosition.xyz + fV;
 		texCoord = vTexCoords;
 
 		if (uShadingType == 1 || uShadingType == 2) {	// Flat Shading || Gouraud Shading

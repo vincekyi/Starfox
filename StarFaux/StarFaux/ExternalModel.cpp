@@ -148,6 +148,7 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uProj = glGetUniformLocation(m_program, "uProj");
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
+	GLuint uView = glGetUniformLocation(m_program, "uView");
 	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 	glUniform4fv(uCameraPosition, 1, camera.m_position);
@@ -170,12 +171,14 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 
 		update();
 		mat4 model = m_objectToWorld;
-		mat4 mv = camera.worldToCamera() * model;
+		mat4 view = camera.worldToCamera();
+		mat4 mv = view * model;
 		if (m_shapeType == VESSEL) {
 			model = Translate(m_camera->m_position) * m_objectToWorld * m_camera->m_qRotation.generateMatrix();
 		}
 		glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
 		glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
+		glUniformMatrix4fv(uView, 1, GL_TRUE, view);
 
 		glUniform1f(uShininess, m_textureMaps[iter->second]->Ns);
 		if (m_shakeCount % 20 > 5) {

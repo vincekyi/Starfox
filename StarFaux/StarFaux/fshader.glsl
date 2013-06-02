@@ -70,9 +70,13 @@ void main()
 			N = perturb_normal(N, V, texCoord);
 		}
     
-		vec4 ambient = uAmbientProduct;
-		vec4 diffuse = (N.x + N.y + N.z) * uDiffuseProduct;
-		//vec4 diffuse = max(dot(L,N), 0.0) * uDiffuseProduct;
+		float lambertTerm = max(dot(L, N), 0.0);
+		// Can't see bumps behind light, so fake it with ambience
+		float bumpTerm = N.x + N.y + N.z; 
+
+		vec4 ambient = uAmbientProduct * bumpTerm;
+		//vec4 diffuse = (N.x + N.y + N.z) * uDiffuseProduct;
+		vec4 diffuse = lambertTerm * uDiffuseProduct;
 		//if (uEnableTexture == 1)
 			//diffuse *= texture2D(uTexture, texCoord);
 		vec4 specular = pow(max(dot(N,H), 0.0), uShininess) * uSpecularProduct;

@@ -94,12 +94,14 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uProj = glGetUniformLocation(m_program, "uProj");
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
+	GLuint uView = glGetUniformLocation(m_program, "uView");
 	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 	
 	update();
 	mat4 model = m_objectToWorld;
-	mat4 mv = camera.worldToCamera() * model;
+	mat4 view = camera.worldToCamera();
+	mat4 mv = view * model;
 
 	glUniform4fv(uCameraPosition, 1, camera.m_position);
 	glUniform4fv(uLightPosition, 1, light.m_position);
@@ -111,6 +113,7 @@ void Shape::draw(DrawType type, Camera& camera, Light& light) {
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
 	glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
+	glUniformMatrix4fv(uView, 1, GL_TRUE, view);
 
 	glBindTexture(GL_TEXTURE_2D, m_textureObject);
 	glUniform1i(uEnableTexture, 1);
