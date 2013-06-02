@@ -38,7 +38,7 @@ void main()
 		for (int i = 0; i < uNumLights; i++) {
 			L = normalize(fL[i]);
 			H = normalize(L + V);
-			float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) / uAttenuation;
+			float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) * uAttenuation;
 			if (distance < 1.0) {
 				distance = 1.0;
 			}

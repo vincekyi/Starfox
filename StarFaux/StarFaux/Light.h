@@ -20,6 +20,6 @@ struct lightEffects {
 	int numLights;
 };
 
-const float g_attenuation = 2000000;
+const float g_attenuation = 0.0000005;
 
 #endif

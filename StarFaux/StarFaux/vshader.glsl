@@ -62,7 +62,7 @@ void main()
 
 		for (int i = 0; i < uNumLights; i++) {
 			fL[i] = (uLightPosition[i] - uModel * vPosition).xyz;
-			float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) / uAttenuation;
+			float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) * uAttenuation;
 			if (distance < 1.0) {
 				distance = 1.0;
 			}
