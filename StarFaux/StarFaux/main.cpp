@@ -98,10 +98,16 @@ void callbackDisplay()
 	g_shipCamera.update();
 	g_vessel->updateMovement();
 
-	g_light.m_position = vec3(0.0, 0.0, 0.0);
-	g_light.m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
-	g_light.m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-	g_light.m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+	for (int i = 0; i < LIGHTSOURCECOUNT; i++) {
+		g_light[i].m_position = vec3(0.0, 0.0, 0.0);
+		g_light[i].m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+		g_light[i].m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+		g_light[i].m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+	}
+	g_light[1].m_position = vec3(0.0, -2000.0, 0.0);
+	g_light[1].m_lightAmbient = vec4(0.0, 1.0, 0.0, 1.0);
+	g_light[1].m_lightDiffuse = vec4(0.0, 1.0, 0.0, 1.0);
+	g_light[1].m_lightSpecular = vec4(0.0, 1.0, 0.0, 1.0);
 
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
 	GLuint fogMinDist = glGetUniformLocation(g_program, "uFogMinDist");
@@ -109,25 +115,36 @@ void callbackDisplay()
 	glUniform1f(fogMinDist, 1500.0f);
 	glUniform1f(fogMaxDist, 1700.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
-	
-	tempShip->draw(g_drawType, g_camera, g_light);
+
+	lightEffects le;
+	le.numLights = LIGHTSOURCECOUNT;
+	le.ambientProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.diffuseProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.specularProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.lightPositions = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	tempShip->draw(g_drawType, g_camera, g_light, le);
 	if (g_vessel->m_box->checkCollision(*tempShip->m_box)) {
 		std::cout << g_vessel->m_box->m_center << std::endl;
 		std::cout << "BOOP1" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
 		g_vessel->shake();
 	}
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i]->draw(g_drawType, g_camera, g_light);
+		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 		if (g_vessel->m_box->checkCollision(*bloop[i]->m_box)) {
 			std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 			g_vessel->shake();
 		}
 	}
-	g_light.m_position = g_shipCamera.m_position;
+	//g_light[0].m_position = g_shipCamera.m_position;
 	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
 
-	g_vessel->draw(g_drawType, g_shipCamera, g_light);
+	g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
 	//g_vessel->draw(g_drawType, g_camera, g_light);
+
+	free(le.ambientProducts);
+	free(le.diffuseProducts);
+	free(le.specularProducts);
+	free(le.lightPositions);
 
 	if (g_debug) 
 		debugDisplay();
@@ -251,6 +268,8 @@ void init() {
 
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program); 
+
+	g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
 	g_camera.translate(vec3(0.0, 0.0, 1500.0));

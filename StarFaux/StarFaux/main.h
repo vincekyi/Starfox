@@ -15,11 +15,11 @@
 #include "Tga.h"
 
 
-
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
 #define BLOOPCOUNT 1000
+#define LIGHTSOURCECOUNT 2
 
 #define ACCEL 0.05f
 
@@ -42,12 +42,10 @@ DrawType g_drawType = FILLED;
 
 Camera g_camera;
 Camera g_shipCamera;
-Light g_light;
+Light* g_light;
 Vessel* g_vessel;
 
 Cube* tempShip;
 Sphere* tempSphere;
-
-
 
 Sphere* bloop[BLOOPCOUNT];
