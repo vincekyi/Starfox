@@ -12,4 +12,14 @@ public:
 private:
 };
 
+struct lightEffects {
+	vec4* lightPositions;
+	vec4* ambientProducts;
+	vec4* diffuseProducts;
+	vec4* specularProducts;
+	int numLights;
+};
+
+const float g_attenuation = 2000000;
+
 #endif

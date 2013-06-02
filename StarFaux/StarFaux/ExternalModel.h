@@ -15,7 +15,7 @@ public:
 	void loadModel(const char* filename, bool center);
 
 	void initDraw();
-	void draw(DrawType type, Camera& camera, Light* light, int numLights);
+	void draw(DrawType type, Camera& camera, Light* light, lightEffects effects);
 	void setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType);
 	using Shape::setupTexture;
 	void setupLighting(ShadingType shading);

@@ -131,9 +131,9 @@ void ExternalModel::initDraw() {
 
 // Overloaded draw
 // Process each texture
-void ExternalModel::draw(DrawType type, Camera& camera, Light* light, int numLights) {
+void ExternalModel::draw(DrawType type, Camera& camera, Light* light, lightEffects effects) {
 	if (!m_useTexture || !m_hasMaterials || m_textureCoords == NULL) {
-		Shape::draw(type, camera, light, numLights);
+		Shape::draw(type, camera, light, effects);
 		return;
 	}
 
@@ -145,19 +145,20 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light* light, int numLig
 	GLuint uAmbientProduct = glGetUniformLocation(m_program, "uAmbientProduct");
 	GLuint uDiffuseProduct = glGetUniformLocation(m_program, "uDiffuseProduct");
 	GLuint uSpecularProduct = glGetUniformLocation(m_program, "uSpecularProduct");
+	GLuint uAttenuation = glGetUniformLocation(m_program, "uAttenuation");
 	GLuint uProj = glGetUniformLocation(m_program, "uProj");
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
 	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 
-	vec4* lightPositions = (vec4*)malloc(sizeof(vec4) * numLights);
-	for (int i = 0; i < numLights; i++) {
-		lightPositions[i] = light[i].m_position;
+	for (int i = 0; i < effects.numLights; i++) {
+		effects.lightPositions[i] = light[i].m_position;
 	}
 	glUniform4fv(uCameraPosition, 1, camera.m_position);
-	glUniform4fv(uLightPosition, numLights, *lightPositions);
-	glUniform1i(uNumLights, numLights);
+	glUniform4fv(uLightPosition, effects.numLights, *effects.lightPositions);
+	glUniform1i(uNumLights, effects.numLights);
+	glUniform1f(uAttenuation, g_attenuation);
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniform1i(uShadingType, m_shading);
 	glUniform1i(uEnableTexture, 1);
@@ -179,17 +180,14 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light* light, int numLig
 
 		glUniform1f(uShininess, m_textureMaps[iter->second]->Ns);
 
-		vec4* ambientProducts = (vec4*)malloc(sizeof(vec4) * numLights);
-		vec4* diffuseProducts = (vec4*)malloc(sizeof(vec4) * numLights);
-		vec4* specularProducts = (vec4*)malloc(sizeof(vec4) * numLights);
-		for (int i = 0; i < numLights; i++) {
-			ambientProducts[i] = light[i].m_lightAmbient * m_textureMaps[iter->second]->Ka;
-			diffuseProducts[i] = light[i].m_lightDiffuse * m_textureMaps[iter->second]->Kd;
-			specularProducts[i] = light[i].m_lightSpecular * m_textureMaps[iter->second]->Ks;
+		for (int i = 0; i < effects.numLights; i++) {
+			effects.ambientProducts[i] = light[i].m_lightAmbient * m_textureMaps[iter->second]->Ka;
+			effects.diffuseProducts[i] = light[i].m_lightDiffuse * m_textureMaps[iter->second]->Kd;
+			effects.specularProducts[i] = light[i].m_lightSpecular * m_textureMaps[iter->second]->Ks;
 		}
-		glUniform4fv(uAmbientProduct, numLights, *ambientProducts);
-		glUniform4fv(uDiffuseProduct, numLights, *diffuseProducts);
-		glUniform4fv(uSpecularProduct, numLights, *specularProducts);
+		glUniform4fv(uAmbientProduct, effects.numLights, *effects.ambientProducts);
+		glUniform4fv(uDiffuseProduct, effects.numLights, *effects.diffuseProducts);
+		glUniform4fv(uSpecularProduct, effects.numLights, *effects.specularProducts);
 		/*
 		glUniform1f(uShininess, 20.0);
 		glUniform4fv(uAmbientProduct, 1, 0.2 * vec4(0.9, 0.9, 0.9, 1.0));

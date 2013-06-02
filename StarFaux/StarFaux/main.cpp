@@ -100,12 +100,11 @@ void callbackDisplay()
 		g_light[i].m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 		g_light[i].m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 	}
-	/*
-	g_light[1].m_position = vec3(400.0, 0.0, 0.0);
-	g_light[1].m_lightAmbient = vec4(0.0, 0.0, 1.0, 1.0);
-	g_light[1].m_lightDiffuse = vec4(0.0, 0.0, 1.0, 1.0);
-	g_light[1].m_lightSpecular = vec4(0.0, 0.0, 1.0, 1.0);
-	*/
+	g_light[1].m_position = vec3(0.0, -2000.0, 0.0);
+	g_light[1].m_lightAmbient = vec4(0.0, 1.0, 0.0, 1.0);
+	g_light[1].m_lightDiffuse = vec4(0.0, 1.0, 0.0, 1.0);
+	g_light[1].m_lightSpecular = vec4(0.0, 1.0, 0.0, 1.0);
+	
 
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
 	GLuint fogMinDist = glGetUniformLocation(g_program, "uFogMinDist");
@@ -113,16 +112,27 @@ void callbackDisplay()
 	glUniform1f(fogMinDist, 1500.0f);
 	glUniform1f(fogMaxDist, 1700.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
-	
-	tempShip->draw(g_drawType, g_camera, g_light, LIGHTSOURCECOUNT);
+
+	lightEffects le;
+	le.numLights = LIGHTSOURCECOUNT;
+	le.ambientProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.diffuseProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.specularProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.lightPositions = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	tempShip->draw(g_drawType, g_camera, g_light, le);
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i]->draw(g_drawType, g_camera, g_light, LIGHTSOURCECOUNT);
+		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 	}
 	//g_light[0].m_position = g_shipCamera.m_position;
 	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
 
-	g_vessel->draw(g_drawType, g_shipCamera, g_light, LIGHTSOURCECOUNT);
+	g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
 	//g_vessel->draw(g_drawType, g_camera, g_light);
+
+	free(le.ambientProducts);
+	free(le.diffuseProducts);
+	free(le.specularProducts);
+	free(le.lightPositions);
 
 	if (g_debug) 
 		debugDisplay();
@@ -286,7 +296,6 @@ void init() {
 
 	g_vessel->setAccelerationZ(-0.01);
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
-	//glClearColor( 1.0, 1.0, 1.0, 0.0 ); // white background
 }
 
 int main(int argc, char** argv)

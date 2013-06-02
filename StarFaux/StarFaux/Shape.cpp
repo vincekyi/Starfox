@@ -79,7 +79,7 @@ void Shape::update() {
 		m_modified = false;
 	}
 }
-void Shape::draw(DrawType type, Camera& camera, Light* light, int numLights) {
+void Shape::draw(DrawType type, Camera& camera, Light* light, lightEffects effects) {
 	glBindVertexArray(m_vertexArrayObject);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 
@@ -91,6 +91,7 @@ void Shape::draw(DrawType type, Camera& camera, Light* light, int numLights) {
 	GLuint uAmbientProduct = glGetUniformLocation(m_program, "uAmbientProduct");
 	GLuint uDiffuseProduct = glGetUniformLocation(m_program, "uDiffuseProduct");
 	GLuint uSpecularProduct = glGetUniformLocation(m_program, "uSpecularProduct");
+	GLuint uAttenuation = glGetUniformLocation(m_program, "uAttenuation");
 	GLuint uProj = glGetUniformLocation(m_program, "uProj");
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
@@ -101,24 +102,21 @@ void Shape::draw(DrawType type, Camera& camera, Light* light, int numLights) {
 	mat4 model = m_objectToWorld;
 	mat4 mv = camera.worldToCamera() * model;
 
-	vec4* lightPositions = (vec4*)malloc(sizeof(vec4) * numLights);
-	vec4* ambientProducts = (vec4*)malloc(sizeof(vec4) * numLights);
-	vec4* diffuseProducts = (vec4*)malloc(sizeof(vec4) * numLights);
-	vec4* specularProducts = (vec4*)malloc(sizeof(vec4) * numLights);
-	for (int i = 0; i < numLights; i++) {
-		lightPositions[i] = light[i].m_position;
-		ambientProducts[i] = light[i].m_lightAmbient * m_materialAmbient;
-		diffuseProducts[i] = light[i].m_lightDiffuse * m_materialDiffuse;
-		specularProducts[i] = light[i].m_lightSpecular * m_materialSpecular;
+	for (int i = 0; i < effects.numLights; i++) {
+		effects.lightPositions[i] = light[i].m_position;
+		effects.ambientProducts[i] = light[i].m_lightAmbient * m_materialAmbient;
+		effects.diffuseProducts[i] = light[i].m_lightDiffuse * m_materialDiffuse;
+		effects.specularProducts[i] = light[i].m_lightSpecular * m_materialSpecular;
 	}
 	glUniform4fv(uCameraPosition, 1, camera.m_position);
-	glUniform4fv(uLightPosition, numLights, *lightPositions);
+	glUniform4fv(uLightPosition, effects.numLights, *effects.lightPositions);
 	glUniform1i(uShadingType, m_shading);
 	glUniform1f(uShininess, m_shininess);
-	glUniform1i(uNumLights, numLights);
-	glUniform4fv(uAmbientProduct, numLights, *ambientProducts);
-	glUniform4fv(uDiffuseProduct, numLights, *diffuseProducts);
-	glUniform4fv(uSpecularProduct, numLights, *specularProducts);
+	glUniform1i(uNumLights, effects.numLights);
+	glUniform4fv(uAmbientProduct, effects.numLights, *effects.ambientProducts);
+	glUniform4fv(uDiffuseProduct, effects.numLights, *effects.diffuseProducts);
+	glUniform4fv(uSpecularProduct, effects.numLights, *effects.specularProducts);
+	glUniform1f(uAttenuation, g_attenuation);
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
 	glUniformMatrix4fv(uModel, 1, GL_TRUE, model);

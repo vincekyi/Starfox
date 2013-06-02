@@ -19,6 +19,7 @@ uniform int uNumLights;
 uniform vec4 uAmbientProduct[5];
 uniform vec4 uDiffuseProduct[5];
 uniform vec4 uSpecularProduct[5];
+uniform float uAttenuation;
 
 uniform vec4 uFogColor;
 
@@ -37,7 +38,7 @@ void main()
 		for (int i = 0; i < uNumLights; i++) {
 			L = normalize(fL[i]);
 			H = normalize(L + V);
-			float distance = 0.0000005 * (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2));
+			float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) / uAttenuation;
 			if (distance < 1.0) {
 				distance = 1.0;
 			}
