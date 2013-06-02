@@ -295,12 +295,13 @@ void init() {
 
 	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
 	gAsteroid->loadModel("asteroid_sphere2.obj", true);
-	float sc = 5.0;
+	float sc = 100.0;
 	gAsteroid->scale(sc);
+	//gAsteroid->setupLighting(0.0, vec4(0.1, 0.1, 0.1, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.3, 0.3, 0.3, 1.0));
 	gAsteroid->setupTexture(TRILINEAR, REPEAT);
 	gAsteroid->initDraw();
 	gAsteroid->m_box->setHalfWidths(sc, sc, sc);
-	gAsteroid->translate(0.0, 0.0, -100.0);
+	gAsteroid->translate(0.0, 0.0, -500.0);
 
 	g_vessel->setAccelerationZ(-0.01);
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background

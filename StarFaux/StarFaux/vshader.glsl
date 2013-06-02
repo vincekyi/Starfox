@@ -48,7 +48,7 @@ void main()
 	}
 	else {
 		// Phong shading is taken care of in the fragment shader
-		mat3 MV3x3 = mat3(uModelView);
+		mat3 MV3x3 = mat3(transpose(inverse(uModelView)));
 		fN = (MV3x3 * vNormal);
 		vec4 vertexPosition_cameraspace = uModelView * vPosition;
 		fV = (uCameraPosition - vertexPosition_cameraspace).xyz;
