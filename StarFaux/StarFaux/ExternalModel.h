@@ -11,12 +11,12 @@
 
 class ExternalModel : public Shape {
 public:
+
 	ExternalModel(GLuint program, const char* baseDir, ShadingType shading);
 	void loadModel(const char* filename, bool center);
 
 	// Instance many objects from this one VertexArrayObject loaded
-	ExternalModel(GLuint program, ShadingType shading, GLuint vao);
-	GLuint getVertexArrayObject() const;
+	ExternalModel(const ExternalModel& ext);
 
 	void initDraw();
 	void draw(DrawType type, Camera& camera, Light& light);
@@ -48,14 +48,15 @@ protected:
 
 	static const int maxLineSize = 82;
 	char* m_baseDir;
-	std::map<int, char*> m_materialRefs;
-	std::map<char*, materialProp_t*, cmp_str> m_textureMaps;
+	std::map<int, char*> *m_materialRefs;
+	std::map<char*, materialProp_t*, cmp_str> *m_textureMaps;
 
 	// Need multiple vertex and texture buffers
 	GLuint* m_vertexArrayObjectArray;
 	GLuint* m_vertexBufferArray;
-	GLuint* m_textureBufferArray;
 	GLuint* m_textureObjectArray;
+	GLuint* m_textureBufferArray;
+	
 
 	void loadTextureMaps(const char* filename);
 	char* getTextureMap(materialProp_t* mpt);

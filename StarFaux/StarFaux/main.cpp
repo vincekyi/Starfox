@@ -82,8 +82,8 @@ void handleKeyDown() {
 				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
 				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationY(0.0f); break;
 				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(0.0f); break;
-				case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
-				case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
+				//case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
+				//case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
 			}
 		}
 	}
@@ -276,8 +276,8 @@ void init() {
 	g_vessel->m_box->setHalfWidths(2.0, 1.0, 4.5);
 	g_vessel->m_box->setCenter(vec3(0.0, 0.0, 1500.0));
 
-	gAsteroid = new ExternalModel(g_program, "./models/asteroid", FLAT);
-	gAsteroid->loadModel("asteroid_sphere3.obj", true);
+	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	gAsteroid->loadModel("asteroid_cube.obj", true);
 	float sc = 50.0;
 	gAsteroid->scale(sc);
 	//gAsteroid->setupLighting(0.0, vec4(0.1, 0.1, 0.1, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.3, 0.3, 0.3, 1.0));
@@ -288,20 +288,20 @@ void init() {
 
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		//bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
-		bloop[i] = new ExternalModel(g_program, FLAT, gAsteroid->getVertexArrayObject());
+		bloop[i] = new ExternalModel(*gAsteroid);
 
 		float sc = 10.0f + (rand() % 200 / 10.0f);
 		bloop[i]->scale(sc);
-		gAsteroid->setupTexture(TRILINEAR, REPEAT);
+		bloop[i]->setupTexture(TRILINEAR, REPEAT);
 		//bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
 		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
-		bloop[i]->initDraw();
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 		bloop[i]->m_box->setHalfWidths(sc, sc, sc);
 	}
 
 	g_vessel->setAccelerationZ(-0.01);
-	glClearColor( 1.0, 1.0, 1.0, 1.0 ); // black background
+	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
+	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }
 
 int main(int argc, char** argv)
