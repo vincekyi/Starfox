@@ -13,6 +13,11 @@
 #include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
+#include "Sound.h"
+
+#include "AL/al.h" 
+#include "AL/alc.h" 
+#include "AL/alut.h"
 
 
 #define ESC_KEY 27
@@ -56,3 +61,4 @@ Cube* xhair2;
 ExternalModel *bloop[BLOOPCOUNT];
 ExternalModel *gAsteroid;
 
+Sound* g_sound;
