@@ -100,7 +100,6 @@ void callbackDisplay()
 	g_shipCamera.update();
 	
 	g_vessel->updateMovement();
-	
 	// Update movement of speed lines
 	for (int i = 0; i < SPEED_LINE_COUNT; ++i) {
 		if (speedLine[i]->m_position.z > 5.0f) {
@@ -110,6 +109,7 @@ void callbackDisplay()
 		speedLine[i]->translate(0.0, 0.0, SPEED_LINE_SPEED);
 	}	
 
+	g_music->checkLoopTimer("starfox_theme.wav", MUSICGAIN);
 
 	for (int i = 0; i < LIGHTSOURCECOUNT; i++) {
 		g_light[i].m_position = vec3(0.0, 0.0, 0.0);
@@ -151,6 +151,7 @@ void callbackDisplay()
 
 	gAsteroid->draw(g_drawType, g_camera, g_light, le);
 	if (g_vessel->m_shape->checkCollision(gAsteroid->m_shape)) {
+		g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1);
 		std::cout << "BOOP3" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
 		g_vessel->shake();
 	}
@@ -158,6 +159,7 @@ void callbackDisplay()
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 		if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
+			g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1);
 			std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 			g_vessel->shake();
 		}
@@ -222,6 +224,7 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case 'f': g_keyPress[KEY_F] = true; break;
 		case 'e': g_keyPress[KEY_E] = true; break;
 		case SPACE_KEY: {
+				g_sound->playSound("laser.wav", 1.0, 0);
 				tempShip->setPosition(g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f);
 				tempShip->translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f);
 				vec3 a = Quaternion(vec3(0.0f, -1.0f, 0.0f), 70.0f * (g_vessel->getVelocity().x / g_vessel->MAX_VELOCITY)) * g_camera.m_zAxis;
@@ -326,6 +329,13 @@ void init() {
 
 	g_sound = new Sound(10, "./sounds/");
 	g_sound->loadSound("impactg4.wav");
+	g_sound->loadSound("ship_asteriod_impact.wav");
+	g_sound->loadSound("laser.wav");
+	g_music = new Sound(1, "./sounds/");
+	g_music->loadSound("starfox_theme.wav");
+	g_music->playSound("starfox_theme.wav", MUSICGAIN, 1);
+	g_music->setAudioLength(60);
+
 
 	glEnable(GL_DEPTH_TEST);
 

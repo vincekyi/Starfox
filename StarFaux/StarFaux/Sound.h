@@ -14,7 +14,13 @@ class Sound {
 public:
 	Sound(int numSounds, const char* baseDir);
 	void loadSound(const char* filename);
-	void playSound(const char* filename, int delay);
+	void playSound(const char* filename, float gain, int delay);
+
+	//-- UNOBJECT ORIENTED STYLE --
+	bool checkLoopTimer(const char* filename, float gain);
+	void setAudioLength(time_t len);
+	//-- UNOBJECT ORIENTED STYLE --
+
 private:
 	struct cmp_str {
 		bool operator()(const char* a, const char* b) {
@@ -33,6 +39,11 @@ private:
 	std::map<char*, ALuint, cmp_str> m_soundSrc;
 
 	const static int MAXSOURCES = 30;
+
+	//-- UNOBJECT ORIENTED STYLE --
+	time_t m_loopTimer;
+	time_t m_audioLength;
+	//-- UNOBJECT ORIENTED STYLE --
 };
 
 #endif

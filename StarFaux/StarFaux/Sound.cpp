@@ -10,6 +10,11 @@ Sound::Sound(int numSounds, const char* baseDir) {
 		strcpy(m_baseDir, baseDir);
 	}
 
+	//-- UNOBJECT ORIENTED STYLE --
+	m_loopTimer = time(NULL);
+	m_audioLength = 0;
+	//-- UNOBJECT ORIENTED STYLE --
+
 	m_currBuffer = 0;
 	m_currSource = 0;
 	m_numBuffers = numSounds;
@@ -50,7 +55,7 @@ void Sound::loadSound(const char* filename) {
 	m_currBuffer++;
 }
 
-void Sound::playSound(const char* filename, int delay) {
+void Sound::playSound(const char* filename, float gain, int delay) {
 	if (m_currTime + delay > time(NULL)) {
 		return;
 	}
@@ -68,6 +73,8 @@ void Sound::playSound(const char* filename, int delay) {
 	alSourcefv (m_sourceBuffers[m_currSource], AL_VELOCITY, sourceVel);
 	alSourcefv (m_sourceBuffers[m_currSource], AL_DIRECTION, sourceOri);
 
+	alSourcef(m_sourceBuffers[m_currSource], AL_GAIN, gain);
+
 	alSourcei(m_sourceBuffers[m_currSource], AL_BUFFER, m_soundBuffers[id]);
 
 	alSourcePlay(m_sourceBuffers[m_currSource]);
@@ -75,3 +82,20 @@ void Sound::playSound(const char* filename, int delay) {
 	m_currSource = (m_currSource % MAXSOURCES == 0) ? 0 : m_currSource;
 	m_currTime = time(NULL);
 }
+
+//-- UNOBJECT ORIENTED STYLE --
+bool Sound::checkLoopTimer(const char* filename, float gain) {
+	time_t currTime = time(NULL);
+	if (m_loopTimer + m_audioLength < currTime) {
+		playSound(filename, gain, 1);
+		m_loopTimer = currTime;
+
+		return true;
+	}
+	return false;
+}
+
+void Sound::setAudioLength(time_t len) {
+	m_audioLength = len;
+}
+//-- UNOBJECT ORIENTED STYLE --

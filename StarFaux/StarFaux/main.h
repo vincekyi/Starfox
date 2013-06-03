@@ -28,7 +28,9 @@
 #define TARGET_FPS 100
 #define BLOOPCOUNT 200
 #define LIGHTSOURCECOUNT 2
+#define MUSICGAIN 0.5f
 #define SPEED_LINE_COUNT 10
+
 const int SPEED_LINE_SPEED = 2.0;
 
 #define ACCEL 0.05f
@@ -69,3 +71,4 @@ ExternalModel *gAsteroid;
 Line *speedLine[SPEED_LINE_COUNT];
 
 Sound* g_sound;
+Sound* g_music;
