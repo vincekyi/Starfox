@@ -324,6 +324,9 @@ void init() {
 	BoundingBox* bb;
 	BoundingSphere* bs;
 
+	g_sound = new Sound(10, "./sounds/");
+	g_sound->loadSound("impactg4.wav");
+
 	glEnable(GL_DEPTH_TEST);
 
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
@@ -348,11 +351,11 @@ void init() {
 	greenStar = new Cube(g_program, FLAT);
 	greenStar->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
 	greenStar->initDraw();
-	greenStar->translate(0.0, -2000.0, 0.0);
 	greenStar->scale(30.0);
 	bb = new BoundingBox();
 	bb->setHalfWidths(15.0, 15.0, 15.0);
 	greenStar->m_shape = bb;
+	greenStar->translate(0.0, -2000.0, 0.0);
 	
 	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
 	g_vessel->loadModel("ship.obj", true);

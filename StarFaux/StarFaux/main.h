@@ -13,7 +13,14 @@
 #include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
+
 #include "Line.h"
+
+#include "Sound.h"
+
+#include "AL/al.h" 
+#include "AL/alc.h" 
+#include "AL/alut.h"
 
 
 #define ESC_KEY 27
@@ -61,3 +68,4 @@ ExternalModel *gAsteroid;
 
 Line *speedLine[SPEED_LINE_COUNT];
 
+Sound* g_sound;

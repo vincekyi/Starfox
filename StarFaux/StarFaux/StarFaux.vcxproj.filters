@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="OpenAL">
+      <UniqueIdentifier>{f4fecf45-aa9e-4562-8637-9ee9f991702b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Angel.h">
@@ -75,6 +78,33 @@
     <ClInclude Include="Line.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AL\al.h">
+      <Filter>OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="AL\alc.h">
+      <Filter>OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="AL\alut.h">
+      <Filter>OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="AL\alutInternal.h">
+      <Filter>OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="AL\efx.h">
+      <Filter>OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="AL\efx-creative.h">
+      <Filter>OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="AL\EFX-Util.h">
+      <Filter>OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="AL\xram.h">
+      <Filter>OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -114,6 +144,39 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Line.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutBufferData.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutCodec.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutError.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutInit.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutInputStream.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutLoader.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutOutputStream.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutUtil.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutVersion.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="AL\alutWaveform.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
