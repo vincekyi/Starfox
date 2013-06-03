@@ -1,7 +1,9 @@
 #include "Shape.h"
 
 Shape::Shape() {
-	m_useTexture = 0;
+	m_shape = new BoundingBox(vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f);
+	m_useTexture = NO_TEXTURE;
+
 	m_scale = 1.0;
 	m_position = vec3(0.0, 0.0, 0.0);
 	m_modified = false;
@@ -31,7 +33,7 @@ void Shape::initDraw() {
     glEnableVertexAttribArray(normal);
     glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(m_vertices[0]) * m_numVertices));
 
-	if (m_useTexture) {
+	if (m_useTexture != NO_TEXTURE) {
 		glGenBuffers(1, &m_textureBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, m_textureBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(m_textureCoords[0]) * m_numVertices, m_textureCoords, GL_STATIC_DRAW );
@@ -95,12 +97,14 @@ void Shape::draw(DrawType type, Camera& camera, Light* light, lightEffects effec
 	GLuint uProj = glGetUniformLocation(m_program, "uProj");
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
-	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
+	GLuint uView = glGetUniformLocation(m_program, "uView");
+	GLuint uUseTexture = glGetUniformLocation(m_program, "uUseTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 	
 	update();
 	mat4 model = m_objectToWorld;
-	mat4 mv = camera.worldToCamera() * model;
+	mat4 view = camera.worldToCamera();
+	mat4 mv = view * model;
 
 	for (int i = 0; i < effects.numLights; i++) {
 		effects.lightPositions[i] = light[i].m_position;
@@ -121,15 +125,16 @@ void Shape::draw(DrawType type, Camera& camera, Light* light, lightEffects effec
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
 	glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
+	glUniformMatrix4fv(uView, 1, GL_TRUE, view);
 
 	glBindTexture(GL_TEXTURE_2D, m_textureObject);
-	glUniform1i(uEnableTexture, 1);
+	glUniform1i(uUseTexture, m_useTexture);
 	glUniform1i(uTexture, 0);
 
-	if (m_useTexture) {
+	if (m_useTexture != NO_TEXTURE) {
 
 	} else {
-		glUniform1i(uEnableTexture, 0);
+		glUniform1i(uUseTexture, NO_TEXTURE);
 	}
 
 	switch (type) {
@@ -152,8 +157,9 @@ void Shape::resetRotation() {
 	m_modified = true;
 }
 
-void Shape::setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType, std::string textureName) {
-	m_useTexture = true;
+void Shape::setupTexture(TextureUseType useType, TextureSamplingType samplingType, 
+						 TextureWrappingType wrappingType, std::string textureName) {
+	m_useTexture = useType;
 	m_samplingType = samplingType;
 	m_wrappingType = wrappingType;
 	m_textureName = textureName;

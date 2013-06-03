@@ -18,7 +18,7 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 1000
+#define BLOOPCOUNT 50
 #define LIGHTSOURCECOUNT 2
 
 #define ACCEL 0.05f
@@ -48,9 +48,11 @@ Light* g_light;
 Vessel* g_vessel;
 
 Cube* tempShip;
-Sphere* tempSphere;
+Cube* greenStar;
 
 Cube* xhair1;
 Cube* xhair2;
 
-Sphere* bloop[BLOOPCOUNT];
+ExternalModel *bloop[BLOOPCOUNT];
+ExternalModel *gAsteroid;
+

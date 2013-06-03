@@ -11,8 +11,7 @@ void initGlut(int& argc, char** argv)
 	glutCreateWindow("Star Faux");
 }
 
-void calculateFPS()
-{
+void calculateFPS() {
     g_frameCount++;
     g_currentTime = glutGet(GLUT_ELAPSED_TIME);
     int timeInterval = g_currentTime - g_previousTime;
@@ -134,6 +133,19 @@ void callbackDisplay()
 	le.attenuations = (float*)malloc(sizeof(float) * le.numLights);
 	tempShip->draw(g_drawType, g_camera, g_light, le);
 	tempShip->translate(-g_bulletV.x, -g_bulletV.y, -g_bulletV.z);
+	greenStar->draw(g_drawType, g_camera, g_light, le);
+	if (g_vessel->m_shape->checkCollision(greenStar->m_shape)) {
+		std::cout << g_vessel->m_shape->m_center << std::endl;
+		std::cout << "BOOP2" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
+		g_vessel->shake();
+	}
+
+	gAsteroid->draw(g_drawType, g_camera, g_light, le);
+	if (g_vessel->m_shape->checkCollision(gAsteroid->m_shape)) {
+		std::cout << "BOOP3" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
+		g_vessel->shake();
+	}
+
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 		if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
@@ -141,8 +153,6 @@ void callbackDisplay()
 			g_vessel->shake();
 		}
 	}
-	//g_light[0].m_position = g_shipCamera.m_position;
-	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
 
 
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
@@ -310,22 +320,34 @@ void init() {
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
 	g_camera.translate(vec3(0.0, 0.0, 200.0));
+
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
 
 	tempShip = new Cube(g_program, NONE);
 	tempShip->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
 	tempShip->initDraw();
+
 	tempShip->scale(1.0);
 	bb = new BoundingBox();
 	tempShip->m_shape = bb;
+
+	greenStar = new Cube(g_program, FLAT);
+	greenStar->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
+	greenStar->initDraw();
+	greenStar->translate(0.0, -2000.0, 0.0);
+	greenStar->scale(30.0);
+	bb = new BoundingBox();
+	bb->setHalfWidths(15.0, 15.0, 15.0);
+	greenStar->m_shape = bb;
 	
 	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
 	g_vessel->loadModel("ship.obj", true);
 	g_vessel->setupLighting();
-	g_vessel->setupTexture(TRILINEAR, REPEAT);
+	g_vessel->setupTexture(REGULAR, TRILINEAR, REPEAT);
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
+
 	bb = new BoundingBox();
 	bb->setHalfWidths(1.8, 0.8, 3.5);
 	bb->setCenter(vec3(0.0, 0.0, 1500.0));
@@ -333,16 +355,27 @@ void init() {
 
 
 
+	// Create the mama asteroid
+	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	gAsteroid->loadModel("asteroid_sphere3.obj", true);
+	float sc = 50.0;
+	gAsteroid->scale(sc);
+	gAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
+	gAsteroid->initDraw();
+	bs = new BoundingSphere();
+	bs->m_radius = sc;
+	gAsteroid->m_shape = bs;
+	gAsteroid->translate(0.0, 0.0, -500.0);
+
+	// Instance many asteroids from the mama asteroid
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
-		float sc = 10.0f + (rand() % 200 / 10.0f);
+		bloop[i] = new ExternalModel(*gAsteroid);
+		sc = 10.0f + (rand() % 500 / 10.0f);
 		bloop[i]->scale(sc);
 		bs = new BoundingSphere();
 		bs->m_radius = sc;
 		bloop[i]->m_shape = bs;
-		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
-		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
-		bloop[i]->initDraw();
+		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 	}
 
@@ -361,6 +394,7 @@ void init() {
 	xhair2->scale(3.0);
 
 	g_vessel->setAccelerationZ(-0.01);
+	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }
 
