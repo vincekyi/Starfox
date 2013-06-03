@@ -201,6 +201,9 @@ class ParticleEngine {
 			timeUntilNextStep = 0;
 			colorTime = 0;
 			angle = 0;
+
+
+
 			for(int i = 0; i < NUM_PARTICLES; i++) {
 				createParticle(particles + i);
 			}
@@ -210,6 +213,7 @@ class ParticleEngine {
 					step();
 				}
 			}
+
 		}
 		
 		//Advances the particle fountain by the specified amount of time.
@@ -248,10 +252,6 @@ class ParticleEngine {
 				tex_coords[4*i+2] = vec2(1, 1);
 				points[4*i+3] = point4(pos[0] + size, -(pos[1] - size), pos[2], 1.0);
 				tex_coords[4*i+3] = vec2(1, 0);
-				//color
-				GLuint fColor = glGetUniformLocation( m_prog, "uThrustColor");
-				glUniform4fv(fColor, 1, vec4(p->color[0], p->color[1], p->color[2], 1.0));
-
 			}
 		}
 		void setProgram(GLuint prog){
@@ -286,6 +286,9 @@ class ParticleEngine {
 			Particle* p = particles;
 
 			for(int i = 0; i<NUM_PARTICLES; i++){
+				//color
+				GLuint fColor = glGetUniformLocation( m_prog, "uThrustColor");
+				glUniform4fv(fColor, 1, vec4(p->color[0], p->color[1], p->color[2], 1.0));
 
 				if(type == EXPLOSIONS){
 					if(p->timeAliveExplosion < p->lifespanExplosion) {

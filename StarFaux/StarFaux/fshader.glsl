@@ -70,8 +70,9 @@ void main()
 	if (uShadingType < 3) {
 		if (uUseTexture == 1) {
 			if (uIsThruster == 1) {
-				outColor = uThrustColor * texture2D(uTexture, texCoord);
-				outColor = vec4(1.0, 1.0, 1.0, 1.0);
+				outColor = uThrustColor;
+				//outColor = uThrustColor * texture2D(uTexture, texCoord).bgra;
+				//outColor = vec4(1.0, 1.0, 1.0, 1.0);
 			} else {
 				outColor = fColor * texture2D(uTexture, texCoord);
 			}

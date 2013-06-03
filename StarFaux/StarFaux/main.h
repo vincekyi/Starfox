@@ -26,7 +26,7 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 20
+#define BLOOPCOUNT 200
 #define LIGHTSOURCECOUNT 2
 #define SPEED_LINE_COUNT 10
 const int SPEED_LINE_SPEED = 2.0;
