@@ -14,6 +14,10 @@
 #include "Types.h"
 #include "Tga.h"
 
+#include "AL/al.h" 
+#include "AL/alc.h" 
+#include "AL/alut.h"
+
 
 #define ESC_KEY 27
 #define SPACE_KEY 32
