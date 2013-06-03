@@ -13,6 +13,7 @@
 #include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
+//#include "Sound.h"
 
 #include "AL/al.h" 
 #include "AL/alc.h" 
@@ -53,3 +54,5 @@ Cube* tempShip;
 Cube* greenStar;
 
 Sphere* bloop[BLOOPCOUNT];
+
+//Sound* g_sound;

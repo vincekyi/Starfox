@@ -269,8 +269,11 @@ void init() {
 	}
 
 	std::cout << _MSC_VER;
-
-	alutInit(0, NULL);
+	// -----------------------------------------------------------------------
+	//g_sound = new Sound(10, "./sounds/");
+	//g_sound->loadSound("impactg4.wav");
+	//g_sound->playSound("impactg4.wav");
+	// -----------------------------------------------------------------------
 
 	glEnable(GL_DEPTH_TEST);
 
