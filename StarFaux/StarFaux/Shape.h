@@ -38,7 +38,7 @@ public:
 
 protected:
 	enum ShapeType {
-		SPHERE, CUBE, EXTERNAL_MODEL, VESSEL
+		LINE, SPHERE, CUBE, EXTERNAL_MODEL, VESSEL
 	};
 
 	ShapeType m_shapeType;

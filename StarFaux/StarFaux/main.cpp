@@ -101,6 +101,15 @@ void callbackDisplay()
 	
 	g_vessel->updateMovement();
 	
+	// Update movement of speed lines
+	for (int i = 0; i < SPEED_LINE_COUNT; ++i) {
+		if (speedLine[i]->m_position.z > 5.0f) {
+			speedLine[i]->resetTranslation();
+			speedLine[i]->resetPosition();
+		}
+		speedLine[i]->translate(0.0, 0.0, SPEED_LINE_SPEED);
+	}	
+
 
 	for (int i = 0; i < LIGHTSOURCECOUNT; i++) {
 		g_light[i].m_position = vec3(0.0, 0.0, 0.0);
@@ -154,6 +163,10 @@ void callbackDisplay()
 		}
 	}
 
+	// Draw speed lines
+	for (int i = 0; i < SPEED_LINE_COUNT; ++i) {
+		speedLine[i]->draw(g_shipCamera, g_light, le);
+	}
 
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
 	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
@@ -377,6 +390,16 @@ void init() {
 		bloop[i]->m_shape = bs;
 		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+	}
+
+	// Instance speed lines
+	for (int i = 0; i < SPEED_LINE_COUNT; ++i) {
+		speedLine[i] = new Line(g_program, 0.1);
+		sc = 10.0f + (rand() % 500 / 10.0f);
+		speedLine[i]->scale(sc);
+		speedLine[i]->setupLighting(1.0, vec4(0.7, 0.7, 0.7, 1.0), vec4(0.7, 0.7, 0.7, 1.0), vec4(0.7, 0.7, 0.7, 1.0));
+		speedLine[i]->initDraw();
+		speedLine[i]->resetPosition();
 	}
 
 	xhair1 = new Cube(g_program, NONE);

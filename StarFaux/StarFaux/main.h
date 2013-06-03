@@ -13,13 +13,16 @@
 #include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
+#include "Line.h"
 
 
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 50
+#define BLOOPCOUNT 200
 #define LIGHTSOURCECOUNT 2
+#define SPEED_LINE_COUNT 10
+const int SPEED_LINE_SPEED = 2.0;
 
 #define ACCEL 0.05f
 
@@ -55,4 +58,6 @@ Cube* xhair2;
 
 ExternalModel *bloop[BLOOPCOUNT];
 ExternalModel *gAsteroid;
+
+Line *speedLine[SPEED_LINE_COUNT];
 
