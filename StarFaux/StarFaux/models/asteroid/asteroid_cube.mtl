@@ -1,0 +1,12 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl None
+Ns 5.0
+Ka 0.15 0.15 0.15
+Kd 0.65 0.65  0.65 
+Ks 0.1 0.1 0.1
+d 1
+illum 2
+
+map_Kd stepstone_normal.tga

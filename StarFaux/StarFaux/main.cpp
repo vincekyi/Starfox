@@ -123,6 +123,8 @@ void callbackDisplay()
 	le.specularProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
 	le.lightPositions = (vec4*)malloc(sizeof(vec4) * le.numLights);
 	tempShip->draw(g_drawType, g_camera, g_light, le);
+
+	
 	if (g_vessel->m_box->checkCollision(*tempShip->m_box)) {
 		std::cout << g_vessel->m_box->m_center << std::endl;
 		std::cout << "BOOP1" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
@@ -134,6 +136,14 @@ void callbackDisplay()
 		std::cout << "BOOP2" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
 		g_vessel->shake();
 	}
+
+	gAsteroid->draw(g_drawType, g_camera, g_light, le);
+	if (g_vessel->m_box->checkCollision(*gAsteroid->m_box)) {
+		std::cout << g_vessel->m_box->m_center << std::endl;
+		std::cout << "BOOP3" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
+		g_vessel->shake();
+	}
+
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 		if (g_vessel->m_box->checkCollision(*bloop[i]->m_box)) {
@@ -276,7 +286,8 @@ void init() {
 	g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
-	g_camera.translate(vec3(0.0, 0.0, 1500.0));
+	//g_camera.translate(vec3(0.0, 0.0, 1500.0));
+	g_camera.translate(vec3(0.0, 0.0, -95.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
 	g_shipCamera.rotatePitch(-0.0f);
@@ -297,25 +308,34 @@ void init() {
 	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
 	g_vessel->loadModel("ship.obj", true);
 	g_vessel->setupLighting();
-	g_vessel->setupTexture(TRILINEAR, REPEAT);
+	g_vessel->setupTexture(REGULAR, TRILINEAR, REPEAT);
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
 	g_vessel->m_box->setHalfWidths(2.0, 1.0, 4.5);
 	g_vessel->m_box->setCenter(vec3(0.0, 0.0, 1500.0));
+	
+	// Create the mama asteroid
+	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	gAsteroid->loadModel("asteroid_sphere3.obj", true);
+	float sc = 50.0;
+	gAsteroid->scale(sc);
+	gAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
+	gAsteroid->initDraw();
+	gAsteroid->m_box->setHalfWidths(sc, sc, sc);
+	gAsteroid->translate(0.0, 0.0, -500.0);
 
-	float start = 280.0f;
+	// Instance many asteroids from the mama asteroid
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
-		float sc = 10.0f + (rand() % 200 / 10.0f);
+		bloop[i] = new ExternalModel(*gAsteroid);
+		sc = 10.0f + (rand() % 500 / 10.0f);
 		bloop[i]->scale(sc);
-		bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
-		bloop[i]->initDraw();
+		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 		bloop[i]->m_box->setHalfWidths(sc, sc, sc);
-		start -= 20.0f;
 	}
 
 	g_vessel->setAccelerationZ(-0.01);
+	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }
 

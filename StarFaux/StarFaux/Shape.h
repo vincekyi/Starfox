@@ -19,7 +19,8 @@ public:
 	void initDraw();
 
 	void draw(DrawType type, Camera& camera, Light* light, lightEffects effects);
-	void setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType, std::string textureName);
+	void setupTexture(TextureUseType useType, TextureSamplingType samplingType, 
+					  TextureWrappingType wrappingType, std::string textureName);
 	void setupLighting(float shininess, vec4 materialAmbient, vec4 materialDiffuse, vec4 materialSpecular);
 	void rotate(Quaternion q);
 	void resetRotation();
@@ -61,7 +62,7 @@ protected:
 	vec2* m_textureCoords;
 	
 	// Texture
-	bool m_useTexture;
+	int m_useTexture;
 	std::string m_textureName;
 	TgaImage m_textureImage;
 	TextureSamplingType m_samplingType;

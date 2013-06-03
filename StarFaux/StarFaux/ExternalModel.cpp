@@ -18,12 +18,42 @@ ExternalModel::ExternalModel(GLuint program, const char* baseDir, ShadingType sh
 	}
 	m_shapeType = EXTERNAL_MODEL;
 	m_shading = shading;
+
+	m_textureMaps = new std::map<char*, materialProp_t*, cmp_str>;
+	m_materialRefs = new std::map<int, char*>;
+	m_shakeCount = 0;
+}
+
+ExternalModel::ExternalModel(const ExternalModel& ext) {
+	m_program = ext.m_program;
+	m_hasMaterials = ext.m_hasMaterials;
+	m_shapeType = ext.m_shapeType;
+	m_shading = ext.m_shading;
+	m_shakeCount = ext.m_shakeCount;
+
+	// Copy shape properties
+	m_numVertices = ext.m_numVertices;
+	m_textureCoords = ext.m_textureCoords;
+
+	// Copy texture properties
+	m_samplingType = ext.m_samplingType;
+	m_wrappingType = ext.m_wrappingType;
+
+	// Point to the same vertex and texture array objects
+	m_vertexArrayObjectArray = ext.m_vertexArrayObjectArray;
+	m_textureObjectArray = ext.m_textureObjectArray;
+
+	// Point to same texture map data structures
+	m_materialRefs = ext.m_materialRefs;
+	m_textureMaps = ext.m_textureMaps;
+	
 }
 
 // Overloaded setupTexture
 // The .mtl file will specify the texture map file names
-void ExternalModel::setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType) {
-	Shape::setupTexture(samplingType, wrappingType, "");
+void ExternalModel::setupTexture(TextureUseType useType, TextureSamplingType samplingType,
+								 TextureWrappingType wrappingType) {
+	Shape::setupTexture(useType, samplingType, wrappingType, "");
 }
 
 // Overloaded setupLighting
@@ -35,29 +65,29 @@ void ExternalModel::setupLighting() {
 // Overloaded initDraw
 // Set up each texture
 void ExternalModel::initDraw() {
-	if (!m_useTexture || !m_hasMaterials) {
+	if ((m_useTexture == NO_TEXTURE) || !m_hasMaterials) {
 		Shape::initDraw();
 		return;
 	}
 
-	m_vertexArrayObjectArray = (GLuint*)malloc(sizeof(GLuint) * m_materialRefs.size());
-	m_vertexBufferArray = (GLuint*)malloc(sizeof(GLuint) * m_materialRefs.size());
-	m_textureBufferArray = (GLuint*)malloc(sizeof(GLuint) * m_materialRefs.size());
-	m_textureObjectArray = (GLuint*)malloc(sizeof(GLuint) * m_materialRefs.size());
-	glGenVertexArrays(m_materialRefs.size(), m_vertexArrayObjectArray);
-	glGenBuffers(m_materialRefs.size(), m_vertexBufferArray);
-	glGenBuffers(m_materialRefs.size(), m_textureBufferArray);
-	glGenTextures(m_materialRefs.size(), m_textureObjectArray);
+	m_vertexArrayObjectArray = (GLuint*)malloc(sizeof(GLuint) * m_materialRefs->size());
+	m_vertexBufferArray = (GLuint*)malloc(sizeof(GLuint) * m_materialRefs->size());
+	m_textureBufferArray = (GLuint*)malloc(sizeof(GLuint) * m_materialRefs->size());
+	m_textureObjectArray = (GLuint*)malloc(sizeof(GLuint) * m_materialRefs->size());
+	glGenVertexArrays(m_materialRefs->size(), m_vertexArrayObjectArray);
+	glGenBuffers(m_materialRefs->size(), m_vertexBufferArray);
+	glGenBuffers(m_materialRefs->size(), m_textureBufferArray);
+	glGenTextures(m_materialRefs->size(), m_textureObjectArray);
 
-	TgaImage* textureImages = (TgaImage*)malloc(sizeof(TgaImage) * m_materialRefs.size());
+	TgaImage* textureImages = (TgaImage*)malloc(sizeof(TgaImage) * m_materialRefs->size());
 
 	int i = 0;
-	for (std::map<int, char*>::iterator iter = m_materialRefs.begin(); iter != m_materialRefs.end(); iter++, i++) {
+	for (std::map<int, char*>::iterator iter = m_materialRefs->begin(); iter != m_materialRefs->end(); iter++, i++) {
 
 		iter++;
 		int range = 0;
 		int offset = 0;
-		if (iter == m_materialRefs.end()) {
+		if (iter == m_materialRefs->end()) {
 			iter--;
 			range = m_numVertices/3 - iter->first;
 			offset = iter->first;
@@ -93,7 +123,7 @@ void ExternalModel::initDraw() {
 		glVertexAttribPointer(vTexCoords, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 		
 		textureImages[i] = TgaImage(); // needed?
-		char* textureMap = getTextureMap(m_textureMaps[iter->second]);
+		char* textureMap = getTextureMap((*m_textureMaps)[iter->second]);
 		if (textureMap == NULL)
 			return;
 		char* img_fn = (char*)malloc(sizeof(char)*strlen(m_baseDir) + sizeof(char)*strlen(textureMap) + sizeof(char));
@@ -133,7 +163,7 @@ void ExternalModel::initDraw() {
 // Overloaded draw
 // Process each texture
 void ExternalModel::draw(DrawType type, Camera& camera, Light* light, lightEffects effects) {
-	if (!m_useTexture || !m_hasMaterials || m_textureCoords == NULL) {
+	if (m_useTexture == NO_TEXTURE || !m_hasMaterials || m_textureCoords == NULL) {
 		Shape::draw(type, camera, light, effects);
 		return;
 	}
@@ -150,7 +180,8 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light* light, lightEffec
 	GLuint uProj = glGetUniformLocation(m_program, "uProj");
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
-	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
+	GLuint uView = glGetUniformLocation(m_program, "uView");
+	GLuint uUseTexture = glGetUniformLocation(m_program, "uUseTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 
 	for (int i = 0; i < effects.numLights; i++) {
@@ -163,29 +194,31 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light* light, lightEffec
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniform1i(uShadingType, m_shading);
 
-	glUniform1i(uEnableTexture, 1);
+	glUniform1i(uUseTexture, m_useTexture);
 	glUniform1i(uTexture, 0);
 
 	if (m_shakeCount % 20 > 5) {
-		glUniform1i(uEnableTexture, 0);
+		glUniform1i(uUseTexture, NO_TEXTURE);
 		setupLighting(m_shininess, vec4(0.4, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0));
 	}
 
 	int i = 0;
-	for (std::map<int, char*>::iterator iter = m_materialRefs.begin(); i < m_materialRefs.size(); iter++, i++) {
+	for (std::map<int, char*>::iterator iter = m_materialRefs->begin(); i < m_materialRefs->size(); iter++, i++) {
 		glBindVertexArray(m_vertexArrayObjectArray[i]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferArray[i]);
+		//glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferArray[i]);
 
 		update();
 		mat4 model = m_objectToWorld;
-		mat4 mv = camera.worldToCamera() * model;
+		mat4 view = camera.worldToCamera();
+		mat4 mv = view * model;
 		if (m_shapeType == VESSEL) {
 			model = Translate(m_camera->m_position) * m_objectToWorld * m_camera->m_qRotation.generateMatrix();
 		}
 		glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
 		glUniformMatrix4fv(uModel, 1, GL_TRUE, model);
+		glUniformMatrix4fv(uView, 1, GL_TRUE, view);
 
-		glUniform1f(uShininess, m_textureMaps[iter->second]->Ns);
+		glUniform1f(uShininess, (*m_textureMaps)[iter->second]->Ns);
 		if (m_shakeCount % 20 > 5) {
 			for (int i = 0; i < effects.numLights; i++) {
 				effects.ambientProducts[i] = light[i].m_lightAmbient * m_materialAmbient;
@@ -197,21 +230,21 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light* light, lightEffec
 			glUniform4fv(uSpecularProduct, effects.numLights, *effects.specularProducts);
 		} else {
 			for (int i = 0; i < effects.numLights; i++) {
-				effects.ambientProducts[i] = light[i].m_lightAmbient * m_textureMaps[iter->second]->Ka;
-				effects.diffuseProducts[i] = light[i].m_lightDiffuse * m_textureMaps[iter->second]->Kd;
-				effects.specularProducts[i] = light[i].m_lightSpecular * m_textureMaps[iter->second]->Ks;
+				effects.ambientProducts[i] = light[i].m_lightAmbient * (*m_textureMaps)[iter->second]->Ka;
+				effects.diffuseProducts[i] = light[i].m_lightDiffuse * (*m_textureMaps)[iter->second]->Kd;
+				effects.specularProducts[i] = light[i].m_lightSpecular * (*m_textureMaps)[iter->second]->Ks;
 			}
 			glUniform4fv(uAmbientProduct, effects.numLights, *effects.ambientProducts);
 			glUniform4fv(uDiffuseProduct, effects.numLights, *effects.diffuseProducts);
 			glUniform4fv(uSpecularProduct, effects.numLights, *effects.specularProducts);
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, m_textureBufferArray[i]);
+		//glBindBuffer(GL_ARRAY_BUFFER, m_textureBufferArray[i]);
 		glBindTexture(GL_TEXTURE_2D, m_textureObjectArray[i]);
 
 		iter++;
 		int range = 0;
-		if (iter == m_materialRefs.end()) {
+		if (iter == m_materialRefs->end()) {
 			iter--;
 			range = m_numVertices/3 - iter->first;
 			iter++;
@@ -278,7 +311,7 @@ void ExternalModel::loadModel(const char* filename, bool center) {
 		} else if (sscanf(line, "usemtl %s", mat)) { // material reference
 			char* tm = (char*)malloc(sizeof(char) * strlen(mat) + sizeof(char));
 			strcpy(tm, mat);
-			m_materialRefs.insert(std::pair<int, char*>(faces.size(), tm));
+			m_materialRefs->insert(std::pair<int, char*>(faces.size(), tm));
 		} else if (sscanf(line, "v %f %f %f", &fl[0], &fl[1], &fl[2]) == 3) { // Vertices
 			vertices.push_back(vec4(fl[0], fl[1], fl[2], 1.0));
 			com += vec4(fl[0], fl[1], fl[2], 0.0);
@@ -398,7 +431,7 @@ void ExternalModel::loadTextureMaps(const char* filename) {
 			strcpy(mat, txt);
 			mp = (materialProp_t*)malloc(sizeof(materialProp_t));
 			mp->map_Ka = NULL; mp->map_Kd = NULL; mp->map_Ks = NULL; mp->map_Ns = NULL; // Make an initialization func?
-			m_textureMaps.insert(std::pair<char*, materialProp_t*>(mat, mp));
+			m_textureMaps->insert(std::pair<char*, materialProp_t*>(mat, mp));
 		} else if (sscanf(line, "map_Ka %s", txt)) { // ambient texture map
 			if (mtl_parse_error(mp, mtllib, mtllib_fn)) 
 				return;
