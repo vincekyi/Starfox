@@ -18,11 +18,11 @@ uniform mat4 uView;
 uniform float uShininess;
 
 uniform int uNumLights;
-uniform vec4 uAmbientProduct[5];
-uniform vec4 uDiffuseProduct[5];
-uniform vec4 uSpecularProduct[5];
-uniform vec4 uLightPosition[5];
-uniform float uAttenuation[5];
+uniform vec4 uAmbientProduct[15];
+uniform vec4 uDiffuseProduct[15];
+uniform vec4 uSpecularProduct[15];
+uniform vec4 uLightPosition[15];
+uniform float uAttenuation[15];
 
 uniform vec4 uCameraPosition;
 uniform int uShadingType;

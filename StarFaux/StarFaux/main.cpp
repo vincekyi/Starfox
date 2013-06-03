@@ -101,6 +101,15 @@ void callbackDisplay()
 	
 	g_vessel->updateMovement();
 	
+	lightEffects le;
+	le.numLights = LIGHTSOURCECOUNT + g_numLasers;
+	le.ambientProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.diffuseProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.specularProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.lightPositions = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.attenuations = (float*)malloc(sizeof(float) * le.numLights);
+	std::cout << le.numLights << std::endl;
+	g_light = (Light*)malloc(sizeof(Light) * le.numLights);
 
 	for (int i = 0; i < 1; i++) {
 		g_light[i].m_position = vec3(0.0, 0.0, 0.0);
@@ -123,16 +132,20 @@ void callbackDisplay()
 	glUniform1f(fogMaxDist, 1700.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 
-
-	lightEffects le;
-	le.numLights = LIGHTSOURCECOUNT;
-	le.ambientProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.diffuseProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.specularProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.lightPositions = (vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.attenuations = (float*)malloc(sizeof(float) * le.numLights);
 	//tempShip->draw(g_drawType, g_camera, g_light, le);
 	//tempShip->translate(-g_bulletV.x, -g_bulletV.y, -g_bulletV.z);
+	int lightIndex = 1;
+	for (int i = 0; i < 100; ++i) {
+		if (g_lasersAlive[i]) {
+			g_light[lightIndex].m_position = g_lasers[i]->m_position;
+			g_light[lightIndex].m_lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
+			g_light[lightIndex].m_lightDiffuse = vec4(0.0, 0.6, 0.0, 1.0);
+			g_light[lightIndex].m_lightSpecular = vec4(0.0, 1.5, 0.0, 1.0);
+			g_light[lightIndex].m_attenuation = 0.0001;
+			++lightIndex;
+		}
+	}
+
 	for (int i = 0; i < 100; ++i) {
 		if (g_lasersAlive[i]) {
 			if (g_lasers[i]->dead()) {
@@ -188,6 +201,7 @@ void callbackDisplay()
 	free(le.specularProducts);
 	free(le.lightPositions);
 	free(le.attenuations);
+	free(g_light);
 
 	if (g_debug) 
 		debugDisplay();
@@ -327,7 +341,7 @@ void init() {
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program); 
 
-	g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
+	//g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
 	g_camera.translate(vec3(0.0, 0.0, 200.0));
@@ -385,7 +399,7 @@ void init() {
 		bs->m_radius = sc;
 		bloop[i]->m_shape = bs;
 		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
-		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+		bloop[i]->translate(rand() % 2000 - 1000, rand() % 2000 - 1000, rand() % 2000 - 1000);
 	}
 
 	xhair1 = new Cube(g_program, NONE);

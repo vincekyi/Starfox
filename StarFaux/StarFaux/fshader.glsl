@@ -15,10 +15,10 @@ uniform int uShadingType;
 uniform sampler2D uTexture;
 
 uniform int uNumLights;
-uniform vec4 uAmbientProduct[5];
-uniform vec4 uDiffuseProduct[5];
-uniform vec4 uSpecularProduct[5];
-uniform float uAttenuation[5];
+uniform vec4 uAmbientProduct[15];
+uniform vec4 uDiffuseProduct[15];
+uniform vec4 uSpecularProduct[15];
+uniform float uAttenuation[15];
 
 // 0: no texture
 // 1: regular texture

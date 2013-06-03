@@ -19,7 +19,7 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 50
+#define BLOOPCOUNT 100
 #define LIGHTSOURCECOUNT 1
 
 #define ACCEL 0.05f

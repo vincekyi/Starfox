@@ -16,7 +16,7 @@ Laser::Laser(GLuint program, Vessel* vessel, Camera* camera) : ExternalModel(pro
 	resetRotation();
 	rotate(rot*m_vessel->m_qRotation);
 	m_velocity = -10.0 * (a + b);
-	m_lifespan = 100;
+	m_lifespan = 50;
 	m_timeAlive = 0;
 }
 
