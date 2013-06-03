@@ -154,7 +154,6 @@ void callbackDisplay()
 		}
 	}
 
-
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
 	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
 	//pos = vec3(pos2.x, pos2.y, pos2.z);
@@ -170,6 +169,10 @@ void callbackDisplay()
 	glEnable(GL_DEPTH_TEST);
 	g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
 	//g_vessel->draw(g_drawType, g_camera, g_light);
+
+	//glUseProgram(g_program2);
+	//thruster->drawScene(&g_shipCamera);
+	glUseProgram(g_program);
 
 	free(le.ambientProducts);
 	free(le.diffuseProducts);
@@ -314,6 +317,7 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
+
 	glUseProgram(g_program); 
 
 	g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
@@ -327,6 +331,7 @@ void init() {
 	tempShip = new Cube(g_program, NONE);
 	tempShip->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
 	tempShip->initDraw();
+	
 
 	tempShip->scale(1.0);
 	bb = new BoundingBox();
@@ -347,6 +352,7 @@ void init() {
 	g_vessel->setupTexture(REGULAR, TRILINEAR, REPEAT);
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
+
 
 	bb = new BoundingBox();
 	bb->setHalfWidths(1.8, 0.8, 3.5);
@@ -394,6 +400,14 @@ void init() {
 	xhair2->scale(3.0);
 
 	g_vessel->setAccelerationZ(-0.01);
+
+	//g_program2 = InitShader("vshader71.glsl", "fshader71.glsl");
+	//glUseProgram(g_program2);
+	//thruster
+	//thruster = new ParticleSystem(THRUSTERS, vec3(0, 0, -10), g_program2, &g_shipCamera);
+	//thruster->initDraw();
+	//glUseProgram(g_program);
+
 	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }

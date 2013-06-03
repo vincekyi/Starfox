@@ -13,6 +13,7 @@
 #include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
+#include "Thruster.h"
 
 
 #define ESC_KEY 27
@@ -39,6 +40,7 @@ bool g_debug = true;
 
 
 GLuint g_program;
+GLuint g_program2;
 
 DrawType g_drawType = FILLED;
 
@@ -52,6 +54,8 @@ Cube* greenStar;
 
 Cube* xhair1;
 Cube* xhair2;
+
+ParticleSystem* thruster;
 
 ExternalModel *bloop[BLOOPCOUNT];
 ExternalModel *gAsteroid;

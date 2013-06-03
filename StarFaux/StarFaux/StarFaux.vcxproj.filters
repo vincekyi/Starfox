@@ -72,6 +72,12 @@
     <ClInclude Include="BoundingShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="imageloader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Thruster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -110,6 +116,9 @@
     <ClCompile Include="BoundingSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="imageloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="fshader.glsl">
@@ -118,5 +127,7 @@
     <None Include="vshader.glsl">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="fshader71.glsl" />
+    <None Include="vshader71.glsl" />
   </ItemGroup>
 </Project>

@@ -29,6 +29,11 @@ uniform vec4 uFogColor;
 
 out vec4 outColor;
 
+uniform int uParticle;
+uniform vec4 vColor;
+uniform sampler2D texMap;
+in vec2 st2;
+
 // http://www.thetenthplanet.de/archives/1180
 mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv)
 {
@@ -61,53 +66,58 @@ vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord )
 
 void main() 
 {
-	outColor = vec4(0.0, 0.0, 0.0, 1.0);
+	if(uParticle == 0 || true){
+		outColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-	if (uShadingType < 3) {
-		if (uUseTexture == 1) {
-			outColor = fColor * texture2D(uTexture, texCoord);
-		} else {
-			outColor = fColor;
+		if (uShadingType < 3) {
+			if (uUseTexture == 1) {
+				outColor = fColor * texture2D(uTexture, texCoord);
+			} else {
+				outColor = fColor;
+			}
+		} else if (uShadingType == 3) {
+			vec3 N, V, L, H;
+
+			N = normalize(fN);
+			V = normalize(fV);
+			for (int i = 0; i < uNumLights; i++) {
+				L = normalize(fL[i]);
+				H = normalize(L + V);
+				float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) * uAttenuation[i];
+				if (distance < 1.0) {
+					distance = 1.0;
+				}
+
+				vec4 ambient = uAmbientProduct[i] / distance;
+				vec4 diffuse = uDiffuseProduct[i] / distance;
+				//vec4 diffuse = max(dot(L,N), 0.0) * uDiffuseProduct[i] / distance;
+
+				// Use bump mapping
+				if (uUseTexture == 2) {
+					N = perturb_normal(N, V, texCoord);
+					// Can't see bumps behind light, so fake it with ambience
+					float bumpTerm = N.x + N.y + N.z; 
+					ambient *= bumpTerm;
+				// Use regular texture
+				} else if (uUseTexture == 1) {
+					diffuse *= texture2D(uTexture, texCoord);
+				}
+				float lambertTerm = max(dot(L, N), 0.0);
+				diffuse *= lambertTerm;
+
+				vec4 specular = pow(max(dot(N,H), 0.0), uShininess) * uSpecularProduct[i] / distance;
+				if (dot(L,N) < 0.0) {
+					specular = vec4(0.0, 0.0, 0.0, 1.0);
+				}
+				outColor += ambient + diffuse + specular;
+			}
+			outColor.a = 1.0;
 		}
-	} else if (uShadingType == 3) {
-		vec3 N, V, L, H;
 
-        N = normalize(fN);
-        V = normalize(fV);
-		for (int i = 0; i < uNumLights; i++) {
-			L = normalize(fL[i]);
-			H = normalize(L + V);
-			float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) * uAttenuation[i];
-			if (distance < 1.0) {
-				distance = 1.0;
-			}
-
-			vec4 ambient = uAmbientProduct[i] / distance;
-			vec4 diffuse = uDiffuseProduct[i] / distance;
-			//vec4 diffuse = max(dot(L,N), 0.0) * uDiffuseProduct[i] / distance;
-
-			// Use bump mapping
-			if (uUseTexture == 2) {
-				N = perturb_normal(N, V, texCoord);
-				// Can't see bumps behind light, so fake it with ambience
-				float bumpTerm = N.x + N.y + N.z; 
-				ambient *= bumpTerm;
-			// Use regular texture
-			} else if (uUseTexture == 1) {
-				diffuse *= texture2D(uTexture, texCoord);
-			}
-			float lambertTerm = max(dot(L, N), 0.0);
-			diffuse *= lambertTerm;
-
-			vec4 specular = pow(max(dot(N,H), 0.0), uShininess) * uSpecularProduct[i] / distance;
-			if (dot(L,N) < 0.0) {
-				specular = vec4(0.0, 0.0, 0.0, 1.0);
-			}
-			outColor += ambient + diffuse + specular;
-		}
-        outColor.a = 1.0;
-    }
-
-	vec4 fogColor = fogFactor * uFogColor;
-	outColor = outColor  * fogFactor + fogColor * (1.0 - fogFactor); 
+		vec4 fogColor = fogFactor * uFogColor;
+		outColor = outColor  * fogFactor + fogColor * (1.0 - fogFactor); 
+	}
+	else if(uParticle == 1){
+		outColor = vec4(1,1,1,1);//vColor * texture2D(texMap,st2);
+	}
 } 

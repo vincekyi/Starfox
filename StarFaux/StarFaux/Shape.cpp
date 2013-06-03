@@ -32,6 +32,8 @@ void Shape::initDraw() {
 	GLuint normal = glGetAttribLocation(m_program, "vNormal");
     glEnableVertexAttribArray(normal);
     glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(m_vertices[0]) * m_numVertices));
+	GLuint uPart = glGetUniformLocation( m_program, "uParticle");
+	glUniform1i(uPart, 0);
 
 	if (m_useTexture != NO_TEXTURE) {
 		glGenBuffers(1, &m_textureBuffer);
@@ -100,6 +102,8 @@ void Shape::draw(DrawType type, Camera& camera, Light* light, lightEffects effec
 	GLuint uView = glGetUniformLocation(m_program, "uView");
 	GLuint uUseTexture = glGetUniformLocation(m_program, "uUseTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
+	GLuint uPart = glGetUniformLocation( m_program, "uParticle");
+	glUniform1i(uPart, 0);
 	
 	update();
 	mat4 model = m_objectToWorld;

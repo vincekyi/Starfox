@@ -33,6 +33,9 @@ uniform mat3 uTextureTrans;
 uniform float uFogMaxDist;
 uniform float uFogMinDist;
 
+uniform int uParticle;
+//out vec2 st2;
+
 float computeLinearFogFactor()
 {
 	float factor;
@@ -43,73 +46,77 @@ float computeLinearFogFactor()
 
 void main() 
 {
-    gl_Position = uProj * uModelView * vPosition;
-	fogFactor = computeLinearFogFactor();
-	fColor = vec4(0.0, 0.0, 0.0, 1.0);
+	gl_Position = uProj * uModelView * vPosition;
+	//st2 = vTexCoords;
 
-	if (uShadingType == 0 ) { // No shading
-		fN = fV = vec3(0.0, 0.0, 0.0);
-		fL[0] = vec3(0.0, 0.0, 0.0);
-		fColor = uAmbientProduct[0];
-	}
-	else {	// Flat Shading || Gouraud Shading || Phong Shading
-		// Will's fN, fV calculation
-		//fN = (uModel * vec4(vNormal.x, vNormal.y, vNormal.z, 0.0)).xyz;
-		//fV = (uCameraPosition - uModel * vPosition).xyz;
-		// Phong shading is taken care of in the fragment shader
+	if(uParticle == 0 || true){
+		gl_Position = uProj * uModelView * vPosition;
+		fColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-		// Get the normal matrix - the 3x3 upper left matrix with some transformations
-		// Should be same as gl_NormalMatrix which is deprecated
-		//mat3 MV3x3 = mat3(transpose(inverse(uModelView)));
-		mat3 MV3x3 = mat3(uModelView);
+		if (uShadingType == 0 ) { // No shading
+			fN = fV = vec3(0.0, 0.0, 0.0);
+			fL[0] = vec3(0.0, 0.0, 0.0);
+			fColor = uAmbientProduct[0];
+		}
+		else {	// Flat Shading || Gouraud Shading || Phong Shading
+			// Will's fN, fV calculation
+			//fN = (uModel * vec4(vNormal.x, vNormal.y, vNormal.z, 0.0)).xyz;
+			//fV = (uCameraPosition - uModel * vPosition).xyz;
+			// Phong shading is taken care of in the fragment shader
 
-		vec4 vertexPosition_cameraspace = uModelView * vPosition;
+			// Get the normal matrix - the 3x3 upper left matrix with some transformations
+			// Should be same as gl_NormalMatrix which is deprecated
+			//mat3 MV3x3 = mat3(transpose(inverse(uModelView)));
+			mat3 MV3x3 = mat3(uModelView);
 
-		fN = (MV3x3 * vNormal);
-		// Vector that goes from the vertex to the camera, in camera space.
-		// In camera space, the camera is at the origin (0,0,0).
-		//fV = (uCameraPosition - vertexPosition_cameraspace).xyz;
-		fV = -vertexPosition_cameraspace.xyz;
+			vec4 vertexPosition_cameraspace = uModelView * vPosition;
+
+			fN = (MV3x3 * vNormal);
+			// Vector that goes from the vertex to the camera, in camera space.
+			// In camera space, the camera is at the origin (0,0,0).
+			//fV = (uCameraPosition - vertexPosition_cameraspace).xyz;
+			fV = -vertexPosition_cameraspace.xyz;
 		
-		for (int i = 0; i < uNumLights; i++) {
-			// Vector that goes from the vertex to the light, in camera space.
-			vec3 LightPosition_cameraspace = (uView * uLightPosition[i]).xyz;
-			fL[i] = LightPosition_cameraspace + fV;
-			//fL[i] = uLightPosition.xyz + fV;
-			//fL[i] = (uLightPosition[i] - uModel * vPosition).xyz;
-		}
-
-		if (uShadingType == 1 || uShadingType == 2) {	// Flat Shading || Gouraud Shading
-			vec3 N, V, L, H;
-			N = normalize(fN);
-			V = normalize(fV);
-
-
 			for (int i = 0; i < uNumLights; i++) {
-				fL[i] = (uLightPosition[i] - uModel * vPosition).xyz;
-				float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) * uAttenuation[i];
-				if (distance < 1.0) {
-					distance = 1.0;
-				}
-
-				L = normalize(fL[i]);
-				H = normalize(L + V);
-
-				vec4 ambient = uAmbientProduct[i] / distance;
-				vec4 diffuse = max(dot(L, N), 0.0) * uDiffuseProduct[i] / distance;
-				vec4 specular = pow(max(dot(N, H), 0.0), uShininess) * uSpecularProduct[i] / distance;
-
-				if (dot(L, N) < 0.0) {
-					specular = vec4(0.0, 0.0, 0.0, 1.0);
-				}
-
-				fColor += ambient + diffuse + specular;
+				// Vector that goes from the vertex to the light, in camera space.
+				vec3 LightPosition_cameraspace = (uView * uLightPosition[i]).xyz;
+				fL[i] = LightPosition_cameraspace + fV;
+				//fL[i] = uLightPosition.xyz + fV;
+				//fL[i] = (uLightPosition[i] - uModel * vPosition).xyz;
 			}
-			fColor.a = 1.0;
-		}
-	} 
 
-	if (uUseTexture == 1 || uUseTexture == 2) {
-		texCoord = vTexCoords;
-	}	
+			if (uShadingType == 1 || uShadingType == 2) {	// Flat Shading || Gouraud Shading
+				vec3 N, V, L, H;
+				N = normalize(fN);
+				V = normalize(fV);
+
+
+				for (int i = 0; i < uNumLights; i++) {
+					fL[i] = (uLightPosition[i] - uModel * vPosition).xyz;
+					float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) * uAttenuation[i];
+					if (distance < 1.0) {
+						distance = 1.0;
+					}
+
+					L = normalize(fL[i]);
+					H = normalize(L + V);
+
+					vec4 ambient = uAmbientProduct[i] / distance;
+					vec4 diffuse = max(dot(L, N), 0.0) * uDiffuseProduct[i] / distance;
+					vec4 specular = pow(max(dot(N, H), 0.0), uShininess) * uSpecularProduct[i] / distance;
+
+					if (dot(L, N) < 0.0) {
+						specular = vec4(0.0, 0.0, 0.0, 1.0);
+					}
+
+					fColor += ambient + diffuse + specular;
+				}
+				fColor.a = 1.0;
+			}
+		} 
+
+		if (uUseTexture == 1 || uUseTexture == 2) {
+			texCoord = vTexCoords;
+		}	
+	}
 }
