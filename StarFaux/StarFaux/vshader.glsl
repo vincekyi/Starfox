@@ -49,8 +49,13 @@ void main()
 	}
 	else {
 		// Phong shading is taken care of in the fragment shader
+
+		// Get the normal matrix - the 3x3 upper left matrix with some transformations
+		// Should be same as gl_NormalMatrix which is deprecated
 		//mat3 MV3x3 = mat3(transpose(inverse(uModelView)));
 		mat3 MV3x3 = mat3(uModelView);
+
+
 		fN = (MV3x3 * vNormal);
 		vec4 vertexPosition_cameraspace = uModelView * vPosition;
 		//fV = (uCameraPosition - vertexPosition_cameraspace).xyz;
