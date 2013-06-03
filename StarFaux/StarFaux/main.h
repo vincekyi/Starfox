@@ -13,13 +13,14 @@
 #include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
+#include "Laser.h"
 
 
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
 #define BLOOPCOUNT 50
-#define LIGHTSOURCECOUNT 2
+#define LIGHTSOURCECOUNT 1
 
 #define ACCEL 0.05f
 
@@ -55,4 +56,10 @@ Cube* xhair2;
 
 ExternalModel *bloop[BLOOPCOUNT];
 ExternalModel *gAsteroid;
+
+int lastFired = 0;
+int g_numLasers = 0;
+int g_laserIndex = 0;
+bool g_lasersAlive[100];
+Laser* g_lasers[100];
 

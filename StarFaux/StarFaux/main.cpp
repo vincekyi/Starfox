@@ -102,18 +102,18 @@ void callbackDisplay()
 	g_vessel->updateMovement();
 	
 
-	for (int i = 0; i < LIGHTSOURCECOUNT; i++) {
+	for (int i = 0; i < 1; i++) {
 		g_light[i].m_position = vec3(0.0, 0.0, 0.0);
 		g_light[i].m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
 		g_light[i].m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 		g_light[i].m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 		g_light[i].m_attenuation = 0.0000005;
 	}
-	g_light[1].m_position = tempShip->m_position;
-	g_light[1].m_lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
-	g_light[1].m_lightDiffuse = vec4(0.0, 0.6, 0.0, 1.0);
-	g_light[1].m_lightSpecular = vec4(0.0, 1.5, 0.0, 1.0);
-	g_light[1].m_attenuation = 0.0001;
+	//g_light[1].m_position = tempShip->m_position;
+	//g_light[1].m_lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
+	//g_light[1].m_lightDiffuse = vec4(0.0, 0.6, 0.0, 1.0);
+	//g_light[1].m_lightSpecular = vec4(0.0, 1.5, 0.0, 1.0);
+	//g_light[1].m_attenuation = 0.0001;
 
 
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
@@ -131,8 +131,20 @@ void callbackDisplay()
 	le.specularProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
 	le.lightPositions = (vec4*)malloc(sizeof(vec4) * le.numLights);
 	le.attenuations = (float*)malloc(sizeof(float) * le.numLights);
-	tempShip->draw(g_drawType, g_camera, g_light, le);
-	tempShip->translate(-g_bulletV.x, -g_bulletV.y, -g_bulletV.z);
+	//tempShip->draw(g_drawType, g_camera, g_light, le);
+	//tempShip->translate(-g_bulletV.x, -g_bulletV.y, -g_bulletV.z);
+	for (int i = 0; i < 100; ++i) {
+		if (g_lasersAlive[i]) {
+			if (g_lasers[i]->dead()) {
+				delete g_lasers[i];
+				g_lasersAlive[i] = false;
+				--g_numLasers;
+				continue;
+			}
+			g_lasers[i]->draw(g_drawType, g_camera, g_light, le);
+			g_lasers[i]->laser_update();
+		}
+	}
 	greenStar->draw(g_drawType, g_camera, g_light, le);
 	if (g_vessel->m_shape->checkCollision(greenStar->m_shape)) {
 		std::cout << g_vessel->m_shape->m_center << std::endl;
@@ -209,17 +221,16 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case 'f': g_keyPress[KEY_F] = true; break;
 		case 'e': g_keyPress[KEY_E] = true; break;
 		case SPACE_KEY: {
-				tempShip->setPosition(g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f);
-				tempShip->translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f);
-				vec3 a = Quaternion(vec3(0.0f, -1.0f, 0.0f), 70.0f * (g_vessel->getVelocity().x / g_vessel->MAX_VELOCITY)) * g_camera.m_zAxis;
-				vec3 b = Quaternion(g_camera.m_xAxis, 60.0f * (g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y)) * g_camera.m_zAxis;
-				Quaternion rot = g_camera.m_qRotation;
-				rot.w = -g_camera.m_qRotation.w;
-				tempShip->resetRotation();
-				tempShip->rotate(g_vessel->m_qRotation);
-				tempShip->rotate(rot);
-				g_bulletV = 10.0 * (a + b);
-				break;
+			if((glutGet(GLUT_ELAPSED_TIME) - lastFired) < 100)
+				return;
+			lastFired = glutGet(GLUT_ELAPSED_TIME);
+			if (g_laserIndex == 100)
+				g_laserIndex = 0;
+			g_lasers[g_laserIndex] = new Laser(g_program, g_vessel, &g_camera);
+			g_lasersAlive[g_laserIndex] = true;
+			++g_laserIndex;
+			++g_numLasers;
+			break;
 		}
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
 		case '0': g_debug = !g_debug; break;
@@ -352,8 +363,6 @@ void init() {
 	bb->setHalfWidths(1.8, 0.8, 3.5);
 	bb->setCenter(vec3(0.0, 0.0, 1500.0));
 	g_vessel->m_shape = bb;
-
-
 
 	// Create the mama asteroid
 	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
