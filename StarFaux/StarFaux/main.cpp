@@ -268,6 +268,10 @@ void init() {
 		g_keyPress[i] = false;
 	}
 
+	std::cout << _MSC_VER;
+
+	alutInit(0, NULL);
+
 	glEnable(GL_DEPTH_TEST);
 
 	g_program = InitShader("vshader.glsl", "fshader.glsl");

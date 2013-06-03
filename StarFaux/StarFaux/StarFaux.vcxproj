@@ -72,6 +72,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AL\al.h" />
+    <ClInclude Include="AL\alc.h" />
+    <ClInclude Include="AL\alut.h" />
+    <ClInclude Include="AL\alutInternal.h" />
+    <ClInclude Include="AL\efx-creative.h" />
+    <ClInclude Include="AL\EFX-Util.h" />
+    <ClInclude Include="AL\efx.h" />
+    <ClInclude Include="AL\xram.h" />
     <ClInclude Include="Angel.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Camera.h" />
@@ -91,6 +99,16 @@
     <ClInclude Include="vec.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AL\alutBufferData.c" />
+    <ClCompile Include="AL\alutCodec.c" />
+    <ClCompile Include="AL\alutError.c" />
+    <ClCompile Include="AL\alutInit.c" />
+    <ClCompile Include="AL\alutInputStream.c" />
+    <ClCompile Include="AL\alutLoader.c" />
+    <ClCompile Include="AL\alutOutputStream.c" />
+    <ClCompile Include="AL\alutUtil.c" />
+    <ClCompile Include="AL\alutVersion.c" />
+    <ClCompile Include="AL\alutWaveform.c" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
