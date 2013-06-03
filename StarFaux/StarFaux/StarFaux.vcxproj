@@ -90,6 +90,7 @@
     <ClInclude Include="BoundingSphere.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="MathExtension.h" />
+    <ClInclude Include="PsuedoMenu.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Vessel.h" />
     <ClInclude Include="Light.h" />
@@ -121,6 +122,7 @@
     <ClCompile Include="InitShader.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PsuedoMenu.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Sound.cpp" />

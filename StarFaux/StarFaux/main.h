@@ -15,8 +15,8 @@
 #include "Tga.h"
 
 #include "Line.h"
-
 #include "Sound.h"
+#include "PsuedoMenu.h"
 
 #include "AL/al.h" 
 #include "AL/alc.h" 
@@ -72,3 +72,5 @@ Line *speedLine[SPEED_LINE_COUNT];
 
 Sound* g_sound;
 Sound* g_music;
+
+PsuedoMenu* g_menu;

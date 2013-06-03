@@ -186,15 +186,16 @@ void callbackDisplay()
 	g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
 	//g_vessel->draw(g_drawType, g_camera, g_light);
 
+	g_menu->draw(g_drawType, g_shipCamera, g_light, le);
+
+	if (g_debug) 
+		debugDisplay();
+
 	free(le.ambientProducts);
 	free(le.diffuseProducts);
 	free(le.specularProducts);
 	free(le.lightPositions);
 	free(le.attenuations);
-
-	if (g_debug) 
-		debugDisplay();
-
 
 	calculateFPS();
 	glutSwapBuffers();
@@ -428,6 +429,13 @@ void init() {
 	xhair2->m_shape = bb;
 	xhair2->translate(0.0, 0.0, -30.0);
 	xhair2->scale(3.0);
+
+	g_menu = new PsuedoMenu(g_program, FLAT, 3.0, 3.9);
+	g_menu->initDraw();
+	g_menu->setupLighting(20.0, vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
+	//g_menu->setupTexture(BUMP, TRILINEAR, REPEAT, "BLANK.tga");
+	g_menu->scale(vec3(1.0, 1.0, 1.0));
+	g_menu->translate(-6.3, 4.8, 0.0);
 
 	g_vessel->setAccelerationZ(-0.01);
 	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
