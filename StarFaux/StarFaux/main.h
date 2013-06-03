@@ -25,6 +25,7 @@
 #define TARGET_FPS 100
 #define BLOOPCOUNT 50
 #define LIGHTSOURCECOUNT 2
+#define MUSICGAIN 0.5f
 
 #define ACCEL 0.05f
 
@@ -62,3 +63,4 @@ ExternalModel *bloop[BLOOPCOUNT];
 ExternalModel *gAsteroid;
 
 Sound* g_sound;
+Sound* g_music;
