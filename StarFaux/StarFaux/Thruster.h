@@ -314,7 +314,7 @@ public:
 		m_program = prog;
 		initRendering();
 		m_cam = cam;
-		particleEnginePtr = new ParticleEngine(m_texture, type, m_loc.x, m_loc.y, m_loc.z); 
+		particleEnginePtr = new ParticleEngine(m_textureId, type, m_loc.x, m_loc.y, m_loc.z); 
 		particleEnginePtr->setProgram(prog);
 	}
 
@@ -352,10 +352,11 @@ public:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glBindVertexArray( m_vao );
+		glBindTexture(GL_TEXTURE_2D, m_textureId);
 
 		//texture
 		GLuint texMap = glGetUniformLocation( m_program, "uTexture");
-		glUniform1i(texMap, m_texture);
+		glUniform1i(texMap, 0);
 
 		// initialize camera shader
 		GLuint vModelView = glGetUniformLocation( m_program, "uModelView");
@@ -402,15 +403,15 @@ private:
 	vec3 m_loc;
 	GLuint m_program;
 	ParticleEngine* particleEnginePtr;
-	GLuint m_texture;
 	Camera* m_cam;
 	GLuint m_vao;
+	GLuint m_textureId;
 
 	void initRendering() {
 	
 		Image* image = loadBMP("circle.bmp");
 		Image* alphaChannel = loadBMP("circlealpha.bmp");
-		m_texture = loadAlphaTexture(image, alphaChannel);
+		m_textureId = loadAlphaTexture(image, alphaChannel);
 		delete image;
 		delete alphaChannel;
 	}
@@ -437,9 +438,8 @@ private:
 	//alpha channel and returns the id of the texture
 	GLuint loadAlphaTexture(Image* image, Image* alphaChannel) {
 		char* pixels = addAlphaChannel(image, alphaChannel);
-		GLuint textureId;
-		glGenTextures(1, &textureId);
-		glBindTexture(GL_TEXTURE_2D, textureId);
+		glGenTextures(1, &m_textureId);
+		glBindTexture(GL_TEXTURE_2D, m_textureId);
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,
 					 GL_RGBA,
@@ -450,7 +450,7 @@ private:
 					 pixels);
 	
 		delete pixels;
-		return textureId;
+		return m_textureId;
 	}
 
 };
