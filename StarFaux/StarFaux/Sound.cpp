@@ -1,8 +1,7 @@
-/*
 #include "Sound.h"
 
 Sound::Sound(int numSounds, const char* baseDir) {
-	if (baseDir[strlen(baseDir)] != '/') {
+	if (baseDir[strlen(baseDir)-1] != '/') {
 		m_baseDir = (char*)malloc(sizeof(char) * strlen(baseDir) + 2 * sizeof(char));
 		strcpy(m_baseDir, baseDir);
 		strcat(m_baseDir, "/");
@@ -14,6 +13,7 @@ Sound::Sound(int numSounds, const char* baseDir) {
 	m_currBuffer = 0;
 	m_currSource = 0;
 	m_numBuffers = numSounds;
+	m_currTime = 0;
 	m_soundBuffers = (ALuint*)malloc(sizeof(ALuint) * m_numBuffers);
 	m_sourceBuffers = (ALuint*)malloc(sizeof(ALuint) * MAXSOURCES);
 
@@ -45,12 +45,16 @@ void Sound::loadSound(const char* filename) {
 	alBufferData(m_soundBuffers[m_currBuffer],format,data,size,freq);
 	alutUnloadWAV(format,data,size,freq);
 
-	m_soundSrc.at(fn) = m_currBuffer;
+	m_soundSrc[fn] = m_currBuffer;
 
 	m_currBuffer++;
 }
 
-void Sound::playSound(const char* filename) {
+void Sound::playSound(const char* filename, int delay) {
+	if (m_currTime + delay > time(NULL)) {
+		return;
+	}
+
 	char* fn = (char*)malloc(sizeof(char) * strlen(filename) + sizeof(char) * strlen(m_baseDir) + sizeof(char));
 	strcpy(fn, m_baseDir);
 	strcat(fn, filename);
@@ -67,5 +71,7 @@ void Sound::playSound(const char* filename) {
 	alSourcei(m_sourceBuffers[m_currSource], AL_BUFFER, m_soundBuffers[id]);
 
 	alSourcePlay(m_sourceBuffers[m_currSource]);
+	m_currSource++;
+	m_currSource = (m_currSource % MAXSOURCES == 0) ? 0 : m_currSource;
+	m_currTime = time(NULL);
 }
-*/
