@@ -11,8 +11,12 @@ in float fogFactor;
 
 uniform float uShininess;
 uniform int uShadingType;
-uniform int uEnableTexture;
 uniform sampler2D uTexture;
+
+// 0: no texture
+// 1: regular texture
+// 2: bump mapping
+uniform int uUseTexture;
 
 uniform vec4 uAmbientProduct;
 uniform vec4 uDiffuseProduct;
@@ -55,8 +59,11 @@ vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord )
 void main() 
 { 
 	if (uShadingType < 3) {
-		if (uEnableTexture == 1) Out_Color = fColor * texture2D(uTexture, texCoord);
-		else Out_Color = fColor;
+		if (uUseTexture == 1) {
+			Out_Color = fColor * texture2D(uTexture, texCoord);
+		} else {
+			Out_Color = fColor;
+		}
 	} else if (uShadingType == 3) {
 		vec3 N, V, L, H;
 
@@ -65,20 +72,22 @@ void main()
 		L = normalize(fL);
 		H = normalize(L + V);
 
+		vec4 diffuse = uDiffuseProduct;
+
 		// Use bump mapping
-		if (1==1) {
+		if (uUseTexture == 2) {
 			N = perturb_normal(N, V, texCoord);
+		} else if (uUseTexture == 1) {
+			diffuse *= texture2D(uTexture, texCoord);
 		}
     
 		float lambertTerm = max(dot(L, N), 0.0);
+		diffuse *= lambertTerm;
+
 		// Can't see bumps behind light, so fake it with ambience
 		float bumpTerm = N.x + N.y + N.z; 
+		vec4 ambient = bumpTerm * uAmbientProduct;
 
-		vec4 ambient = uAmbientProduct * bumpTerm;
-		//vec4 diffuse = (N.x + N.y + N.z) * uDiffuseProduct;
-		vec4 diffuse = lambertTerm * uDiffuseProduct;
-		//if (uEnableTexture == 1)
-			//diffuse *= texture2D(uTexture, texCoord);
 		vec4 specular = pow(max(dot(N,H), 0.0), uShininess) * uSpecularProduct;
 		if (dot(L,N) < 0.0) {
 			specular = vec4(0.0, 0.0, 0.0, 1.0);

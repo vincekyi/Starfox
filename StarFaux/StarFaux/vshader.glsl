@@ -24,7 +24,7 @@ uniform vec4 uCameraPosition;
 uniform vec4 uLightPosition;
 uniform int uShadingType;
 
-uniform int uEnableTexture;
+uniform int uUseTexture;
 uniform mat3 uTextureTrans;
 
 uniform float uFogMaxDist;
@@ -58,7 +58,6 @@ void main()
 		vec3 LightPosition_cameraspace = (uView * vPosition).xyz;
 		fL = LightPosition_cameraspace + fV;
 		//fL = uLightPosition.xyz + fV;
-		texCoord = vTexCoords;
 
 		if (uShadingType == 1 || uShadingType == 2) {	// Flat Shading || Gouraud Shading
 			vec3 N, V, L, H;
@@ -81,7 +80,7 @@ void main()
 			fColor.a = 1.0;
 		}
 	}
-	if (uEnableTexture == 1) {
+	if (uUseTexture == 1 || uUseTexture == 2) {
 		texCoord = vTexCoords;
 	}	
 }

@@ -20,7 +20,7 @@ public:
 
 	void initDraw();
 	void draw(DrawType type, Camera& camera, Light& light);
-	void setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType);
+	void setupTexture(TextureUseType useType, TextureSamplingType samplingType, TextureWrappingType wrappingType);
 	using Shape::setupTexture;
 	void setupLighting();
 	using Shape::setupLighting;

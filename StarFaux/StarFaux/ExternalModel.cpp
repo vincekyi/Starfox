@@ -21,7 +21,7 @@ ExternalModel::ExternalModel(GLuint program, const char* baseDir, ShadingType sh
 
 	m_textureMaps = new std::map<char*, materialProp_t*, cmp_str>;
 	m_materialRefs = new std::map<int, char*>;
-
+	m_shakeCount = 0;
 }
 
 ExternalModel::ExternalModel(const ExternalModel& ext) {
@@ -29,8 +29,11 @@ ExternalModel::ExternalModel(const ExternalModel& ext) {
 	m_hasMaterials = ext.m_hasMaterials;
 	m_shapeType = ext.m_shapeType;
 	m_shading = ext.m_shading;
+	m_shakeCount = ext.m_shakeCount;
 
+	// Copy shape properties
 	m_numVertices = ext.m_numVertices;
+	m_textureCoords = ext.m_textureCoords;
 
 	// Copy texture properties
 	m_samplingType = ext.m_samplingType;
@@ -48,8 +51,9 @@ ExternalModel::ExternalModel(const ExternalModel& ext) {
 
 // Overloaded setupTexture
 // The .mtl file will specify the texture map file names
-void ExternalModel::setupTexture(TextureSamplingType samplingType, TextureWrappingType wrappingType) {
-	Shape::setupTexture(samplingType, wrappingType, "");
+void ExternalModel::setupTexture(TextureUseType useType, TextureSamplingType samplingType,
+								 TextureWrappingType wrappingType) {
+	Shape::setupTexture(useType, samplingType, wrappingType, "");
 }
 
 // Overloaded setupLighting
@@ -61,7 +65,7 @@ void ExternalModel::setupLighting() {
 // Overloaded initDraw
 // Set up each texture
 void ExternalModel::initDraw() {
-	if (!m_useTexture || !m_hasMaterials) {
+	if ((m_useTexture == NO_TEXTURE) || !m_hasMaterials) {
 		Shape::initDraw();
 		return;
 	}
@@ -159,7 +163,7 @@ void ExternalModel::initDraw() {
 // Overloaded draw
 // Process each texture
 void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
-	if (!m_useTexture || !m_hasMaterials || m_textureCoords == NULL) {
+	if ((m_useTexture == NO_TEXTURE) || !m_hasMaterials || m_textureCoords == NULL) {
 		Shape::draw(type, camera, light);
 		return;
 	}
@@ -175,18 +179,18 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light& light) {
 	GLuint uModelView = glGetUniformLocation(m_program, "uModelView");
 	GLuint uModel = glGetUniformLocation(m_program, "uModel");
 	GLuint uView = glGetUniformLocation(m_program, "uView");
-	GLuint uEnableTexture = glGetUniformLocation(m_program, "uEnableTexture");
+	GLuint uUseTexture = glGetUniformLocation(m_program, "uUseTexture");
 	GLuint uTexture = glGetUniformLocation(m_program, "uTexture");
 	glUniform4fv(uCameraPosition, 1, camera.m_position);
 	glUniform4fv(uLightPosition, 1, light.m_position);
 	glUniformMatrix4fv(uProj, 1, GL_TRUE, camera.perspective());
 	glUniform1i(uShadingType, m_shading);
 
-	glUniform1i(uEnableTexture, 1);
+	glUniform1i(uUseTexture, m_useTexture);
 	glUniform1i(uTexture, 0);
 
 	if (m_shakeCount % 20 > 5) {
-		glUniform1i(uEnableTexture, 0);
+		glUniform1i(uUseTexture, NO_TEXTURE);
 		setupLighting(m_shininess, vec4(0.4, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0));
 	}
 

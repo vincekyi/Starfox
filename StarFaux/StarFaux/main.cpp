@@ -267,21 +267,21 @@ void init() {
 	tempShip->scale(30.0);
 	tempShip->m_box->setHalfWidths(15.0, 15.0, 15.0);
 	
-	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
+	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", GOURAUD);
 	g_vessel->loadModel("ship.obj", true);
 	g_vessel->setupLighting();
-	g_vessel->setupTexture(TRILINEAR, REPEAT);
+	g_vessel->setupTexture(REGULAR, TRILINEAR, REPEAT);
 	g_vessel->initDraw();
 	g_vessel->scale(0.5);
 	g_vessel->m_box->setHalfWidths(2.0, 1.0, 4.5);
 	g_vessel->m_box->setCenter(vec3(0.0, 0.0, 1500.0));
 
 	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
-	gAsteroid->loadModel("asteroid_cube.obj", true);
+	gAsteroid->loadModel("asteroid_sphere3.obj", true);
 	float sc = 50.0;
 	gAsteroid->scale(sc);
 	//gAsteroid->setupLighting(0.0, vec4(0.1, 0.1, 0.1, 1.0), vec4(0.8, 0.8, 0.8, 1.0), vec4(0.3, 0.3, 0.3, 1.0));
-	gAsteroid->setupTexture(TRILINEAR, REPEAT);
+	gAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
 	gAsteroid->initDraw();
 	gAsteroid->m_box->setHalfWidths(sc, sc, sc);
 	gAsteroid->translate(0.0, 0.0, -500.0);
@@ -290,9 +290,9 @@ void init() {
 		//bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
 		bloop[i] = new ExternalModel(*gAsteroid);
 
-		float sc = 10.0f + (rand() % 200 / 10.0f);
+		float sc = 10.0f + (rand() % 900 / 10.0f);
 		bloop[i]->scale(sc);
-		bloop[i]->setupTexture(TRILINEAR, REPEAT);
+		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
 		//bloop[i]->setupLighting(20.0, vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0), vec4(0.55, 0.27, 0.07, 1.0));
 		//bloop[i]->setupLighting(FLAT, 20.0, 0.2 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 0.3, 0.0, 1.0), 0.5 * vec4(1.0, 1.0, 1.0, 1.0));
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
@@ -300,8 +300,8 @@ void init() {
 	}
 
 	g_vessel->setAccelerationZ(-0.01);
-	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
-	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
+	glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
+	//glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
 }
 
 int main(int argc, char** argv)

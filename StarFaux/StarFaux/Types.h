@@ -5,6 +5,8 @@ enum ShadingType { NONE, FLAT, GOURAUD, PHONG };
 
 enum DrawType { MESH, FILLED };
 
+enum TextureUseType { NO_TEXTURE = 0, REGULAR, BUMP };
+
 enum TextureSamplingType { NEAREST_NEIGHBOR, BILINEAR, TRILINEAR };
 
 enum TextureWrappingType { CLAMP, REPEAT };
