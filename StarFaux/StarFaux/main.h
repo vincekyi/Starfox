@@ -13,7 +13,7 @@
 #include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
-
+#include "Thruster.h"
 #include "Line.h"
 
 #include "Sound.h"
@@ -26,7 +26,7 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 200
+#define BLOOPCOUNT 20
 #define LIGHTSOURCECOUNT 2
 #define SPEED_LINE_COUNT 10
 const int SPEED_LINE_SPEED = 2.0;
@@ -69,3 +69,5 @@ ExternalModel *gAsteroid;
 Line *speedLine[SPEED_LINE_COUNT];
 
 Sound* g_sound;
+
+ParticleSystem *thruster;
