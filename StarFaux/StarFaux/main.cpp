@@ -85,8 +85,8 @@ void handleKeyDown() {
 				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
 				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationY(0.0f); break;
 				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(0.0f); break;
-				//case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
-				//case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
 			}
 		}
 	}
@@ -103,10 +103,19 @@ void callbackDisplay()
 	g_vessel->updateMovement();
 	
 
-	g_light.m_position = vec3(0.0, 0.0, 0.0);
-	g_light.m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
-	g_light.m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-	g_light.m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+	for (int i = 0; i < LIGHTSOURCECOUNT; i++) {
+		g_light[i].m_position = vec3(0.0, 0.0, 0.0);
+		g_light[i].m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+		g_light[i].m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+		g_light[i].m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+		g_light[i].m_attenuation = 0.005;
+	}
+	g_light[1].m_position = tempShip->m_position;
+	g_light[1].m_lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
+	g_light[1].m_lightDiffuse = vec4(0.0, 0.6, 0.0, 1.0);
+	g_light[1].m_lightSpecular = vec4(0.0, 1.5, 0.0, 1.0);
+	g_light[1].m_attenuation = 0.00001;
+
 
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
 	GLuint fogMinDist = glGetUniformLocation(g_program, "uFogMinDist");
@@ -114,17 +123,27 @@ void callbackDisplay()
 	glUniform1f(fogMinDist, 1500.0f);
 	glUniform1f(fogMaxDist, 1700.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
-	
-	tempShip->draw(g_drawType, g_camera, g_light);
+
+
+	lightEffects le;
+	le.numLights = LIGHTSOURCECOUNT;
+	le.ambientProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.diffuseProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.specularProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.lightPositions = (vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.attenuations = (float*)malloc(sizeof(float) * le.numLights);
+	tempShip->draw(g_drawType, g_camera, g_light, le);
 	tempShip->translate(-g_bulletV.x, -g_bulletV.y, -g_bulletV.z);
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i]->draw(g_drawType, g_camera, g_light);
+		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 		if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
+			std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 			g_vessel->shake();
 		}
 	}
-	g_light.m_position = g_shipCamera.m_position;
+	//g_light[0].m_position = g_shipCamera.m_position;
 	//tempSphere->draw(g_drawType, g_shipCamera, g_light);
+
 
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
 	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
@@ -135,9 +154,16 @@ void callbackDisplay()
 	vec3 ab1 = vec3(ab.x, ab.y, ab.z);
 	xhair1->setPosition(-10 * (ab1));
 	xhair2->setPosition(-30 * (ab1));
-	xhair1->draw(MESH, g_shipCamera, g_light);
-	xhair2->draw(MESH, g_shipCamera, g_light);
-	g_vessel->draw(g_drawType, g_shipCamera, g_light);
+	xhair1->draw(MESH, g_shipCamera, g_light, le);
+	xhair2->draw(MESH, g_shipCamera, g_light, le);
+	g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
+	//g_vessel->draw(g_drawType, g_camera, g_light);
+
+	free(le.ambientProducts);
+	free(le.diffuseProducts);
+	free(le.specularProducts);
+	free(le.lightPositions);
+	free(le.attenuations);
 
 	if (g_debug) 
 		debugDisplay();
@@ -175,7 +201,7 @@ void callbackKeyboard(unsigned char key, int x, int y)
 				tempShip->translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f);
 				vec3 a = Quaternion(vec3(0.0f, -1.0f, 0.0f), 70.0f * (g_vessel->getVelocity().x / g_vessel->MAX_VELOCITY)) * g_camera.m_zAxis;
 				vec3 b = Quaternion(g_camera.m_xAxis, 60.0f * (g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y)) * g_camera.m_zAxis;
-				g_bulletV = 5 * (a + b);
+				g_bulletV = 10.0 * (a + b);
 				break;
 		}
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
@@ -273,13 +299,15 @@ void init() {
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program); 
 
+	g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
+
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
 	g_camera.translate(vec3(0.0, 0.0, 200.0));
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
 	g_shipCamera.rotatePitch(0.0f);
 
-	tempShip = new Cube(g_program, FLAT);
+	tempShip = new Cube(g_program, NONE);
 	tempShip->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
 	tempShip->initDraw();
 	tempShip->scale(0.1);
@@ -311,7 +339,7 @@ void init() {
 	xhair2->translate(0.0, 0.0, -30.0);
 
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i] = new Sphere(g_program, rand() % 3, FLAT);
+		bloop[i] = new Sphere(g_program, rand() % 3, GOURAUD);
 		float sc = 10.0f + (rand() % 200 / 10.0f);
 		bloop[i]->scale(sc);
 		bs = new BoundingSphere();

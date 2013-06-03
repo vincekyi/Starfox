@@ -19,9 +19,9 @@ public:
 	mat4 generateMatrix();
 	Quaternion conjugate();
 	void qNormalize();
- 
-private:
 	GLfloat x, y, z, w;
+private:
+	
 	GLfloat tolerance;
 };
  
