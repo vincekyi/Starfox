@@ -210,6 +210,10 @@ void callbackDisplay()
 	starField->draw(g_drawType, g_shipCamera, g_light, le);
 	glUniform1i(fogFlag, 1);
 
+	// Draw the thrusters
+	thruster->drawScene(&g_shipCamera,g_vessel->m_position);
+	g_explosion[0]->drawScene(&g_shipCamera,g_vessel->m_position);
+
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
 	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
 	//pos = vec3(pos2.x, pos2.y, pos2.z);
@@ -232,12 +236,6 @@ void callbackDisplay()
 	delete [] le.attenuations;
 	delete [] g_light;
 
-	//free(le.ambientProducts);
-	//free(le.diffuseProducts);
-	//free(le.specularProducts);
-	//free(le.lightPositions);
-	//free(le.attenuations);
-	//free(g_light);
 
 	if (g_debug) 
 		debugDisplay();
@@ -345,10 +343,18 @@ void callbackPassiveMotion(int x, int y)
 void callbackTimer(int)
 {
 	if (g_animate) {
+		thruster->getEngine()->advance(UPDATE_DELAY / 1000.0f);
+		g_explosion[0]->getEngine()->advance(UPDATE_DELAY / 1000.0f);
 		glutPostRedisplay();
 	}
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
 }
+
+//void callbackThrusterTimer(int) {
+//		thruster->getEngine()->advance(25.0f / 1000.0f);
+//		glutPostRedisplay();
+//		glutTimerFunc(25.0f, callbackThrusterTimer, 0);
+//}
 
 void initCallbacks()
 {
@@ -361,6 +367,8 @@ void initCallbacks()
 	glutPassiveMotionFunc(callbackPassiveMotion);
 	//glutIdleFunc(callbackIdle);
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
+	//glutTimerFunc(UPDATE_DELAY, callbackThrusterTimer, 0);
+
 	glutSpecialFunc(callbackSpecial);
 	glutSpecialUpFunc(callbackSpecialUp);
 }
@@ -388,6 +396,11 @@ void init() {
 	glUseProgram(g_program); 
 
 	//g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
+
+	// Bad style, to make fragment shader work with thrusters
+	GLuint uIsThruster = glGetUniformLocation(g_program, "uIsThruster");
+	glUniform1i(uIsThruster, 0);
+
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
 	g_camera.translate(vec3(0.0, 0.0, 1000.0));
@@ -534,6 +547,7 @@ void init() {
 	xhair2->translate(0.0, 0.0, -30.0);
 	xhair2->scale(3.0);
 
+
 	//g_lasers = (Laser*) malloc(sizeof(Laser*) * MAX_LASERS);
 	for (int i = 0; i < MAX_LASERS; ++i) {
 		g_lasers[i] = new Laser(g_program, g_vessel, &g_camera);
@@ -543,6 +557,16 @@ void init() {
 	}
 	//g_lasers = new std::vector<Laser>(MAX_LASERS, Laser(g_program, g_vessel, &g_camera));
 
+	// Create particle system
+	thruster = new ParticleSystem(THRUSTERS, vec3(0.0,0.0,2.25), g_program, &g_shipCamera);
+	thruster->initDraw();
+	
+	g_explosion = (ParticleSystem**)malloc(sizeof(ParticleSystem*) * MAXEXPLOSIONCOUNT);
+	for (int i = 0; i < 1; i++) {
+		g_explosion[i] = new ParticleSystem(EXPLOSIONS, vec3(0.0,0.0,-20.0), g_program, &g_shipCamera);
+		g_explosion[i]->initDraw();
+	}
+	
 	g_vessel->setAccelerationZ(-0.01);
 	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background
@@ -550,6 +574,7 @@ void init() {
 
 int main(int argc, char** argv)
 {
+	srand((unsigned int)time(0)); //Seed the random number generator
 	initGlut(argc, argv);
 	initCallbacks();
 	glewInit();

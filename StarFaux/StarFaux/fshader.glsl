@@ -30,6 +30,10 @@ uniform int fogFlag;
 
 out vec4 outColor;
 
+// For thrusters
+uniform vec4 uThrustColor;
+uniform int uIsThruster;
+
 // http://www.thetenthplanet.de/archives/1180
 mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv)
 {
@@ -50,13 +54,13 @@ mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv)
     return mat3( T * invmax, B * invmax, N );
 }
 
-vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord )
+vec3 perturb_normal( vec3 N, vec3 V, vec2 atexcoord )
 {
 	// assume N, the interpolated vertex normal and 
 	// V, the view vector (vertex to eye)
-	vec3 map = texture(uTexture, texcoord ).xyz;
+	vec3 map = texture(uTexture, atexcoord ).xyz;
 	map = map * 255./127. - 128./127.;
-	mat3 TBN = cotangent_frame(N, -V, texcoord);
+	mat3 TBN = cotangent_frame(N, -V, atexcoord);
 	return normalize(TBN * map);
 }
 
@@ -66,7 +70,11 @@ void main()
 
 	if (uShadingType < 3) {
 		if (uUseTexture == 1) {
-			outColor = fColor * texture2D(uTexture, texCoord);
+			if (uIsThruster == 1) {
+				outColor = uThrustColor * texture2D(uTexture, texCoord).bgra;
+			} else {
+				outColor = fColor * texture2D(uTexture, texCoord);
+			}
 		} else {
 			outColor = fColor;
 		}

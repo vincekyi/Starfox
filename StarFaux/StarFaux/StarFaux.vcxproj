@@ -89,10 +89,12 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="ExternalModel.h" />
     <ClInclude Include="BoundingSphere.h" />
+    <ClInclude Include="imageloader.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Laser.h" />
     <ClInclude Include="MathExtension.h" />
     <ClInclude Include="Sound.h" />
+    <ClInclude Include="Thruster.h" />
     <ClInclude Include="Vessel.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="main.h" />
@@ -120,6 +122,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="ExternalModel.cpp" />
+    <ClCompile Include="imageloader.cpp" />
     <ClCompile Include="InitShader.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="Laser.cpp" />

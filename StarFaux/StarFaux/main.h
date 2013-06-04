@@ -15,6 +15,7 @@
 #include "Tga.h"
 #include "Laser.h"
 
+#include "Thruster.h"
 #include "Line.h"
 
 #include "Sound.h"
@@ -41,6 +42,7 @@ const int SPEED_LINE_SPEED = 2.0;
 #define MAX_LASERS 15
 
 #define ACCEL 0.05f
+#define MAXEXPLOSIONCOUNT 2
 
 vec3 g_bulletV(0.0f);
 
@@ -90,4 +92,7 @@ int g_laserIndex = 0;
 bool g_lasersAlive[MAX_LASERS];
 Laser* g_lasers[MAX_LASERS];
 //std::vector<Laser>* g_lasers;
+
+ParticleSystem *thruster;
+ParticleSystem **g_explosion;
 
