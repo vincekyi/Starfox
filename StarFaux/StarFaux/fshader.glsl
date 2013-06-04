@@ -6,7 +6,7 @@ in vec2 texCoord;
 
 in vec3 fN;
 in vec3 fV;
-in vec3 fL[5];
+in vec3 fL[15];
 
 in float fogFactor;
 

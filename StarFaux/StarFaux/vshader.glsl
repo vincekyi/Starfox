@@ -9,7 +9,7 @@ out vec2 texCoord;
 
 out vec3 fN; //normal at current position
 out vec3 fV; //vector from point to viewer
-out vec3 fL[5]; //vector from point to light
+out vec3 fL[15]; //vector from point to light
 
 uniform mat4 uProj;
 uniform mat4 uModelView;

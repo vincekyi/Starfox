@@ -7,6 +7,11 @@ Laser::Laser(GLuint program, Vessel* vessel, Camera* camera) : ExternalModel(pro
 	initDraw();
 	m_camera = camera;
 	m_vessel = vessel;
+	m_active = false;
+}
+
+void Laser::init() {
+ 	resetTranslation();
 	setPosition(m_camera->m_position - m_camera->m_zAxis * 12.0f - m_camera->m_yAxis * 2.0f);
 	translate(0.0f, 1.4 * m_vessel->getVelocity().y / m_vessel->MAX_VELOCITY_Y, 0.0f);
 	vec3 a = Quaternion(vec3(0.0f, -1.0f, 0.0f), 70.0f * (m_vessel->getVelocity().x / m_vessel->MAX_VELOCITY)) * m_camera->m_zAxis;
@@ -15,20 +20,23 @@ Laser::Laser(GLuint program, Vessel* vessel, Camera* camera) : ExternalModel(pro
 	rot.w = -m_camera->m_qRotation.w;
 	resetRotation();
 	rotate(rot*m_vessel->m_qRotation);
-	m_velocity = -10.0 * (a + b);
-	m_lifespan = 50;
+	m_velocity = -5.0 * (a + b);
+	m_lifespan = 100;
 	m_timeAlive = 0;
+	m_active = true;
 }
 
 void Laser::laser_update() {
-	translate(m_velocity.x, m_velocity.y, m_velocity.z);
-	++m_timeAlive;
+	if (m_active) {
+		translate(m_velocity.x, m_velocity.y, m_velocity.z);
+		++m_timeAlive;
+	}
 }
 
 void Laser::kill() {
-	m_timeAlive = 100;
+	m_active = false;
 }
 
 bool Laser::dead() {
-	return m_timeAlive > m_lifespan;
+	return (m_timeAlive > m_lifespan);
 }

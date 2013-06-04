@@ -24,11 +24,13 @@ bool BoundingSphere::checkCollision(float* halfWidths, vec3 center) {
     else if (m_center.y > c2.y) distance -= pow((m_center.y - c2.y), 2);
     if (m_center.z < c1.z) distance -= pow((m_center.z - c1.z), 2);
     else if (m_center.z > c2.z) distance -= pow((m_center.z - c2.z), 2);
+	if (distance > 0)
+		std::cout << "WTF";
     return distance > 0;
 }
 
 bool BoundingSphere::checkCollision(float radius, vec3 center) {
-	if (length(m_center - m_center) < (radius + m_radius))
+ 	if (length(m_center - center) < (radius + m_radius))
 		return true;
     return false;
 }
