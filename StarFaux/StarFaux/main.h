@@ -37,7 +37,7 @@ const int NUM_ASTEROID_ROTATIONS = 36;
 #define SPEED_LINE_COUNT 10
 
 const int SPEED_LINE_SPEED = 2.0;
-#define BLOOPCOUNT 1
+#define BLOOPCOUNT 200
 #define LIGHTSOURCECOUNT 1
 #define MAX_LASERS 15
 
@@ -76,6 +76,7 @@ Cube* xhair1;
 Cube* xhair2;
 
 ExternalModel *bloop[BLOOPCOUNT];
+bool asteroidAlive[BLOOPCOUNT];
 
 ExternalModel *gMamaAsteroid;
 ExternalModel *gPapaAsteroid;
@@ -86,7 +87,7 @@ Line *speedLine[SPEED_LINE_COUNT];
 Sound* g_sound;
 Sound* g_music;
 int g_explosionIndex = 0;
-Sound* g_explosion[5]; 
+Sound* g_exp[5]; 
 
 int lastFired = 0;
 int g_numLasers = 0;
@@ -96,5 +97,6 @@ Laser* g_lasers[MAX_LASERS];
 //std::vector<Laser>* g_lasers;
 
 ParticleSystem *thruster;
+int g_partExplodeIndex = 0;
 ParticleSystem **g_explosion;
 

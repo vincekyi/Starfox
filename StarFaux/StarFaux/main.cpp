@@ -185,22 +185,29 @@ void callbackDisplay()
 
 	// Draw all bloop asteroids
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i]->draw(g_drawType, g_camera, g_light, le);
-		if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
-			g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1000);
-			std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
-			g_vessel->shake();
-		}
-		for (int j = 0; j < MAX_LASERS; ++j) {
-			if (g_lasers[j]->m_active)
-				if (bloop[i]->m_shape->checkCollision(g_lasers[j]->m_shape)) {
-					if (g_explosionIndex == 5)
-						g_explosionIndex = 0;
-					std::cout << "BOOM BRAH" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
-					g_explosion[g_explosionIndex]->playSound("ship_asteriod_impact.wav", 1.0, 500);
-					g_lasers[j]->kill();
-					++g_explosionIndex;
+		if (asteroidAlive[i]) {
+			bloop[i]->draw(g_drawType, g_camera, g_light, le);
+			if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
+				g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1000);
+				std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+				g_vessel->shake();
+			}
+			for (int j = 0; j < MAX_LASERS; ++j) {
+				if (g_lasers[j]->m_active) {
+					if (bloop[i]->m_shape->checkCollision(g_lasers[j]->m_shape)) {
+						if (g_explosionIndex == 5)
+							g_explosionIndex = 0;
+						std::cout << "BOOM BRAH" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+						g_exp[g_explosionIndex]->playSound("ship_asteriod_impact.wav", 1.0, 500);
+						g_lasers[j]->kill();
+						++g_explosionIndex;
+						if (g_partExplodeIndex == MAXEXPLOSIONCOUNT)
+							g_partExplodeIndex = 0;
+						g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(bloop[i]->m_position.x, bloop[i]->m_position.y, bloop[i]->m_position.z);
+						asteroidAlive[i] = false;
+					}	
 				}
+			}
 		}
 	}
 
@@ -398,8 +405,8 @@ void init() {
 	g_music->playSound("starfox_theme.wav", MUSICGAIN, 1000);
 	g_music->setAudioLength(60000);
 	for (int i = 0; i < 5; ++i) {
-		g_explosion[i] = new Sound(1, "./sounds/");
-		g_explosion[i]->loadSound("ship_asteriod_impact.wav");
+		g_exp[i] = new Sound(1, "./sounds/");
+		g_exp[i]->loadSound("ship_asteriod_impact.wav");
 	}
 
 
@@ -509,6 +516,7 @@ void init() {
 
 	// Instance many asteroids from the parent asteroids
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
+		asteroidAlive[i] = true;
 		int asteroidType = rand() % NUM_PARENT_ASTEROIDS;
 		if (asteroidType == ASTEROID_PAPA) {
 			bloop[i] = new ExternalModel(*gPapaAsteroid);
@@ -524,11 +532,10 @@ void init() {
 		bs->m_radius = sc;
 		bloop[i]->m_shape = bs;
 		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
-		//bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 		// Start with random rotation
 		int randRotationIndex = rand() % NUM_ASTEROID_ROTATIONS;
 		bloop[i]->rotate(*(q[randRotationIndex]));
-		// Start with random location
 	}
 
 	// free rotation memory
