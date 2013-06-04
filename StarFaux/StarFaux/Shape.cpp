@@ -81,6 +81,7 @@ void Shape::update() {
 		m_modified = false;
 	}
 }
+
 void Shape::draw(DrawType type, Camera& camera, Light* light, lightEffects effects) {
 	glBindVertexArray(m_vertexArrayObject);
 	//glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);

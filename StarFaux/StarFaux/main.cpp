@@ -72,9 +72,6 @@ void handleKeyDown() {
 				case KEY_DOWN: g_camera.rotatePitch(-2.5f); break;
 				case KEY_LEFT: g_camera.rotateYaw(2.0f); break;
 				case KEY_RIGHT: g_camera.rotateYaw(-2.5f); break;
-				case KEY_Z: {
-
-				}
 			}
 		} else {
 			switch (i) {
@@ -84,8 +81,8 @@ void handleKeyDown() {
 				case KEY_D: if (!g_keyPress[KEY_A]) g_vessel->setAccelerationX(0.0f); break;
 				case KEY_W: if (!g_keyPress[KEY_S]) g_vessel->setAccelerationY(0.0f); break;
 				case KEY_S: if (!g_keyPress[KEY_W]) g_vessel->setAccelerationY(0.0f); break;
-				//case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
-				//case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_E: if (!g_keyPress[KEY_R]) g_vessel->setAccelerationZ(0.0f); break;
+				case KEY_R: if (!g_keyPress[KEY_E]) g_vessel->setAccelerationZ(0.0f); break;
 			}
 		}
 	}
@@ -115,19 +112,29 @@ void callbackDisplay()
 	}	
 
 	g_music->checkLoopTimer("starfox_theme.wav", MUSICGAIN);
+	
+	lightEffects le;
+	le.numLights = LIGHTSOURCECOUNT + g_numLasers;
+	le.ambientProducts = new vec4[le.numLights];//(vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.diffuseProducts = new vec4[le.numLights];//(vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.specularProducts = new vec4[le.numLights];//(vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.lightPositions = new vec4[le.numLights];//(vec4*)malloc(sizeof(vec4) * le.numLights);
+	le.attenuations = new float[le.numLights];//(float*)malloc(sizeof(float) * le.numLights);
+	 
+	g_light = new Light[le.numLights];//(Light*)malloc(sizeof(Light) * le.numLights);
 
-	for (int i = 0; i < LIGHTSOURCECOUNT; i++) {
-		g_light[i].m_position = vec3(0.0, 0.0, 0.0);
-		g_light[i].m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
-		g_light[i].m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-		g_light[i].m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-		g_light[i].m_attenuation = 0.0000005;
-	}
-	g_light[1].m_position = tempShip->m_position;
-	g_light[1].m_lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
-	g_light[1].m_lightDiffuse = vec4(0.0, 0.6, 0.0, 1.0);
-	g_light[1].m_lightSpecular = vec4(0.0, 1.5, 0.0, 1.0);
-	g_light[1].m_attenuation = 0.0001;
+	g_light[0].m_position = vec3(0.0, 0.0, 0.0);
+	g_light[0].m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+	g_light[0].m_lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+	g_light[0].m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+	g_light[0].m_attenuation = 0.0000005;
+
+	std::cout << g_numLasers<< std::endl;
+	//g_light[1].m_position = tempShip->m_position;
+	//g_light[1].m_lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
+	//g_light[1].m_lightDiffuse = vec4(0.0, 0.6, 0.0, 1.0);
+	//g_light[1].m_lightSpecular = vec4(0.0, 1.5, 0.0, 1.0);
+	//g_light[1].m_attenuation = 0.0001;
 
 
 	GLuint fogColor = glGetUniformLocation(g_program, "uFogColor");
@@ -137,20 +144,34 @@ void callbackDisplay()
 	glUniform1f(fogMaxDist, 1700.0f);
 	glUniform4fv(fogColor, 1, vec4(0.0, 0.0, 0.0, 0.0));
 
+	//tempShip->draw(g_drawType, g_camera, g_light, le);
+	//tempShip->translate(-g_bulletV.x, -g_bulletV.y, -g_bulletV.z);
 
-	lightEffects le;
-	le.numLights = LIGHTSOURCECOUNT;
-	le.ambientProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.diffuseProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.specularProducts = (vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.lightPositions = (vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.attenuations = (float*)malloc(sizeof(float) * le.numLights);
-	tempShip->draw(g_drawType, g_camera, g_light, le);
-	tempShip->translate(-g_bulletV.x, -g_bulletV.y, -g_bulletV.z);
+	int lightIndex = 1;
+	for (int i = 0; i < MAX_LASERS; ++i) {
+		if (g_lasers[i]->m_active) {
+			g_light[lightIndex].m_position = g_lasers[i]->m_position;
+			g_light[lightIndex].m_lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
+			g_light[lightIndex].m_lightDiffuse = vec4(0.0, 0.6, 0.0, 1.0);
+			g_light[lightIndex].m_lightSpecular = vec4(0.0, 1.5, 0.0, 1.0);
+			g_light[lightIndex].m_attenuation = 0.001;
+			++lightIndex;
+			if (g_lasers[i]->dead()) {
+				--g_numLasers;
+				g_lasers[i]->kill();
+			}
+		}
+	}
+
+	for (int i = 0; i < MAX_LASERS; ++i) {
+		if (!g_lasers[i]->dead() && g_lasers[i]->m_active) {
+			g_lasers[i]->draw(g_drawType, g_camera, g_light, le);
+			g_lasers[i]->laser_update();
+		}
+	}
+
 	greenStar->draw(g_drawType, g_camera, g_light, le);
 	if (g_vessel->m_shape->checkCollision(greenStar->m_shape)) {
-		std::cout << g_vessel->m_shape->m_center << std::endl;
-		std::cout << "BOOP2" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
 		g_vessel->shake();
 	}
 
@@ -166,9 +187,16 @@ void callbackDisplay()
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 		if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
-			g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1);
+			g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1000);
 			std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 			g_vessel->shake();
+		}
+		for (int j = 0; j < MAX_LASERS; ++j) {
+			if (g_lasers[j]->m_active)
+				if (bloop[i]->m_shape->checkCollision(g_lasers[j]->m_shape)) {
+					std::cout << "BOOM BRAH" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+					g_sound->playSound("ship_asteriod_impact.wav", 1.0, 500);
+				}
 		}
 	}
 
@@ -196,13 +224,20 @@ void callbackDisplay()
 	xhair2->draw(MESH, g_shipCamera, g_light, le);
 	glEnable(GL_DEPTH_TEST);
 	g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
-	//g_vessel->draw(g_drawType, g_camera, g_light);
 
-	free(le.ambientProducts);
-	free(le.diffuseProducts);
-	free(le.specularProducts);
-	free(le.lightPositions);
-	free(le.attenuations);
+	delete [] le.ambientProducts;
+	delete [] le.diffuseProducts;
+	delete [] le.specularProducts;
+	delete [] le.lightPositions;
+	delete [] le.attenuations;
+	delete [] g_light;
+
+	//free(le.ambientProducts);
+	//free(le.diffuseProducts);
+	//free(le.specularProducts);
+	//free(le.lightPositions);
+	//free(le.attenuations);
+	//free(g_light);
 
 	if (g_debug) 
 		debugDisplay();
@@ -236,18 +271,16 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case 'f': g_keyPress[KEY_F] = true; break;
 		case 'e': g_keyPress[KEY_E] = true; break;
 		case SPACE_KEY: {
-				g_sound->playSound("laser.wav", 1.0, 0);
-				tempShip->setPosition(g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f);
-				tempShip->translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f);
-				vec3 a = Quaternion(vec3(0.0f, -1.0f, 0.0f), 70.0f * (g_vessel->getVelocity().x / g_vessel->MAX_VELOCITY)) * g_camera.m_zAxis;
-				vec3 b = Quaternion(g_camera.m_xAxis, 60.0f * (g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y)) * g_camera.m_zAxis;
-				Quaternion rot = g_camera.m_qRotation;
-				rot.w = -g_camera.m_qRotation.w;
-				tempShip->resetRotation();
-				tempShip->rotate(g_vessel->m_qRotation);
-				tempShip->rotate(rot);
-				g_bulletV = 10.0 * (a + b);
-				break;
+			if((glutGet(GLUT_ELAPSED_TIME) - lastFired) < 150)
+				return;
+			lastFired = glutGet(GLUT_ELAPSED_TIME);
+			if (g_laserIndex == MAX_LASERS)
+				g_laserIndex = 0;
+			g_lasers[g_laserIndex]->init();
+			g_sound->playSound("laser.wav", 1.0, 0);
+			++g_laserIndex;
+			++g_numLasers;
+			break;
 		}
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
 		case '0': g_debug = !g_debug; break;
@@ -345,7 +378,7 @@ void init() {
 	g_sound->loadSound("laser.wav");
 	g_music = new Sound(1, "./sounds/");
 	g_music->loadSound("starfox_theme.wav");
-	g_music->playSound("starfox_theme.wav", MUSICGAIN, 1);
+	g_music->playSound("starfox_theme.wav", MUSICGAIN, 1000);
 	g_music->setAudioLength(60);
 
 
@@ -354,10 +387,10 @@ void init() {
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program); 
 
-	g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
+	//g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
-	g_camera.translate(vec3(0.0, 0.0, 200.0));
+	g_camera.translate(vec3(0.0, 0.0, 1000.0));
 
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 3000.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
@@ -385,8 +418,8 @@ void init() {
 	starField->setupTexture(REGULAR, TRILINEAR, REPEAT);
 	starField->initDraw();
 	starField->scale(2700);
-	
-	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
+
+	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", GOURAUD);
 	g_vessel->loadModel("ship.obj", true);
 	g_vessel->setupLighting();
 	g_vessel->setupTexture(REGULAR, TRILINEAR, REPEAT);
@@ -399,7 +432,7 @@ void init() {
 	g_vessel->m_shape = bb;
 
 	// Create the papa asteroid - bloops depend on this, don't ever delete it
-	gPapaAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	gPapaAsteroid = new ExternalModel(g_program, "./models/asteroid", FLAT);
 	gPapaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
 	float sc = 1.0;
 	gPapaAsteroid->scale(sc);
@@ -411,20 +444,21 @@ void init() {
 	//gPapaAsteroid->translate(0.0, 0.0, -500.0);
 
 	// Create the mama asteroid - bloops depend on this, don't ever delete it
-	gMamaAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	gMamaAsteroid = new ExternalModel(g_program, "./models/asteroid", FLAT);
 	//gMamaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
 	gMamaAsteroid->loadModel("asteroid_sphere272v1.obj", true);
 	sc = 1.0;
 	gMamaAsteroid->scale(sc);
 	gMamaAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
 	gMamaAsteroid->initDraw();
+
 	bs = new BoundingSphere();
 	bs->m_radius = sc;
 	gMamaAsteroid->m_shape = bs;
 	//gMamaAsteroid->translate(0.0, 0.0, -500.0);
 
 	// Create the uncle asteroid - bloops depend on this, don't ever delete it
-	gUncleAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	gUncleAsteroid = new ExternalModel(g_program, "./models/asteroid", FLAT);
 	//gMamaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
 	gUncleAsteroid->loadModel("asteroid_sphere272v2.obj", true);
 	sc = 1.0;
@@ -454,7 +488,7 @@ void init() {
 		bs->m_radius = sc;
 		bloop[i]->m_shape = bs;
 		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
-		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+		//bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
 	}
 
 	// Instance speed lines
@@ -480,6 +514,15 @@ void init() {
 	xhair2->m_shape = bb;
 	xhair2->translate(0.0, 0.0, -30.0);
 	xhair2->scale(3.0);
+
+	//g_lasers = (Laser*) malloc(sizeof(Laser*) * MAX_LASERS);
+	for (int i = 0; i < MAX_LASERS; ++i) {
+		g_lasers[i] = new Laser(g_program, g_vessel, &g_camera);
+		bs = new BoundingSphere();
+		bs->m_radius = 1.0f;
+		g_lasers[i]->m_shape = bs;
+	}
+	//g_lasers = new std::vector<Laser>(MAX_LASERS, Laser(g_program, g_vessel, &g_camera));
 
 	g_vessel->setAccelerationZ(-0.01);
 	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background

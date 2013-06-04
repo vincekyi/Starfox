@@ -9,7 +9,7 @@ out vec2 texCoord;
 
 out vec3 fN; //normal at current position
 out vec3 fV; //vector from point to viewer
-out vec3 fL[5]; //vector from point to light
+out vec3 fL[15]; //vector from point to light
 
 uniform mat4 uProj;
 uniform mat4 uModelView;
@@ -18,11 +18,11 @@ uniform mat4 uView;
 uniform float uShininess;
 
 uniform int uNumLights;
-uniform vec4 uAmbientProduct[5];
-uniform vec4 uDiffuseProduct[5];
-uniform vec4 uSpecularProduct[5];
-uniform vec4 uLightPosition[5];
-uniform float uAttenuation[5];
+uniform vec4 uAmbientProduct[15];
+uniform vec4 uDiffuseProduct[15];
+uniform vec4 uSpecularProduct[15];
+uniform vec4 uLightPosition[15];
+uniform float uAttenuation[15];
 
 uniform vec4 uCameraPosition;
 uniform int uShadingType;

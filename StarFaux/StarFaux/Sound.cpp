@@ -56,7 +56,7 @@ void Sound::loadSound(const char* filename) {
 }
 
 void Sound::playSound(const char* filename, float gain, int delay) {
-	if (m_currTime + delay > time(NULL)) {
+	if (m_currTime + delay > glutGet(GLUT_ELAPSED_TIME)) {
 		return;
 	}
 
@@ -80,13 +80,13 @@ void Sound::playSound(const char* filename, float gain, int delay) {
 	alSourcePlay(m_sourceBuffers[m_currSource]);
 	m_currSource++;
 	m_currSource = (m_currSource % MAXSOURCES == 0) ? 0 : m_currSource;
-	m_currTime = time(NULL);
+	m_currTime = glutGet(GLUT_ELAPSED_TIME);
 }
 
 //-- UNOBJECT ORIENTED STYLE --
 bool Sound::checkLoopTimer(const char* filename, float gain) {
-	time_t currTime = time(NULL);
-	if (m_loopTimer + m_audioLength < currTime) {
+	int currTime = glutGet(GLUT_ELAPSED_TIME);
+	if (m_loopTimer + m_audioLength * 1000 < currTime) {
 		playSound(filename, gain, 1);
 		m_loopTimer = currTime;
 

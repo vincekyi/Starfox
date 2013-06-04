@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <map>
+#include "GL/glut.h"
 
 #include "AL/al.h" 
 #include "AL/alc.h" 
@@ -34,14 +35,14 @@ private:
 	int m_currBuffer;
 	int m_numBuffers;
 	int m_currSource;
-	time_t m_currTime;
+	int m_currTime;
 
 	std::map<char*, ALuint, cmp_str> m_soundSrc;
 
 	const static int MAXSOURCES = 30;
 
 	//-- UNOBJECT ORIENTED STYLE --
-	time_t m_loopTimer;
+	int m_loopTimer;
 	time_t m_audioLength;
 	//-- UNOBJECT ORIENTED STYLE --
 };

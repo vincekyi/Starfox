@@ -13,6 +13,7 @@
 #include "Vessel.h"
 #include "Types.h"
 #include "Tga.h"
+#include "Laser.h"
 
 #include "Line.h"
 
@@ -27,14 +28,15 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 300
-const int NUM_PARENT_ASTEROIDS = 3;
 
-#define LIGHTSOURCECOUNT 2
+const int NUM_PARENT_ASTEROIDS = 3;
 #define MUSICGAIN 0.5f
 #define SPEED_LINE_COUNT 10
 
 const int SPEED_LINE_SPEED = 2.0;
+#define BLOOPCOUNT 1
+#define LIGHTSOURCECOUNT 1
+#define MAX_LASERS 15
 
 #define ACCEL 0.05f
 
@@ -79,3 +81,11 @@ Line *speedLine[SPEED_LINE_COUNT];
 
 Sound* g_sound;
 Sound* g_music;
+
+int lastFired = 0;
+int g_numLasers = 0;
+int g_laserIndex = 0;
+bool g_lasersAlive[MAX_LASERS];
+Laser* g_lasers[MAX_LASERS];
+//std::vector<Laser>* g_lasers;
+

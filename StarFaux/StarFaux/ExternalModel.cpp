@@ -215,7 +215,7 @@ void ExternalModel::draw(DrawType type, Camera& camera, Light* light, lightEffec
 		mat4 mv = view * model;
 		if (m_shapeType == VESSEL) {
 			Quaternion rot = m_camera->m_qRotation;
-			rot.w = -m_camera->m_qRotation.w;
+			rot.w = m_camera->m_qRotation.w;
 			model = Translate(m_camera->m_position) * rot.generateMatrix() * m_objectToWorld;
 		}
 		glUniformMatrix4fv(uModelView , 1, GL_TRUE, mv);
