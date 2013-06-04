@@ -30,6 +30,8 @@
 #define TARGET_FPS 100
 
 const int NUM_PARENT_ASTEROIDS = 3;
+const int NUM_ASTEROID_ROTATIONS = 36;
+
 #define MUSICGAIN 0.5f
 #define SPEED_LINE_COUNT 10
 

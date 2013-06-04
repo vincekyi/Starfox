@@ -470,6 +470,16 @@ void init() {
 	gUncleAsteroid->m_shape = bs;
 	//gMamaAsteroid->translate(0.0, 0.0, -500.0);
 
+	// Create an array of random rotation quaternions used by bloop asteroids
+	Quaternion *q[NUM_ASTEROID_ROTATIONS];
+	vec3 axis[3];
+	axis[0] = vec3(1.0, 0.0, 0.0);
+	axis[1] = vec3(0.0, 1.0, 0.0);
+	axis[2] = vec3(0.0, 0.0, 1.0);
+	for (int i = 0; i < NUM_ASTEROID_ROTATIONS; ++i) {
+		int rotIndex = rand() % 3;
+		q[i] = new Quaternion(axis[rotIndex], rand() % 360);
+	}
 
 	// Instance many asteroids from the parent asteroids
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
@@ -489,6 +499,15 @@ void init() {
 		bloop[i]->m_shape = bs;
 		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
 		//bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+		// Start with random rotation
+		int randRotationIndex = rand() % NUM_ASTEROID_ROTATIONS;
+		bloop[i]->rotate(*(q[randRotationIndex]));
+		// Start with random location
+	}
+
+	// free rotation memory
+	for (int i = 0; i < NUM_ASTEROID_ROTATIONS; ++i) {
+		delete q[i];
 	}
 
 	// Instance speed lines
