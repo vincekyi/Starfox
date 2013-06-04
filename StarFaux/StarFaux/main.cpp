@@ -212,7 +212,10 @@ void callbackDisplay()
 
 	// Draw the thrusters
 	thruster->drawScene(&g_shipCamera,g_vessel->m_position);
-	g_explosion[0]->drawScene(&g_shipCamera,g_vessel->m_position);
+
+	for (int i = 0; i < MAXEXPLOSIONCOUNT; i++) {
+		g_explosion[i]->drawScene(&g_shipCamera,g_vessel->m_position);
+	}
 
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
 	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
@@ -344,7 +347,9 @@ void callbackTimer(int)
 {
 	if (g_animate) {
 		thruster->getEngine()->advance(UPDATE_DELAY / 1000.0f);
-		g_explosion[0]->getEngine()->advance(UPDATE_DELAY / 1000.0f);
+		for (int i = 0; i < MAXEXPLOSIONCOUNT; i++) {
+			g_explosion[i]->getEngine()->advance(UPDATE_DELAY / 1000.0f);
+		}
 		glutPostRedisplay();
 	}
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
@@ -562,8 +567,8 @@ void init() {
 	thruster->initDraw();
 	
 	g_explosion = (ParticleSystem**)malloc(sizeof(ParticleSystem*) * MAXEXPLOSIONCOUNT);
-	for (int i = 0; i < 1; i++) {
-		g_explosion[i] = new ParticleSystem(EXPLOSIONS, vec3(0.0,0.0,-20.0), g_program, &g_shipCamera);
+	for (int i = 0; i < MAXEXPLOSIONCOUNT; i++) {
+		g_explosion[i] = new ParticleSystem(EXPLOSIONS, vec3((float)(i*5.0),0.0,-20.0), g_program, &g_shipCamera);
 		g_explosion[i]->initDraw();
 	}
 	
