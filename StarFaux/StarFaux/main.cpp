@@ -383,7 +383,9 @@ void init() {
 
 	// Create the mama asteroid
 	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
-	gAsteroid->loadModel("asteroid_sphere3.obj", true);
+	//gAsteroid->loadModel("asteroid_sphere544_v1.obj", true);
+	//gAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
+	gAsteroid->loadModel("sphere2.obj", true);
 	float sc = 50.0;
 	gAsteroid->scale(sc);
 	gAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
