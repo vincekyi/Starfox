@@ -27,17 +27,14 @@ const float PI = 3.1415926535f;
 
 
 const float GRAVITY = 0.0f;
-const int NUM_PARTICLES = 1000;
+const int NUM_PARTICLES = 100;
 //The interval of time, in seconds, by which the particle engine periodically
 //steps.
 const float STEP_TIME = 0.01f;
 //The length of the sides of the quadrilateral drawn for each particle.
-const float PARTICLE_SIZE = 0.03f;
+const float PARTICLE_SIZE = 1.0f;
 
 const int NumVertices = 4*NUM_PARTICLES;
-point4  points[NumVertices];
-vec2    tex_coords[NumVertices];
-
 
 //Returns a random float from 0 to < 1
 float randomFloat() {
@@ -85,9 +82,7 @@ class ParticleEngine {
 		GLuint textureId;
 		Particle particles[NUM_PARTICLES];
 		enum particleType type;
-		GLfloat xStrt;
-		GLfloat yStrt;
-		GLfloat zStrt;
+		GLfloat particleSize;
 
 		//The amount of time until the next call to step().
 		float timeUntilNextStep;
@@ -137,12 +132,13 @@ class ParticleEngine {
 		//Returns the average velocity of particles produced by the fountain.
 		vec3 curVelocity() {
 			//return vec3(2 * cos(angle), 2.0f, 2 * sin(angle));
-			return vec3(0.0f, 1.0f, 1.0f);
+			return vec3(0.0f, 3.0f, 3.0f);
 		}
 		
 		//Alters p to be a particle newly produced by the fountain.
 		void createParticle(Particle* p) {
 			p->pos = vec3(xStrt, yStrt, zStrt);
+	
 			p->color = curColor();
 
 			if(type == EXPLOSIONS){
@@ -152,11 +148,11 @@ class ParticleEngine {
 			}
 
 			if(type == THRUSTERS){
-				p->velocity = curVelocity() + vec3(0.5f * randomFloat() - 0.25f,
-												0.5f * randomFloat() - 0.25f,
-												0.5f * randomFloat() - 0.25f);
+				p->velocity = curVelocity() + vec3(2.5f * randomFloat() - 1.25f,
+												2.5f * randomFloat() - 1.25f,
+												2.5f * randomFloat() - 1.25f)+velOffset;
 				p->timeAliveThruster = 0;
-				p->lifespanThruster = randomFloat() + 1;
+				p->lifespanThruster = randomFloat() + 0.1;
 			}
 		}
 		
@@ -190,19 +186,32 @@ class ParticleEngine {
 			}
 		}
 	public:
-		ParticleEngine(GLuint textureId1, enum particleType pType, GLfloat x, GLfloat y, GLfloat z){
+		point4  *enginePoints;
+		vec2    *engine_tex_coords;
+		GLuint m_engineVao;
+		GLuint m_engineBuffer;
+		vec3 velOffset;
+		GLfloat xStrt;
+		GLfloat yStrt;
+		GLfloat zStrt;
+		ParticleEngine(GLuint textureId1, enum particleType pType, GLfloat x, GLfloat y, GLfloat z, point4* ep, vec2* etc){
+			enginePoints = ep;
+			engine_tex_coords = etc;
+
 			xStrt = x;
 			yStrt = y;
 			zStrt = z;
-
+			velOffset = vec3(0,0,0);
 			type = pType;
-
 			textureId = textureId1;
 			timeUntilNextStep = 0;
 			colorTime = 0;
 			angle = 0;
 
-
+			if(type == THRUSTERS)
+				particleSize = 0.05;
+			if(type == EXPLOSIONS)
+				particleSize = 0.25;
 
 			for(int i = 0; i < NUM_PARTICLES; i++) {
 				createParticle(particles + i);
@@ -214,6 +223,11 @@ class ParticleEngine {
 				}
 			}
 
+		}
+
+		void passVao(GLuint vao,GLuint buffer) {
+			m_engineVao = vao;
+			m_engineBuffer = buffer;
 		}
 		
 		//Advances the particle fountain by the specified amount of time.
@@ -241,17 +255,17 @@ class ParticleEngine {
 			int z = 1;
 			for(int i = 0; i<NUM_PARTICLES; i++){
 				Particle* p = ps[i];
-				float size = PARTICLE_SIZE / 2;
+				float size = particleSize / 2;
 				vec3 pos = adjParticlePos(p->pos);
 
-				points[4*i] = point4(pos[0] - size, -(pos[1] - size), pos[2], 1.0);
-				tex_coords[4*i] = vec2(0, 0);
-				points[4*i+1] = point4(pos[0] - size, -(pos[1] + size), pos[2], 1.0);
-				tex_coords[4*i+1] = vec2(0, 1);
-				points[4*i+2] = point4(pos[0] + size, -(pos[1] + size), pos[2], 1.0);
-				tex_coords[4*i+2] = vec2(1, 1);
-				points[4*i+3] = point4(pos[0] + size, -(pos[1] - size), pos[2], 1.0);
-				tex_coords[4*i+3] = vec2(1, 0);
+				enginePoints[4*i] = point4(pos[0] -size, -(pos[1] - size), pos[2], 1.0);
+				engine_tex_coords[4*i] = vec2(0, 0);
+				enginePoints[4*i+1] = point4(pos[0] -size, -(pos[1] + size), pos[2], 1.0);
+				engine_tex_coords[4*i+1] = vec2(0, 1);
+				enginePoints[4*i+2] = point4(pos[0] +size, -(pos[1] + size), pos[2], 1.0);
+				engine_tex_coords[4*i+2] = vec2(1, 1);
+				enginePoints[4*i+3] = point4(pos[0] + size, -(pos[1] - size), pos[2], 1.0);
+				engine_tex_coords[4*i+3] = vec2(1, 0);
 			}
 		}
 		void setProgram(GLuint prog){
@@ -274,29 +288,32 @@ class ParticleEngine {
 			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
-            glVertexAttribPointer( vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(points[0])*NumVertices) );
+            glVertexAttribPointer( vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(enginePoints[0])*NumVertices) );
 		}
 
 		void draw(){
 			texDraw();
+			
 			createSystem();
-
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points[0])*NumVertices, points);
+			glBindVertexArray( m_engineVao );
+			glBindBuffer(GL_ARRAY_BUFFER,m_engineBuffer);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(enginePoints[0])*NumVertices, enginePoints);
 			
 			Particle* p = particles;
 
 			for(int i = 0; i<NUM_PARTICLES; i++){
-				//color
-				GLuint fColor = glGetUniformLocation( m_prog, "uThrustColor");
-				glUniform4fv(fColor, 1, vec4(p->color[0], p->color[1], p->color[2], 1.0));
-
+				
 				if(type == EXPLOSIONS){
+					GLuint fColor = glGetUniformLocation( m_prog, "uThrustColor");
+					glUniform4fv(fColor, 1, vec4(1, 1,1, 1.0));
 					if(p->timeAliveExplosion < p->lifespanExplosion) {
 						glDrawArrays(GL_QUADS, 4*i, 4);
 					}
 				}
 				
 				if(type == THRUSTERS){
+					GLuint fColor = glGetUniformLocation( m_prog, "uThrustColor");
+					glUniform4fv(fColor, 1, vec4(0, 255, 255, 1.0));
 					glDrawArrays(GL_QUADS, 4*i, 4);
 				}
 
@@ -308,13 +325,18 @@ class ParticleEngine {
 
 class ParticleSystem{
 public:
+	vec3 m_loc;
+	point4*  points;
+	vec2* tex_coords;
 	ParticleSystem(particleType type, vec3 location, GLuint prog, Camera* cam){
 		m_type = type;
 		m_loc = location;
 		m_program = prog;
 		initRendering();
 		m_cam = cam;
-		particleEnginePtr = new ParticleEngine(m_textureId, type, m_loc.x, m_loc.y, m_loc.z); 
+		points = (point4*)malloc(sizeof(point4) * NumVertices);
+		tex_coords = (vec2*)malloc(sizeof(vec2) * NumVertices);
+		particleEnginePtr = new ParticleEngine(m_textureId, type, m_loc.x, m_loc.y, m_loc.z, points, tex_coords); 
 		particleEnginePtr->setProgram(prog);
 	}
 
@@ -324,29 +346,43 @@ public:
 
 	void initDraw() {
 		particleEnginePtr->createSystem();
-
+		
 		// Initialize texture objects
 		// Create a vertex array object
 		glGenVertexArrays( 1, &m_vao );
 		glBindVertexArray( m_vao );
 
 		// Create and initialize a buffer object
-		GLuint buffer;
-		glGenBuffers( 1, &buffer );
-		glBindBuffer( GL_ARRAY_BUFFER, buffer );
+		glGenBuffers( 1, &m_buffer );
+		glBindBuffer( GL_ARRAY_BUFFER, m_buffer );
+		particleEnginePtr->passVao(m_vao,m_buffer);
+
+		//if (m_type != EXPLOSIONS) {
 		glBufferData( GL_ARRAY_BUFFER, sizeof(points[0])*NumVertices + sizeof(tex_coords[0])*NumVertices, NULL, GL_STATIC_DRAW );
 
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points[0])*NumVertices, points);
-		glBufferSubData(GL_ARRAY_BUFFER, sizeof(points[0])*NumVertices, sizeof(tex_coords[0])*NumVertices, tex_coords);
+		//points = particleEnginePtr->enginePoints;
+		//tex_coords = particleEnginePtr->engine_tex_coords;
+		//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points[0])*NumVertices, points);
+		//glBufferSubData(GL_ARRAY_BUFFER, sizeof(points[0])*NumVertices, sizeof(tex_coords[0])*NumVertices, tex_coords);
 
 		//vertex arrays
+		
 		GLuint vPosition = glGetAttribLocation( m_program, "vPosition" );
 		glEnableVertexAttribArray( vPosition );
 		glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
-
+		//}
 	}
 
-	void drawScene(Camera* cam) {
+	void drawScene(Camera* cam, vec3 shipPos) {
+
+		if(m_type == THRUSTERS){
+			particleEnginePtr->xStrt = 2.9*shipPos.x;
+			particleEnginePtr->yStrt = -shipPos.y;
+			particleEnginePtr->velOffset = 10*vec3(shipPos.x,shipPos.y,shipPos.z);
+
+			//particleEnginePtr->zStrt = shipPos.z;
+		}
+		
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -400,12 +436,13 @@ public:
 	}*/
 private:
 	particleType m_type;
-	vec3 m_loc;
+	
 	GLuint m_program;
 	ParticleEngine* particleEnginePtr;
 	Camera* m_cam;
 	GLuint m_vao;
 	GLuint m_textureId;
+	GLuint m_buffer;
 
 	void initRendering() {
 	

@@ -169,7 +169,8 @@ void callbackDisplay()
 	}
 
 	// Draw the thrusters
-	thruster->drawScene(&g_shipCamera);
+	thruster->drawScene(&g_shipCamera,g_vessel->m_position);
+	g_explosion[0]->drawScene(&g_shipCamera,g_vessel->m_position);
 
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
 	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
@@ -302,6 +303,7 @@ void callbackTimer(int)
 {
 	if (g_animate) {
 		thruster->getEngine()->advance(UPDATE_DELAY / 1000.0f);
+		g_explosion[0]->getEngine()->advance(UPDATE_DELAY / 1000.0f);
 		glutPostRedisplay();
 	}
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
@@ -438,10 +440,15 @@ void init() {
 	xhair2->scale(3.0);
 
 	// Create particle system
-	//thruster = new ParticleSystem(EXPLOSIONS, vec3(0.0, 0.0, -2.0), g_program, &g_shipCamera);
-	thruster = new ParticleSystem(THRUSTERS, vec3(0.0, 0.0, 2.0), g_program, &g_shipCamera);
+	thruster = new ParticleSystem(THRUSTERS, vec3(0.0,0.0,2.25), g_program, &g_shipCamera);
 	thruster->initDraw();
-
+	
+	g_explosion = (ParticleSystem**)malloc(sizeof(ParticleSystem*) * MAXEXPLOSIONCOUNT);
+	for (int i = 0; i < 1; i++) {
+		g_explosion[i] = new ParticleSystem(EXPLOSIONS, vec3(0.0,0.0,-20.0), g_program, &g_shipCamera);
+		g_explosion[i]->initDraw();
+	}
+	
 	g_vessel->setAccelerationZ(-0.01);
 	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background

@@ -32,6 +32,7 @@
 const int SPEED_LINE_SPEED = 2.0;
 
 #define ACCEL 0.05f
+#define MAXEXPLOSIONCOUNT 2
 
 vec3 g_bulletV(0.0f);
 
@@ -71,3 +72,5 @@ Line *speedLine[SPEED_LINE_COUNT];
 Sound* g_sound;
 
 ParticleSystem *thruster;
+ParticleSystem **g_explosion;
+
