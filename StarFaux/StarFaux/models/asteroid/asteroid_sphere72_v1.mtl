@@ -1,0 +1,13 @@
+# Blender MTL File: 'sphere544.blend'
+# Material Count: 1
+
+newmtl None
+Ns 0.0
+Ka 0.15 0.15 0.15
+Kd 0.36 0.2  0.09 
+Ks 0.0 0.0 0.0
+d 1
+illum 2
+
+map_Kd many_normal.tga
+

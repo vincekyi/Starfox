@@ -27,7 +27,9 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 200
+#define BLOOPCOUNT 300
+const int NUM_PARENT_ASTEROIDS = 3;
+
 #define LIGHTSOURCECOUNT 2
 #define MUSICGAIN 0.5f
 #define SPEED_LINE_COUNT 10
@@ -68,7 +70,10 @@ Cube* xhair1;
 Cube* xhair2;
 
 ExternalModel *bloop[BLOOPCOUNT];
-ExternalModel *gAsteroid;
+
+ExternalModel *gMamaAsteroid;
+ExternalModel *gPapaAsteroid;
+ExternalModel *gUncleAsteroid;
 
 Line *speedLine[SPEED_LINE_COUNT];
 

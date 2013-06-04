@@ -154,13 +154,15 @@ void callbackDisplay()
 		g_vessel->shake();
 	}
 
-	gAsteroid->draw(g_drawType, g_camera, g_light, le);
-	if (g_vessel->m_shape->checkCollision(gAsteroid->m_shape)) {
-		g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1);
-		std::cout << "BOOP3" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
-		g_vessel->shake();
-	}
+	// Draw mama asteroid
+	//gMamaAsteroid->draw(g_drawType, g_camera, g_light, le);
+	//if (g_vessel->m_shape->checkCollision(gMamaAsteroid->m_shape)) {
+	//	g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1);
+	//	std::cout << "BOOP3" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
+	//	g_vessel->shake();
+	//}
 
+	// Draw all bloop asteroids
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		bloop[i]->draw(g_drawType, g_camera, g_light, le);
 		if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
@@ -396,25 +398,56 @@ void init() {
 	bb->setCenter(vec3(0.0, 0.0, 1500.0));
 	g_vessel->m_shape = bb;
 
-
-
-	// Create the mama asteroid
-	gAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
-	//gAsteroid->loadModel("asteroid_sphere544_v1.obj", true);
-	//gAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
-	gAsteroid->loadModel("sphere2.obj", true);
-	float sc = 50.0;
-	gAsteroid->scale(sc);
-	gAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
-	gAsteroid->initDraw();
+	// Create the papa asteroid - bloops depend on this, don't ever delete it
+	gPapaAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	gPapaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
+	float sc = 1.0;
+	gPapaAsteroid->scale(sc);
+	gPapaAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
+	gPapaAsteroid->initDraw();
 	bs = new BoundingSphere();
 	bs->m_radius = sc;
-	gAsteroid->m_shape = bs;
-	gAsteroid->translate(0.0, 0.0, -500.0);
+	gPapaAsteroid->m_shape = bs;
+	//gPapaAsteroid->translate(0.0, 0.0, -500.0);
 
-	// Instance many asteroids from the mama asteroid
+	// Create the mama asteroid - bloops depend on this, don't ever delete it
+	gMamaAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	//gMamaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
+	gMamaAsteroid->loadModel("asteroid_sphere272v1.obj", true);
+	sc = 1.0;
+	gMamaAsteroid->scale(sc);
+	gMamaAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
+	gMamaAsteroid->initDraw();
+	bs = new BoundingSphere();
+	bs->m_radius = sc;
+	gMamaAsteroid->m_shape = bs;
+	//gMamaAsteroid->translate(0.0, 0.0, -500.0);
+
+	// Create the uncle asteroid - bloops depend on this, don't ever delete it
+	gUncleAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
+	//gMamaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
+	gUncleAsteroid->loadModel("asteroid_sphere272v2.obj", true);
+	sc = 1.0;
+	gUncleAsteroid->scale(sc);
+	gUncleAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
+	gUncleAsteroid->initDraw();
+	bs = new BoundingSphere();
+	bs->m_radius = sc;
+	gUncleAsteroid->m_shape = bs;
+	//gMamaAsteroid->translate(0.0, 0.0, -500.0);
+
+
+	// Instance many asteroids from the parent asteroids
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
-		bloop[i] = new ExternalModel(*gAsteroid);
+		int asteroidType = rand() % NUM_PARENT_ASTEROIDS;
+		if (asteroidType == ASTEROID_PAPA) {
+			bloop[i] = new ExternalModel(*gPapaAsteroid);
+		} else if (asteroidType == ASTEROID_MAMA) {
+			bloop[i] = new ExternalModel(*gMamaAsteroid);
+		} else {
+			bloop[i] = new ExternalModel(*gUncleAsteroid);
+		}
+
 		sc = 10.0f + (rand() % 500 / 10.0f);
 		bloop[i]->scale(sc);
 		bs = new BoundingSphere();

@@ -20,6 +20,7 @@ bool TgaImage::loadTGA(const char *filename)
     //image type either 2 (color) or 3 (greyscale)
 	printf("%c\n", '0' + type[2]);
    
+	// Some converted tga files have the right format
 	if (type[1] != 0 || (type[2] != 2 && type[2] != 3))
     {
         fclose(file);

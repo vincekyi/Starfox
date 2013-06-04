@@ -1,4 +1,4 @@
-# Blender MTL File: 'None'
+# Blender MTL File: 'sphere272.blend'
 # Material Count: 1
 
 newmtl None
@@ -10,3 +10,4 @@ d 1
 illum 2
 
 map_Kd stepstone_normal.tga
+

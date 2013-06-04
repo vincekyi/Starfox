@@ -20,4 +20,7 @@ enum KeyType {
 };
 
 enum BoundingType { BOUNDING_BOX, BOUNDING_SPHERE };
+
+enum AsteroidType { ASTEROID_PAPA = 0, ASTEROID_MAMA };
+
 #endif
