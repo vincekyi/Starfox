@@ -26,6 +26,7 @@ uniform float uAttenuation[5];
 uniform int uUseTexture;
 
 uniform vec4 uFogColor;
+uniform int fogFlag;
 
 out vec4 outColor;
 
@@ -109,5 +110,7 @@ void main()
     }
 
 	vec4 fogColor = fogFactor * uFogColor;
-	outColor = outColor  * fogFactor + fogColor * (1.0 - fogFactor); 
+	if(fogFlag == 1){
+		outColor = outColor  * fogFactor + fogColor * (1.0 - fogFactor); 
+	}
 } 

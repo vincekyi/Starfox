@@ -98,6 +98,11 @@ void callbackDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	g_camera.update();
 	g_shipCamera.update();
+
+	GLuint fogFlag = glGetUniformLocation(g_program, "fogFlag");
+	glUniform1i(fogFlag, 1);
+
+
 	
 	g_vessel->updateMovement();
 	// Update movement of speed lines
@@ -169,6 +174,11 @@ void callbackDisplay()
 	for (int i = 0; i < SPEED_LINE_COUNT; ++i) {
 		speedLine[i]->draw(g_shipCamera, g_light, le);
 	}
+	glUniform1i(fogFlag, 0);
+	starField->resetRotation();
+	starField->rotate(g_camera.m_qRotation);
+	starField->draw(g_drawType, g_shipCamera, g_light, le);
+	glUniform1i(fogFlag, 1);
 
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
 	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
@@ -347,7 +357,7 @@ void init() {
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
 	g_camera.translate(vec3(0.0, 0.0, 200.0));
 
-	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 250.0);
+	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 3000.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
 
 	tempShip = new Cube(g_program, NONE);
@@ -366,6 +376,13 @@ void init() {
 	bb->setHalfWidths(15.0, 15.0, 15.0);
 	greenStar->m_shape = bb;
 	greenStar->translate(0.0, -2000.0, 0.0);
+
+	starField = new Background(g_program, &g_shipCamera, "./models/background/", FLAT);
+	starField->loadModel("sphere1922.obj", true);
+	//starField->setupLighting();
+	starField->setupTexture(REGULAR, TRILINEAR, REPEAT);
+	starField->initDraw();
+	starField->scale(2700);
 	
 	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", FLAT);
 	g_vessel->loadModel("ship.obj", true);

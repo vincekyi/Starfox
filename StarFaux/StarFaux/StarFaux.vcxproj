@@ -81,6 +81,7 @@
     <ClInclude Include="AL\efx.h" />
     <ClInclude Include="AL\xram.h" />
     <ClInclude Include="Angel.h" />
+    <ClInclude Include="Background.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="BoundingShape.h" />
     <ClInclude Include="Camera.h" />
