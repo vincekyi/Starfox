@@ -203,8 +203,10 @@ void callbackDisplay()
 						++g_explosionIndex;
 						if (g_partExplodeIndex == MAXEXPLOSIONCOUNT)
 							g_partExplodeIndex = 0;
-						g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(bloop[i]->m_position.x, bloop[i]->m_position.y, bloop[i]->m_position.z);
+						//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(bloop[i]->m_position.x, bloop[i]->m_position.y, bloop[i]->m_position.z);
+						g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(0.0, 0.0, -20.0);
 						asteroidAlive[i] = false;
+						g_partExplodeIndex++;
 					}	
 				}
 			}
@@ -402,7 +404,7 @@ void init() {
 	g_sound->loadSound("laser.wav");
 	g_music = new Sound(1, "./sounds/");
 	g_music->loadSound("starfox_theme.wav");
-	g_music->playSound("starfox_theme.wav", MUSICGAIN, 1000);
+	g_music->playSound("starfox_theme.wav", MUSICGAIN, 0);
 	g_music->setAudioLength(60000);
 	for (int i = 0; i < 5; ++i) {
 		g_exp[i] = new Sound(1, "./sounds/");
