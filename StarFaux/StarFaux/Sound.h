@@ -19,7 +19,7 @@ public:
 
 	//-- UNOBJECT ORIENTED STYLE --
 	bool checkLoopTimer(const char* filename, float gain);
-	void setAudioLength(time_t len);
+	void setAudioLength(int len);
 	//-- UNOBJECT ORIENTED STYLE --
 
 private:
@@ -43,7 +43,7 @@ private:
 
 	//-- UNOBJECT ORIENTED STYLE --
 	int m_loopTimer;
-	time_t m_audioLength;
+	int m_audioLength;
 	//-- UNOBJECT ORIENTED STYLE --
 };
 

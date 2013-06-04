@@ -194,8 +194,12 @@ void callbackDisplay()
 		for (int j = 0; j < MAX_LASERS; ++j) {
 			if (g_lasers[j]->m_active)
 				if (bloop[i]->m_shape->checkCollision(g_lasers[j]->m_shape)) {
+					if (g_explosionIndex == 5)
+						g_explosionIndex = 0;
 					std::cout << "BOOM BRAH" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
-					g_sound->playSound("ship_asteriod_impact.wav", 1.0, 500);
+					g_explosion[g_explosionIndex]->playSound("ship_asteriod_impact.wav", 1.0, 500);
+					g_lasers[j]->kill();
+					++g_explosionIndex;
 				}
 		}
 	}
@@ -392,7 +396,11 @@ void init() {
 	g_music = new Sound(1, "./sounds/");
 	g_music->loadSound("starfox_theme.wav");
 	g_music->playSound("starfox_theme.wav", MUSICGAIN, 1000);
-	g_music->setAudioLength(60);
+	g_music->setAudioLength(60000);
+	for (int i = 0; i < 5; ++i) {
+		g_explosion[i] = new Sound(1, "./sounds/");
+		g_explosion[i]->loadSound("ship_asteriod_impact.wav");
+	}
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -450,7 +458,7 @@ void init() {
 	g_vessel->m_shape = bb;
 
 	// Create the papa asteroid - bloops depend on this, don't ever delete it
-	gPapaAsteroid = new ExternalModel(g_program, "./models/asteroid", FLAT);
+	gPapaAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
 	gPapaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
 	float sc = 1.0;
 	gPapaAsteroid->scale(sc);
@@ -462,7 +470,7 @@ void init() {
 	//gPapaAsteroid->translate(0.0, 0.0, -500.0);
 
 	// Create the mama asteroid - bloops depend on this, don't ever delete it
-	gMamaAsteroid = new ExternalModel(g_program, "./models/asteroid", FLAT);
+	gMamaAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
 	//gMamaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
 	gMamaAsteroid->loadModel("asteroid_sphere272v1.obj", true);
 	sc = 1.0;
@@ -476,7 +484,7 @@ void init() {
 	//gMamaAsteroid->translate(0.0, 0.0, -500.0);
 
 	// Create the uncle asteroid - bloops depend on this, don't ever delete it
-	gUncleAsteroid = new ExternalModel(g_program, "./models/asteroid", FLAT);
+	gUncleAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
 	//gMamaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
 	gUncleAsteroid->loadModel("asteroid_sphere272v2.obj", true);
 	sc = 1.0;

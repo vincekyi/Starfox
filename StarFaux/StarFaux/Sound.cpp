@@ -86,7 +86,7 @@ void Sound::playSound(const char* filename, float gain, int delay) {
 //-- UNOBJECT ORIENTED STYLE --
 bool Sound::checkLoopTimer(const char* filename, float gain) {
 	int currTime = glutGet(GLUT_ELAPSED_TIME);
-	if (m_loopTimer + m_audioLength * 1000 < currTime) {
+	if (m_loopTimer + m_audioLength < currTime) {
 		playSound(filename, gain, 1);
 		m_loopTimer = currTime;
 
@@ -95,7 +95,7 @@ bool Sound::checkLoopTimer(const char* filename, float gain) {
 	return false;
 }
 
-void Sound::setAudioLength(time_t len) {
+void Sound::setAudioLength(int len) {
 	m_audioLength = len;
 }
 //-- UNOBJECT ORIENTED STYLE --

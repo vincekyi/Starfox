@@ -85,6 +85,8 @@ Line *speedLine[SPEED_LINE_COUNT];
 
 Sound* g_sound;
 Sound* g_music;
+int g_explosionIndex = 0;
+Sound* g_explosion[5]; 
 
 int lastFired = 0;
 int g_numLasers = 0;
