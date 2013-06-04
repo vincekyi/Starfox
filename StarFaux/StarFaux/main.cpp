@@ -98,30 +98,29 @@ void callbackDisplay()
 
 	GLuint fogFlag = glGetUniformLocation(g_program, "fogFlag");
 	glUniform1i(fogFlag, 1);
-
-
 	
 	g_vessel->updateMovement();
+
 	// Update movement of speed lines
 	for (int i = 0; i < SPEED_LINE_COUNT; ++i) {
-		if (speedLine[i]->m_position.z > 5.0f) {
-			speedLine[i]->resetTranslation();
-			speedLine[i]->resetPosition();
+		if (gSpeedLine[i]->m_position.z > 5.0f) {
+			gSpeedLine[i]->resetTranslation();
+			gSpeedLine[i]->resetPosition();
 		}
-		speedLine[i]->translate(0.0, 0.0, SPEED_LINE_SPEED);
+		gSpeedLine[i]->translate(0.0, 0.0, SPEED_LINE_SPEED);
 	}	
 
 	g_music->checkLoopTimer("starfox_theme.wav", MUSICGAIN);
 	
 	lightEffects le;
 	le.numLights = LIGHTSOURCECOUNT + g_numLasers;
-	le.ambientProducts = new vec4[le.numLights];//(vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.diffuseProducts = new vec4[le.numLights];//(vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.specularProducts = new vec4[le.numLights];//(vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.lightPositions = new vec4[le.numLights];//(vec4*)malloc(sizeof(vec4) * le.numLights);
-	le.attenuations = new float[le.numLights];//(float*)malloc(sizeof(float) * le.numLights);
+	le.ambientProducts = new vec4[le.numLights];
+	le.diffuseProducts = new vec4[le.numLights];
+	le.specularProducts = new vec4[le.numLights];
+	le.lightPositions = new vec4[le.numLights];
+	le.attenuations = new float[le.numLights];
 	 
-	g_light = new Light[le.numLights];//(Light*)malloc(sizeof(Light) * le.numLights);
+	g_light = new Light[le.numLights];
 
 	g_light[0].m_position = vec3(0.0, 0.0, 0.0);
 	g_light[0].m_lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
@@ -170,20 +169,22 @@ void callbackDisplay()
 		}
 	}
 
-	greenStar->draw(g_drawType, g_camera, g_light, le);
+	/*greenStar->draw(g_drawType, g_camera, g_light, le);
 	if (g_vessel->m_shape->checkCollision(greenStar->m_shape)) {
 		g_vessel->shake();
-	}
+	}*/
 
-	// Draw mama asteroid
-	//gMamaAsteroid->draw(g_drawType, g_camera, g_light, le);
+	// Draw parent asteroids
+	/*gPapaAsteroid->draw(g_drawType, g_camera, g_light, le);
+	gMamaAsteroid->draw(g_drawType, g_camera, g_light, le);
+	gUncleAsteroid->draw(g_drawType, g_camera, g_light, le);*/
 	//if (g_vessel->m_shape->checkCollision(gMamaAsteroid->m_shape)) {
 	//	g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1);
 	//	std::cout << "BOOP3" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
 	//	g_vessel->shake();
 	//}
 
-	// Draw all bloop asteroids
+	//// Draw all bloop asteroids
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		if (asteroidAlive[i]) {
 			bloop[i]->draw(g_drawType, g_camera, g_light, le);
@@ -192,7 +193,7 @@ void callbackDisplay()
 				std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 				g_vessel->shake();
 			}
-			for (int j = 0; j < MAX_LASERS; ++j) {
+			/*for (int j = 0; j < MAX_LASERS; ++j) {
 				if (g_lasers[j]->m_active) {
 					if (bloop[i]->m_shape->checkCollision(g_lasers[j]->m_shape)) {
 						if (g_explosionIndex == 5)
@@ -209,19 +210,20 @@ void callbackDisplay()
 						g_partExplodeIndex++;
 					}	
 				}
-			}
+			}*/
 		}
 	}
 
 	// Draw speed lines
 	for (int i = 0; i < SPEED_LINE_COUNT; ++i) {
-		speedLine[i]->draw(g_shipCamera, g_light, le);
+		gSpeedLine[i]->draw(g_shipCamera, g_light, le);
 	}
-	glUniform1i(fogFlag, 0);
-	starField->resetRotation();
-	starField->rotate(g_camera.m_qRotation);
-	starField->draw(g_drawType, g_shipCamera, g_light, le);
-	glUniform1i(fogFlag, 1);
+
+	//glUniform1i(fogFlag, 0);
+	//starField->resetRotation();
+	//starField->rotate(g_camera.m_qRotation);
+	//starField->draw(g_drawType, g_shipCamera, g_light, le);
+	//glUniform1i(fogFlag, 1);
 
 	// Draw the thrusters
 	thruster->drawScene(&g_shipCamera,g_vessel->m_position);
@@ -231,8 +233,8 @@ void callbackDisplay()
 	}
 
 	vec3 pos = g_camera.m_position - g_camera.m_zAxis * 12.0f - g_camera.m_yAxis * 2.0f;
-	//vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
-	//pos = vec3(pos2.x, pos2.y, pos2.z);
+	vec4 pos2 = Translate(0.0f, 1.0 * g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y, 0.0f) * pos;
+	pos = vec3(pos2.x, pos2.y, pos2.z);
 	vec3 a = Quaternion(vec3(0.0f, -1.0f, 0.0f), 40.0f * (g_vessel->getVelocity().x / g_vessel->MAX_VELOCITY)) * vec3(0.0, 0.0, 1.0);
 	vec3 b = Quaternion(vec3(1.0f, 0.0f, 0.0f), 50.0f * (g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y)) * vec3(0.0, 0.0, 1.0);
 	vec4 ab = normalize(vec4(a.x + b.x, a.y + b.y, a.z + b.z, 0.0));
@@ -285,11 +287,13 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case 'f': g_keyPress[KEY_F] = true; break;
 		case 'e': g_keyPress[KEY_E] = true; break;
 		case SPACE_KEY: {
-			if((glutGet(GLUT_ELAPSED_TIME) - lastFired) < 150)
+			if((glutGet(GLUT_ELAPSED_TIME) - gLastFired) < 150)
 				return;
-			lastFired = glutGet(GLUT_ELAPSED_TIME);
-			if (g_laserIndex == MAX_LASERS)
+			gLastFired = glutGet(GLUT_ELAPSED_TIME);
+			if (g_laserIndex == MAX_LASERS) {
 				g_laserIndex = 0;
+				--g_numLasers;
+			}
 			g_lasers[g_laserIndex]->init();
 			g_sound->playSound("laser.wav", 1.0, 0);
 			++g_laserIndex;
@@ -338,6 +342,8 @@ void callbackSpecialUp(int key, int x, int y)
 // Called when the system is idle. Can be called many times per frame.
 void callbackIdle()
 {
+	calculateFPS();
+	glutPostRedisplay();
 }
 
 // Called when a mouse button is pressed or released
@@ -368,12 +374,6 @@ void callbackTimer(int)
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
 }
 
-//void callbackThrusterTimer(int) {
-//		thruster->getEngine()->advance(25.0f / 1000.0f);
-//		glutPostRedisplay();
-//		glutTimerFunc(25.0f, callbackThrusterTimer, 0);
-//}
-
 void initCallbacks()
 {
 	glutDisplayFunc(callbackDisplay);
@@ -383,10 +383,7 @@ void initCallbacks()
 	glutMouseFunc(callbackMouse);
 	glutMotionFunc(callbackMotion);
 	glutPassiveMotionFunc(callbackPassiveMotion);
-	//glutIdleFunc(callbackIdle);
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
-	//glutTimerFunc(UPDATE_DELAY, callbackThrusterTimer, 0);
-
 	glutSpecialFunc(callbackSpecial);
 	glutSpecialUpFunc(callbackSpecialUp);
 }
@@ -417,8 +414,6 @@ void init() {
 	g_program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(g_program); 
 
-	//g_light = (Light*)malloc(sizeof(Light) * LIGHTSOURCECOUNT);
-
 	// Bad style, to make fragment shader work with thrusters
 	GLuint uIsThruster = glGetUniformLocation(g_program, "uIsThruster");
 	glUniform1i(uIsThruster, 0);
@@ -430,7 +425,7 @@ void init() {
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 3000.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
 
-	tempShip = new Cube(g_program, NONE);
+	/*tempShip = new Cube(g_program, NONE);
 	tempShip->setupLighting(20.0, vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0), vec4(0.1, 1.0, 0.1, 1.0));
 	tempShip->initDraw();
 
@@ -445,15 +440,14 @@ void init() {
 	bb = new BoundingBox();
 	bb->setHalfWidths(15.0, 15.0, 15.0);
 	greenStar->m_shape = bb;
-	greenStar->translate(0.0, -2000.0, 0.0);
+	greenStar->translate(0.0, -2000.0, 0.0);*/
 
 	starField = new Background(g_program, &g_shipCamera, "./models/background/", FLAT);
 	starField->loadModel("sphere1922.obj", true);
-	//starField->setupLighting();
 	starField->setupTexture(REGULAR, TRILINEAR, REPEAT);
 	starField->initDraw();
 	starField->scale(2700);
-
+	
 	g_vessel = new Vessel(g_program, &g_camera, "./models/ship/", GOURAUD);
 	g_vessel->loadModel("ship.obj", true);
 	g_vessel->setupLighting();
@@ -466,35 +460,33 @@ void init() {
 	bb->setCenter(vec3(0.0, 0.0, 1500.0));
 	g_vessel->m_shape = bb;
 
+	float sc;
 	// Create the papa asteroid - bloops depend on this, don't ever delete it
 	gPapaAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
 	gPapaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
-	float sc = 1.0;
+	sc = 1.0;
 	gPapaAsteroid->scale(sc);
 	gPapaAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
 	gPapaAsteroid->initDraw();
 	bs = new BoundingSphere();
 	bs->m_radius = sc;
 	gPapaAsteroid->m_shape = bs;
-	//gPapaAsteroid->translate(0.0, 0.0, -500.0);
+	gPapaAsteroid->translate(5.0, 0.0, -10.0);
 
-	// Create the mama asteroid - bloops depend on this, don't ever delete it
+	//// Create the mama asteroid - bloops depend on this, don't ever delete it
 	gMamaAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
-	//gMamaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
 	gMamaAsteroid->loadModel("asteroid_sphere272v1.obj", true);
 	sc = 1.0;
 	gMamaAsteroid->scale(sc);
 	gMamaAsteroid->setupTexture(BUMP, TRILINEAR, REPEAT);
 	gMamaAsteroid->initDraw();
-
 	bs = new BoundingSphere();
 	bs->m_radius = sc;
 	gMamaAsteroid->m_shape = bs;
-	//gMamaAsteroid->translate(0.0, 0.0, -500.0);
+	gMamaAsteroid->translate(0.0, 0.0, -10.0);
 
 	// Create the uncle asteroid - bloops depend on this, don't ever delete it
 	gUncleAsteroid = new ExternalModel(g_program, "./models/asteroid", PHONG);
-	//gMamaAsteroid->loadModel("asteroid_sphere72_v1.obj", true);
 	gUncleAsteroid->loadModel("asteroid_sphere272v2.obj", true);
 	sc = 1.0;
 	gUncleAsteroid->scale(sc);
@@ -503,7 +495,7 @@ void init() {
 	bs = new BoundingSphere();
 	bs->m_radius = sc;
 	gUncleAsteroid->m_shape = bs;
-	//gMamaAsteroid->translate(0.0, 0.0, -500.0);
+	gUncleAsteroid->translate(-5.0, 0.0, -10.0);
 
 	// Create an array of random rotation quaternions used by bloop asteroids
 	Quaternion *q[NUM_ASTEROID_ROTATIONS];
@@ -547,12 +539,12 @@ void init() {
 
 	// Instance speed lines
 	for (int i = 0; i < SPEED_LINE_COUNT; ++i) {
-		speedLine[i] = new Line(g_program, 0.1);
+		gSpeedLine[i] = new Line(g_program, 0.1);
 		sc = 10.0f + (rand() % 500 / 10.0f);
-		speedLine[i]->scale(sc);
-		speedLine[i]->setupLighting(1.0, vec4(0.7, 0.7, 0.7, 1.0), vec4(0.7, 0.7, 0.7, 1.0), vec4(0.7, 0.7, 0.7, 1.0));
-		speedLine[i]->initDraw();
-		speedLine[i]->resetPosition();
+		gSpeedLine[i]->scale(sc);
+		gSpeedLine[i]->setupLighting(1.0, vec4(0.7, 0.7, 0.7, 1.0), vec4(0.7, 0.7, 0.7, 1.0), vec4(0.7, 0.7, 0.7, 1.0));
+		gSpeedLine[i]->initDraw();
+		gSpeedLine[i]->resetPosition();
 	}
 
 	xhair1 = new Cube(g_program, NONE);
@@ -570,7 +562,7 @@ void init() {
 	xhair2->scale(3.0);
 
 
-	//g_lasers = (Laser*) malloc(sizeof(Laser*) * MAX_LASERS);
+	
 	for (int i = 0; i < MAX_LASERS; ++i) {
 		g_lasers[i] = new Laser(g_program, g_vessel, &g_camera);
 		bs = new BoundingSphere();
@@ -578,7 +570,7 @@ void init() {
 		g_lasers[i]->m_shape = bs;
 	}
 	//g_lasers = new std::vector<Laser>(MAX_LASERS, Laser(g_program, g_vessel, &g_camera));
-
+	
 	// Create particle system
 	thruster = new ParticleSystem(THRUSTERS, vec3(0.0,0.0,2.25), g_program, &g_shipCamera);
 	thruster->initDraw();

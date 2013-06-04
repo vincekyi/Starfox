@@ -14,11 +14,13 @@ uniform float uShininess;
 uniform int uShadingType;
 uniform sampler2D uTexture;
 
+// 1 for light source + number of lasers
 uniform int uNumLights;
-uniform vec4 uAmbientProduct[15];
-uniform vec4 uDiffuseProduct[15];
-uniform vec4 uSpecularProduct[15];
-uniform float uAttenuation[15];
+const int constNumLights = 16;
+uniform vec4 uAmbientProduct[constNumLights];
+uniform vec4 uDiffuseProduct[constNumLights];
+uniform vec4 uSpecularProduct[constNumLights];
+uniform float uAttenuation[constNumLights];
 
 // 0: no texture
 // 1: regular texture
@@ -66,7 +68,8 @@ vec3 perturb_normal( vec3 N, vec3 V, vec2 atexcoord )
 
 void main() 
 {
-	outColor = vec4(0.0, 0.0, 0.0, 1.0);
+	outColor = vec4(1.0, 1.0, 1.0, 1.0);
+	//outColor = vec4(0.0, 0.0, 0.0, 1.0);
 
 	if (uShadingType < 3) {
 		if (uUseTexture == 1) {
@@ -83,7 +86,7 @@ void main()
 
         N = normalize(fN);
         V = normalize(fV);
-		for (int i = 0; i < uNumLights; i++) {
+		/*for (int i = 0; i < uNumLights; i++) {
 			L = normalize(fL[i]);
 			H = normalize(L + V);
 			float distance = (pow(fL[i].x, 2) + pow(fL[i].y, 2) + pow(fL[i].z, 2)) * uAttenuation[i];
@@ -113,12 +116,13 @@ void main()
 				specular = vec4(0.0, 0.0, 0.0, 1.0);
 			}
 			outColor += ambient + diffuse + specular;
-		}
+		}*/
         outColor.a = 1.0;
     }
 
-	vec4 fogColor = fogFactor * uFogColor;
+	/*vec4 fogColor = fogFactor * uFogColor;
 	if(fogFlag == 1){
 		outColor = outColor  * fogFactor + fogColor * (1.0 - fogFactor); 
-	}
+	}*/
+	//outColor = vec4(1.0, 1.0, 1.0, 1.0);
 } 

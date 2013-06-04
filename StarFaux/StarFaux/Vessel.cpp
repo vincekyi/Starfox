@@ -65,6 +65,7 @@ void Vessel::updateMovement() {
 		lastShake = Quaternion();
 	}
 	m_lastUpdateTime = currentTime;
+
 }
 
 void Vessel::updateVelocity(float dTime) {
