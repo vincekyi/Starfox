@@ -27,8 +27,9 @@
 #define ESC_KEY 27
 #define SPACE_KEY 32
 #define TARGET_FPS 100
-#define BLOOPCOUNT 300
+#define BLOOPCOUNT 1000
 const int NUM_PARENT_ASTEROIDS = 3;
+const int NUM_ASTEROID_ROTATIONS = 36;
 
 #define LIGHTSOURCECOUNT 2
 #define MUSICGAIN 0.5f
