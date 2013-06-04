@@ -142,13 +142,13 @@ class ParticleEngine {
 			p->color = curColor();
 
 			if(type == EXPLOSIONS){
-				p->velocity = ((rand() % 100)/ 10.0) * normalize(vec3(float(rand()%200)-100,float(rand()%200)-100,float(rand()%200)-100));
+				p->velocity = ((rand() % 5000)/ 10.0) * normalize(vec3(float(rand()%200)-100,float(rand()%200)-100,float(rand()%200)-100));
 				p->timeAliveExplosion = 0;
 				p->lifespanExplosion = 20+(rand()%200);
 			}
 
 			if(type == THRUSTERS){
-				p->velocity = curVelocity() + vec3(2.5f * randomFloat() - 1.25f,
+				p->velocity = curVelocity() + vec3(5.0f * randomFloat() - 2.5f,
 												2.5f * randomFloat() - 1.25f,
 												2.5f * randomFloat() - 1.25f)+velOffset;
 				p->timeAliveThruster = 0;
@@ -211,7 +211,7 @@ class ParticleEngine {
 			if(type == THRUSTERS)
 				particleSize = 0.05;
 			if(type == EXPLOSIONS)
-				particleSize = 0.25;
+				particleSize = 3.25;
 
 			for(int i = 0; i < NUM_PARTICLES; i++) {
 				createParticle(particles + i);
@@ -308,7 +308,7 @@ class ParticleEngine {
 				
 				if(type == EXPLOSIONS){
 					GLuint fColor = glGetUniformLocation( m_prog, "uThrustColor");
-					glUniform4fv(fColor, 1, vec4(1, 1,1, 1.0));
+					glUniform4fv(fColor, 1, vec4(0.7 + randomFloat() * 0.3, 0.2 + randomFloat() * 0.5 ,0.0, 1.0));
 					if(p->timeAliveExplosion < p->lifespanExplosion) {
 						glDrawArrays(GL_QUADS, 4*i, 4);
 					}
@@ -316,7 +316,7 @@ class ParticleEngine {
 				
 				if(type == THRUSTERS){
 					GLuint fColor = glGetUniformLocation( m_prog, "uThrustColor");
-					glUniform4fv(fColor, 1, vec4(0, 255, 255, 1.0));
+					glUniform4fv(fColor, 1, vec4(0, 0.2 + 0.8*randomFloat(), 0.2 + 0.8*randomFloat(), 1.0));
 					glDrawArrays(GL_QUADS, 4*i, 4);
 				}
 
@@ -379,8 +379,8 @@ public:
 	void drawScene(Camera* cam, vec3 shipPos) {
 
 		if(m_type == THRUSTERS){
-			particleEnginePtr->xStrt = 2.9*shipPos.x;
-			particleEnginePtr->yStrt = -shipPos.y;
+			particleEnginePtr->xStrt = 2.8*shipPos.x;
+			particleEnginePtr->yStrt = -0.5*shipPos.y + -abs(0.1*shipPos.x);
 			particleEnginePtr->velOffset = 10*vec3(shipPos.x,shipPos.y,shipPos.z);
 
 			//particleEnginePtr->zStrt = shipPos.z;

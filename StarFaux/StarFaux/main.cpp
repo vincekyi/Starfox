@@ -186,6 +186,7 @@ void callbackDisplay()
 	// Draw all bloop asteroids
 	for (int i = 0; i < BLOOPCOUNT; ++i) {
 		if (asteroidAlive[i]) {
+			bloop[i]->rotate(*(q[i % NUM_ASTEROID_ROTATIONS]));
 			bloop[i]->draw(g_drawType, g_camera, g_light, le);
 			if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
 				g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1000);
@@ -204,7 +205,9 @@ void callbackDisplay()
 						if (g_partExplodeIndex == MAXEXPLOSIONCOUNT)
 							g_partExplodeIndex = 0;
 						//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(bloop[i]->m_position.x, bloop[i]->m_position.y, bloop[i]->m_position.z);
-						g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(0.0, 0.0, -20.0);
+						//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(2.0*bloop[i]->m_position.x, 1.155*-bloop[i]->m_position.y, 1.11*bloop[i]->m_position.z);
+						g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(2.0*g_lasers[j]->m_position.x, 1.155*-g_lasers[j]->m_position.y, 1.11*g_lasers[j]->m_position.z);
+						//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(0.0, 0.0, -20.0);
 						asteroidAlive[i] = false;
 						g_partExplodeIndex++;
 					}	
@@ -296,6 +299,15 @@ void callbackKeyboard(unsigned char key, int x, int y)
 			++g_numLasers;
 			break;
 		}
+		case 'x': {
+			if (g_partExplodeIndex == MAXEXPLOSIONCOUNT)
+				g_partExplodeIndex = 0;
+				//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(2.0*bloop[i]->m_position.x, 1.155*-bloop[i]->m_position.y, 1.155*bloop[i]->m_position.z);
+				g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(2.0* g_camera.m_position.x, 1.155*-g_camera.m_position.y, 2.0*(g_camera.m_position.z - 20.0f));
+				g_partExplodeIndex++;	
+				break;
+		}
+		case 'c': g_camera.m_position.x += 10.0; break;
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
 		case '0': g_debug = !g_debug; break;
 		case 'p': g_animate = !g_animate; break;
@@ -425,7 +437,7 @@ void init() {
 
 
 	g_camera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 4000.0);
-	g_camera.translate(vec3(0.0, 0.0, 1000.0));
+	g_camera.translate(vec3(0.0, 0.0, 100.0));
 
 	g_shipCamera.init(45.0, (double) g_windowWidth/g_windowHeight, 0.1, 3000.0);
 	g_shipCamera.translate(vec3(0.0, 2.0, 10.0));
@@ -506,14 +518,9 @@ void init() {
 	//gMamaAsteroid->translate(0.0, 0.0, -500.0);
 
 	// Create an array of random rotation quaternions used by bloop asteroids
-	Quaternion *q[NUM_ASTEROID_ROTATIONS];
-	vec3 axis[3];
-	axis[0] = vec3(1.0, 0.0, 0.0);
-	axis[1] = vec3(0.0, 1.0, 0.0);
-	axis[2] = vec3(0.0, 0.0, 1.0);
 	for (int i = 0; i < NUM_ASTEROID_ROTATIONS; ++i) {
 		int rotIndex = rand() % 3;
-		q[i] = new Quaternion(axis[rotIndex], rand() % 360);
+		q[i] = new Quaternion(vec3(((rand() % 200) - 100) / 100.0, ((rand() % 200) - 100) / 100.0, ((rand() % 200) - 100) / 100.0), ((rand() % 10) + 2)/30.0);
 	}
 
 	// Instance many asteroids from the parent asteroids
@@ -528,21 +535,17 @@ void init() {
 			bloop[i] = new ExternalModel(*gUncleAsteroid);
 		}
 
-		sc = 10.0f + (rand() % 500 / 10.0f);
+		sc = 10.0f + (rand() % 300 / 10.0f);
 		bloop[i]->scale(sc);
 		bs = new BoundingSphere();
-		bs->m_radius = sc;
+		bs->m_radius = sc*1.1f;
 		bloop[i]->m_shape = bs;
 		bloop[i]->setupTexture(BUMP, TRILINEAR, REPEAT);
 		bloop[i]->translate(rand() % 4000 - 2000, rand() % 4000 - 2000, rand() % 4000 - 2000);
+		//bloop[i]->translate(0.0, 1000.0, -100.0);
 		// Start with random rotation
-		int randRotationIndex = rand() % NUM_ASTEROID_ROTATIONS;
-		bloop[i]->rotate(*(q[randRotationIndex]));
-	}
-
-	// free rotation memory
-	for (int i = 0; i < NUM_ASTEROID_ROTATIONS; ++i) {
-		delete q[i];
+		//int randRotationIndex = rand() % NUM_ASTEROID_ROTATIONS;
+		
 	}
 
 	// Instance speed lines
@@ -585,7 +588,7 @@ void init() {
 	
 	g_explosion = (ParticleSystem**)malloc(sizeof(ParticleSystem*) * MAXEXPLOSIONCOUNT);
 	for (int i = 0; i < MAXEXPLOSIONCOUNT; i++) {
-		g_explosion[i] = new ParticleSystem(EXPLOSIONS, vec3((float)(i*5.0),0.0,-20.0), g_program, &g_shipCamera);
+		g_explosion[i] = new ParticleSystem(EXPLOSIONS, vec3((float)(i*5.0),0.0,400.0), g_program, &g_camera);
 		g_explosion[i]->initDraw();
 	}
 	

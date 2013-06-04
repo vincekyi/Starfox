@@ -20,7 +20,7 @@ void Laser::init() {
 	rot.w = -m_camera->m_qRotation.w;
 	resetRotation();
 	rotate(rot*m_vessel->m_qRotation);
-	m_velocity = -5.0 * (a + b);
+	m_velocity = -10.0 * (a + b);
 	m_lifespan = 100;
 	m_timeAlive = 0;
 	m_active = true;

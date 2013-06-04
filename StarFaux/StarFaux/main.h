@@ -37,7 +37,7 @@ const int NUM_ASTEROID_ROTATIONS = 36;
 #define SPEED_LINE_COUNT 10
 
 const int SPEED_LINE_SPEED = 2.0;
-#define BLOOPCOUNT 200
+#define BLOOPCOUNT 400
 #define LIGHTSOURCECOUNT 1
 #define MAX_LASERS 15
 
@@ -100,3 +100,4 @@ ParticleSystem *thruster;
 int g_partExplodeIndex = 0;
 ParticleSystem **g_explosion;
 
+Quaternion *q[NUM_ASTEROID_ROTATIONS];
