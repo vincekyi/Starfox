@@ -256,7 +256,8 @@ class ParticleEngine {
 			for(int i = 0; i<NUM_PARTICLES; i++){
 				Particle* p = ps[i];
 				float size = particleSize / 2;
-				vec3 pos = adjParticlePos(p->pos);
+				vec3 pos = p->pos;
+				//vec3 pos = adjParticlePos(p->pos);
 
 				enginePoints[4*i] = point4(pos[0] -size, -(pos[1] - size), pos[2], 1.0);
 				engine_tex_coords[4*i] = vec2(0, 0);
@@ -293,14 +294,18 @@ class ParticleEngine {
 
 		void draw(){
 			
-			texDraw();
+			//texDraw();
 			createSystem();
 			glBindVertexArray( m_engineVao );
 			glBindBuffer(GL_ARRAY_BUFFER,m_engineBuffer);
-			glBufferData( GL_ARRAY_BUFFER, sizeof(enginePoints[0])*NumVertices + sizeof(engine_tex_coords[0])*NumVertices, NULL, GL_STATIC_DRAW );
+			glBufferData( GL_ARRAY_BUFFER, sizeof(enginePoints[0])*NumVertices + sizeof(engine_tex_coords[0])*NumVertices + sizeof(vec3)*NumVertices, NULL, GL_STATIC_DRAW );
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(enginePoints[0])*NumVertices, enginePoints);
 			glBufferSubData(GL_ARRAY_BUFFER, sizeof(enginePoints[0])*NumVertices, sizeof(engine_tex_coords[0])*NumVertices, engine_tex_coords);
-			
+			vec3 norms[NumVertices];
+			for (int i = 0; i < NumVertices; i++) {
+				norms[i] = vec3();
+			}
+			glBufferSubData(GL_ARRAY_BUFFER, sizeof(enginePoints[0])*NumVertices + sizeof(engine_tex_coords[0])*NumVertices, sizeof(vec3)*NumVertices, norms);
 			
 			Particle* p = particles;
 
@@ -373,14 +378,26 @@ public:
 		GLuint vPosition = glGetAttribLocation( m_program, "vPosition" );
 		glEnableVertexAttribArray( vPosition );
 		glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+		GLuint vTexCoord = glGetAttribLocation( m_program, "vTexCoords" );
+		glEnableVertexAttribArray( vTexCoord );
+		
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+
+		glVertexAttribPointer( vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(points[0])*NumVertices) );
+
+		GLuint normals = glGetAttribLocation( m_program, "vNormals" );
+		glEnableVertexAttribArray( normals );
+		glVertexAttribPointer( normals, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(points[0])*NumVertices + sizeof(tex_coords[0])*NumVertices));
+
 		//}
 	}
 
 	void drawScene(Camera* cam, vec3 shipPos) {
 
 		if(m_type == THRUSTERS){
-			particleEnginePtr->xStrt = 2.8*shipPos.x;
-			particleEnginePtr->yStrt = -0.5*shipPos.y + -abs(0.1*shipPos.x);
+			particleEnginePtr->xStrt = 1.4*shipPos.x;
+			particleEnginePtr->yStrt = -0.5*shipPos.y + -abs(0.15*shipPos.x);
 			particleEnginePtr->velOffset = 10*vec3(shipPos.x,shipPos.y,shipPos.z);
 
 			//particleEnginePtr->zStrt = shipPos.z;

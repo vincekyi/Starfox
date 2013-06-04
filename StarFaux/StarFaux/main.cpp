@@ -108,7 +108,10 @@ void callbackDisplay()
 			speedLine[i]->resetTranslation();
 			speedLine[i]->resetPosition();
 		}
-		speedLine[i]->translate(0.0, 0.0, SPEED_LINE_SPEED);
+		speedLine[i]->resetRotation();
+		speedLine[i]->rotate(g_vessel->m_qRotation);
+		vec3 linet = g_vessel->m_qRotation * vec3(0.0, 0.0, SPEED_LINE_SPEED);
+		speedLine[i]->translate(linet.x, linet.y, linet.z);
 	}	
 
 	g_music->checkLoopTimer("starfox_theme.wav", MUSICGAIN);
@@ -206,7 +209,7 @@ void callbackDisplay()
 							g_partExplodeIndex = 0;
 						//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(bloop[i]->m_position.x, bloop[i]->m_position.y, bloop[i]->m_position.z);
 						//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(2.0*bloop[i]->m_position.x, 1.155*-bloop[i]->m_position.y, 1.11*bloop[i]->m_position.z);
-						g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(2.0*g_lasers[j]->m_position.x, 1.155*-g_lasers[j]->m_position.y, 1.11*g_lasers[j]->m_position.z);
+						g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(g_lasers[j]->m_position.x, -g_lasers[j]->m_position.y, g_lasers[j]->m_position.z);
 						//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(0.0, 0.0, -20.0);
 						asteroidAlive[i] = false;
 						g_partExplodeIndex++;
