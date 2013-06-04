@@ -21,6 +21,7 @@
 #include "AL/al.h" 
 #include "AL/alc.h" 
 #include "AL/alut.h"
+#include "Background.h"
 
 
 #define ESC_KEY 27
@@ -58,6 +59,7 @@ Camera g_camera;
 Camera g_shipCamera;
 Light* g_light;
 Vessel* g_vessel;
+Background* starField;
 
 Cube* tempShip;
 Cube* greenStar;
