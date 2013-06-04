@@ -164,7 +164,7 @@ void callbackDisplay()
 	}
 
 	for (int i = 0; i < MAX_LASERS; ++i) {
-		if (!g_lasers[i]->dead() && g_lasers[i]->m_active) {
+		if ((!g_lasers[i]->dead()) && g_lasers[i]->m_active) {
 			g_lasers[i]->draw(g_drawType, g_camera, g_light, le);
 			g_lasers[i]->laser_update();
 		}
@@ -199,7 +199,7 @@ void callbackDisplay()
 							g_explosionIndex = 0;
 						std::cout << "BOOM BRAH" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 						g_exp[g_explosionIndex]->playSound("ship_asteriod_impact.wav", 1.0, 500);
-						g_lasers[j]->kill();
+						//g_lasers[j]->kill();
 						++g_explosionIndex;
 						if (g_partExplodeIndex == MAXEXPLOSIONCOUNT)
 							g_partExplodeIndex = 0;

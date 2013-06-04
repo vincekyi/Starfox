@@ -11,7 +11,7 @@ Sound::Sound(int numSounds, const char* baseDir) {
 	}
 
 	//-- UNOBJECT ORIENTED STYLE --
-	m_loopTimer = time(NULL);
+	m_loopTimer = glutGet(GLUT_ELAPSED_TIME);
 	m_audioLength = 0;
 	//-- UNOBJECT ORIENTED STYLE --
 
