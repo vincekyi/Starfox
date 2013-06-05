@@ -24,6 +24,7 @@ void calculateFPS() {
 }
 
 void debugDisplay() {
+	/*
 	// Position
 	char coords[100];
 	sprintf(coords, "x: %.2f\ny: %.2f\nz: %.2f\n", g_camera.m_position.x, g_camera.m_position.y - 2.0, g_camera.m_position.z - 10.0);
@@ -49,11 +50,13 @@ void debugDisplay() {
 	sprintf(fps, "FPS: %.2f", g_FPS);
 	glRasterPos2f(0.82f, 0.90f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) fps);
+	*/
 
-	char health[20];
-	sprintf(health, "Health: %i", g_vessel->m_health);
-	glRasterPos2f(-0.97f, -0.9f);
-	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) health);
+	char hud[100];
+	sprintf(hud, "Health: %i \t   Score: %d", g_vessel->m_health, g_score);
+	glRasterPos2f(-1.2, 0.0);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) hud);
 }
 
 void handleKeyDown() {
@@ -183,7 +186,7 @@ void callbackDisplay()
 	//if (g_vessel->m_shape->checkCollision(gMamaAsteroid->m_shape)) {
 	//	g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1);
 	//	std::cout << "BOOP3" << glutGet(GLUT_ELAPSED_TIME) <<  std::endl;
-	//	g_vessel->shake();
+	//	g_vessel->shake();d
 	//}
 
 	// Draw all bloop asteroids
@@ -193,6 +196,7 @@ void callbackDisplay()
 			bloop[i]->draw(g_drawType, g_camera, g_light, le);
 			if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
 				g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1000);
+				//asteroidAlive[i] = false;
 				std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 				g_vessel->shake();
 			}
@@ -213,6 +217,7 @@ void callbackDisplay()
 						//g_explosion[g_partExplodeIndex]->getEngine()->createNewInstance(0.0, 0.0, -20.0);
 						asteroidAlive[i] = false;
 						g_partExplodeIndex++;
+						g_score += 20;
 					}	
 				}
 			}
@@ -230,7 +235,7 @@ void callbackDisplay()
 	glUniform1i(fogFlag, 1);
 
 	// Draw the thrusters
-	thruster->drawScene(&g_shipCamera,g_vessel->m_position);
+	
 
 	for (int i = 0; i < MAXEXPLOSIONCOUNT; i++) {
 		g_explosion[i]->drawScene(&g_shipCamera,g_vessel->m_position);
@@ -243,13 +248,39 @@ void callbackDisplay()
 	vec3 b = Quaternion(vec3(1.0f, 0.0f, 0.0f), 50.0f * (g_vessel->getVelocity().y / g_vessel->MAX_VELOCITY_Y)) * vec3(0.0, 0.0, 1.0);
 	vec4 ab = normalize(vec4(a.x + b.x, a.y + b.y, a.z + b.z, 0.0));
 	vec3 ab1 = vec3(ab.x, ab.y, ab.z);
-	xhair1->setPosition(-10 * (ab1));
-	xhair2->setPosition(-100 * (ab1));
+	if (g_shipAlive == 1) {
+		xhair1->setPosition(-10 * (ab1));
+		xhair2->setPosition(-100 * (ab1));
+		glDisable(GL_DEPTH_TEST);
+		xhair1->draw(MESH, g_shipCamera, g_light, le);
+		xhair2->draw(MESH, g_shipCamera, g_light, le);
+		glEnable(GL_DEPTH_TEST);
+	}
+	if (g_shipAlive == 1) {
+		g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
+		thruster->drawScene(&g_shipCamera,g_vessel->m_position);
+	}
+	
+
+	if (g_debug && g_shipAlive == 1) {
+		glDisable(GL_DEPTH_TEST);
+		g_menu->draw(g_drawType, g_shipCamera, g_light, le);
+		debugDisplay();
+		glEnable(GL_DEPTH_TEST);
+	}
+
 	glDisable(GL_DEPTH_TEST);
-	xhair1->draw(MESH, g_shipCamera, g_light, le);
-	xhair2->draw(MESH, g_shipCamera, g_light, le);
+	g_shipExplosion->drawScene(&g_shipCamera,g_vessel->m_position);
+	if (g_vessel->m_health == 10) {
+		vec3 ff = vec3(10.4 * g_vessel->getVelocity().x / g_vessel->MAX_VELOCITY,0.0f, 0.0f);
+		g_shipExplosion->getEngine()->createNewInstance(-ff.x, 10.0, -50.0);
+		//g_vessel->shake();
+	}
 	glEnable(GL_DEPTH_TEST);
-	g_vessel->draw(g_drawType, g_shipCamera, g_light, le);
+
+	if (g_vessel->m_health == 0) {
+		g_shipAlive = 0;
+	}
 
 	delete [] le.ambientProducts;
 	delete [] le.diffuseProducts;
@@ -257,11 +288,6 @@ void callbackDisplay()
 	delete [] le.lightPositions;
 	delete [] le.attenuations;
 	delete [] g_light;
-
-
-	if (g_debug) 
-		debugDisplay();
-
 
 	calculateFPS();
 	glutSwapBuffers();
@@ -314,6 +340,13 @@ void callbackKeyboard(unsigned char key, int x, int y)
 		case '1': g_drawType = (g_drawType == FILLED ? MESH : FILLED); break;
 		case '0': g_debug = !g_debug; break;
 		case 'p': g_animate = !g_animate; break;
+		case 'l': {
+			g_vessel->m_health = 100; 
+			g_shipAlive = 1; 
+			g_score = 0;
+			g_camera.m_position = vec3();
+			break;
+				  }
 	}
 }
 
@@ -378,6 +411,7 @@ void callbackTimer(int)
 		for (int i = 0; i < MAXEXPLOSIONCOUNT; i++) {
 			g_explosion[i]->getEngine()->advance(UPDATE_DELAY / 1000.0f);
 		}
+		g_shipExplosion->getEngine()->advance(UPDATE_DELAY / 1000.0f);
 		glutPostRedisplay();
 	}
 	glutTimerFunc(UPDATE_DELAY, callbackTimer, 0);
@@ -594,7 +628,17 @@ void init() {
 		g_explosion[i] = new ParticleSystem(EXPLOSIONS, vec3((float)(i*5.0),0.0,400.0), g_program, &g_camera);
 		g_explosion[i]->initDraw();
 	}
-	
+	g_shipExplosion = new ParticleSystem(EXPLOSIONS, vec3(0.0,0.0,400.0), g_program, &g_shipCamera);
+	g_shipExplosion->initDraw();
+
+	g_menu = new PsuedoMenu(g_program, FLAT, 0.5, 2.43);
+	g_menu->initDraw();
+	g_menu->setupLighting(20.0, vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
+	//g_menu->setupTexture(BUMP, TRILINEAR, REPEAT, "BLANK.tga");
+	//g_menu->scale(vec3(1.0, 1.0, 1.0));
+	g_menu->translate(-6.15, -2.0, 0.0);
+
+
 	g_vessel->setAccelerationZ(-0.01);
 	//glClearColor( 1.0, 1.0, 1.0, 1.0 ); // white background
 	glClearColor( 0.0, 0.0, 0.0, 0.0 ); // black background

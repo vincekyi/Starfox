@@ -72,6 +72,11 @@ void main()
 		if (uUseTexture == 1) {
 			if (uIsThruster == 1) {
 				outColor = uThrustColor * texture2D(uTexture, texCoord).bgra;
+				vec2 alphaChannel = texCoord;
+				alphaChannel.x -= 0.5;
+				alphaChannel.y -= 0.5;
+				alphaChannel *= 2.0;
+				outColor.w = 1.0 - length(alphaChannel);
 			} else {
 				outColor = fColor * texture2D(uTexture, texCoord);
 			}

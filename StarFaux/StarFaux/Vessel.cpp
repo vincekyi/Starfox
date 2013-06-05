@@ -130,5 +130,6 @@ void Vessel::shake() {
 	if (m_shakeCount < 40) {
 		lastShake = Quaternion();
 		m_shakeCount = 60;
+		
 	}
 }

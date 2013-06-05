@@ -17,8 +17,8 @@
 
 #include "Thruster.h"
 #include "Line.h"
-
 #include "Sound.h"
+#include "PsuedoMenu.h"
 
 #include "AL/al.h" 
 #include "AL/alc.h" 
@@ -54,6 +54,8 @@ float g_FPS;
 int g_frameCount;
 float g_currentTime = 0;
 float g_previousTime = 0;
+
+int g_score = 0;
 
 bool g_animate = true;
 bool g_debug = true;
@@ -99,5 +101,10 @@ Laser* g_lasers[MAX_LASERS];
 ParticleSystem *thruster;
 int g_partExplodeIndex = 0;
 ParticleSystem **g_explosion;
+ParticleSystem* g_shipExplosion;
+
+int g_shipAlive = 1;
 
 Quaternion *q[NUM_ASTEROID_ROTATIONS];
+
+PsuedoMenu* g_menu;
