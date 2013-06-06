@@ -366,7 +366,7 @@ public:
 		particleEnginePtr->passVao(m_vao,m_buffer);
 
 		//if (m_type != EXPLOSIONS) {
-		glBufferData( GL_ARRAY_BUFFER, sizeof(points[0])*NumVertices + sizeof(tex_coords[0])*NumVertices, NULL, GL_STATIC_DRAW );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(points[0])*NumVertices + sizeof(tex_coords[0])*NumVertices + sizeof(vec3)*NumVertices, NULL, GL_STATIC_DRAW );
 
 		//points = particleEnginePtr->enginePoints;
 		//tex_coords = particleEnginePtr->engine_tex_coords;
@@ -386,7 +386,7 @@ public:
 
 		glVertexAttribPointer( vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(points[0])*NumVertices) );
 
-		GLuint normals = glGetAttribLocation( m_program, "vNormals" );
+		GLuint normals = glGetAttribLocation( m_program, "vNormal" );
 		glEnableVertexAttribArray( normals );
 		glVertexAttribPointer( normals, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(points[0])*NumVertices + sizeof(tex_coords[0])*NumVertices));
 

@@ -135,7 +135,6 @@ void callbackDisplay()
 	g_light[0].m_lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 	g_light[0].m_attenuation = 0.0000005;
 
-	std::cout << g_numLasers<< std::endl;
 	//g_light[1].m_position = tempShip->m_position;
 	//g_light[1].m_lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
 	//g_light[1].m_lightDiffuse = vec4(0.0, 0.6, 0.0, 1.0);
@@ -197,7 +196,6 @@ void callbackDisplay()
 			if (g_vessel->m_shape->checkCollision(bloop[i]->m_shape)) {
 				g_sound->playSound("ship_asteriod_impact.wav", 1.0, 1000);
 				//asteroidAlive[i] = false;
-				std::cout << "BOOP" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 				g_vessel->shake();
 			}
 			for (int j = 0; j < MAX_LASERS; ++j) {
@@ -205,7 +203,6 @@ void callbackDisplay()
 					if (bloop[i]->m_shape->checkCollision(g_lasers[j]->m_shape)) {
 						if (g_explosionIndex == 5)
 							g_explosionIndex = 0;
-						std::cout << "BOOM BRAH" << glutGet(GLUT_ELAPSED_TIME) << std::endl;
 						g_exp[g_explosionIndex]->playSound("ship_asteriod_impact.wav", 1.0, 500);
 						//g_lasers[j]->kill();
 						++g_explosionIndex;
@@ -289,6 +286,7 @@ void callbackDisplay()
 	delete [] le.attenuations;
 	delete [] g_light;
 
+	std::cout << g_vessel->m_health << std::endl;
 	calculateFPS();
 	glutSwapBuffers();
 }
